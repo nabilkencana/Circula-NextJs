@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-plus-jakarta-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --color-brand-neon: #D4E836;
+  --color-brand-neon-hover: #BFD42B;
+  --color-dark-container: #0D110C;
+  --color-dark-widget: #1F2819;
+  --color-surface-card: #FFFFFF;
+  --color-inset-gray: #F8F9F8;
+  --color-text-primary: #0F120E;
+  --color-text-secondary: #6B7268;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #0f120e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #ffffff;
+  color: #0f120e;
+  font-family: var(--font-plus-jakarta-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f8f9f8;
+}
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Print optimization for official thermal 80mm & A4 receipts */
+@media print {
+  @page {
+    margin: 0.5cm;
+    size: auto;
+  }
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  header,
+  footer,
+  nav {
+    display: none !important;
+  }
+  .print-receipt-sheet {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
