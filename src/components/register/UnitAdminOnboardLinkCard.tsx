@@ -17,10 +17,10 @@ export default function UnitAdminOnboardLinkCard() {
           Akses konsol verifikasi penimbangan, monitoring inventaris gudang, dan validasi transaksi.
         </p>
         <Link
-          href="/admin/login"
+          href="/admin/register"
           className="inline-flex items-center gap-1.5 text-xs font-bold text-text-primary hover:text-black mt-2.5 group"
         >
-          <span>Masuk Portal Admin</span>
+          <span>Daftarkan Unit Bank Sampah</span>
           <ArrowRight className="w-3.5 h-3.5 text-dark-container group-hover:translate-x-1 transition-transform" />
         </Link>
       </div>

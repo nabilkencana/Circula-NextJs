@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, Loader2, AlertCircle, ExternalLink } from "lucide-react";
 import UnitFieldGroups from "./UnitFieldGroups";
 import UnitComplianceCheckbox from "./UnitComplianceCheckbox";
+import RegisterRoleSegmentSwitcher from "@/components/register/RegisterRoleSegmentSwitcher";
 import { useRegisterAdminUnit } from "@/hooks/useRegisterAdminUnit";
 
 type UseRegisterAdminUnitReturn = ReturnType<typeof useRegisterAdminUnit>;
@@ -29,7 +30,10 @@ export default function AdminRegisterFormCard({
   } = controller;
 
   return (
-    <div className="bg-white rounded-3xl border border-gray-200 p-6 sm:p-8 lg:p-10 shadow-xs">
+    <div className="bg-white rounded-3xl border border-gray-200 border-t-4 border-t-brand-neon p-6 sm:p-8 lg:p-10 shadow-xs">
+      {/* 1. Role Segment Switcher (Nasabah vs Admin Unit) */}
+      <RegisterRoleSegmentSwitcher activeRole="admin" />
+
       {/* Form Header */}
       <div className="border-b border-gray-100 pb-6 mb-6">
         <h2 className="text-xl sm:text-[22px] font-bold text-text-primary tracking-tight">

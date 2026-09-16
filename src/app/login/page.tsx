@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import NavbarLogin from "@/components/layout/NavbarLogin";
+import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import LoginHero from "@/components/login/LoginHero";
 import LoginFormCard from "@/components/login/LoginFormCard";
@@ -15,8 +15,8 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans text-text-primary antialiased selection:bg-brand-neon selection:text-text-primary">
-      {/* Floating Frosted Navigation Bar */}
-      <NavbarLogin />
+      {/* Standardized Full-Width Sticky Navigation Bar */}
+      <Navbar />
 
       {/* Main Container */}
       <main className="flex-1">

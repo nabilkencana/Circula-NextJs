@@ -6,6 +6,7 @@ import { ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import ProfilePhotoUploadZone from "./ProfilePhotoUploadZone";
 import RegistrationFieldGroups from "./RegistrationFieldGroups";
 import TermsComplianceCheckbox from "./TermsComplianceCheckbox";
+import RegisterRoleSegmentSwitcher from "./RegisterRoleSegmentSwitcher";
 import { useRegisterNasabah } from "@/hooks/useRegisterNasabah";
 
 type UseRegisterNasabahReturn = ReturnType<typeof useRegisterNasabah>;
@@ -28,7 +29,10 @@ export default function RegisterFormCard({ controller }: RegisterFormCardProps) 
   } = controller;
 
   return (
-    <div className="bg-white rounded-3xl border border-gray-200 p-6 sm:p-8 lg:p-10 shadow-xs">
+    <div className="bg-white rounded-3xl border border-gray-200 border-t-4 border-t-brand-neon p-6 sm:p-8 lg:p-10 shadow-xs">
+      {/* 1. Role Segment Switcher (Nasabah vs Admin Unit) */}
+      <RegisterRoleSegmentSwitcher activeRole="nasabah" />
+
       {/* Header Section */}
       <div className="border-b border-gray-100 pb-6 mb-6 sm:mb-8">
         <h2 className="text-xl sm:text-2xl font-bold text-text-primary tracking-tight">

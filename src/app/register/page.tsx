@@ -17,8 +17,8 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans text-text-primary antialiased selection:bg-brand-neon selection:text-text-primary">
-      {/* Top Navbar with Guest/Auth configuration */}
-      <Navbar variant="auth" />
+      {/* Standardized Full-Width Sticky Navigation Bar */}
+      <Navbar />
 
       {/* Main Container */}
       <main className="flex-1">

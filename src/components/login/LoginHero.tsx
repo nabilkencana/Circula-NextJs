@@ -4,8 +4,8 @@ import { Lock, CheckCircle2, Zap } from "lucide-react";
 
 export default function LoginHero() {
   return (
-    <section className="px-4 sm:px-6">
-      <div className="max-w-7xl mx-auto mt-2 rounded-[28px] bg-dark-container overflow-hidden text-white border border-white/10 relative p-6 sm:p-8 md:p-12 shadow-2xl">
+    <section className="px-4 sm:px-6 pt-4 sm:pt-6">
+      <div className="max-w-7xl mx-auto rounded-[28px] bg-dark-container overflow-hidden text-white border border-white/10 relative p-6 sm:p-8 md:p-12 shadow-2xl">
         {/* Twilight industrial recycling backdrop */}
         <div className="absolute inset-0 z-0">
           <Image

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import NavbarAdminRegister from "@/components/layout/NavbarAdminRegister";
+import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AdminRegisterHero from "@/components/admin-register/AdminRegisterHero";
 import AdminRegisterFormCard from "@/components/admin-register/AdminRegisterFormCard";
@@ -15,8 +15,8 @@ export default function AdminRegisterPage() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans text-text-primary antialiased selection:bg-brand-neon selection:text-text-primary">
-      {/* Floating Frosted Navigation Bar */}
-      <NavbarAdminRegister />
+      {/* Standardized Full-Width Sticky Navigation Bar */}
+      <Navbar />
 
       {/* Main Page Content */}
       <main className="flex-1">
