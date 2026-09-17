@@ -56,7 +56,6 @@ export default function TransaksiTkrTableRow({
       <td className="py-4.5 px-6">
         {record.status === "diproses" && (
           <span className="inline-flex items-center gap-1.5 bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A] text-xs font-semibold px-3 py-1 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
             <span>Diproses</span>
           </span>
         )}

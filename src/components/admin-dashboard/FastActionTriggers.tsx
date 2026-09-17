@@ -36,7 +36,7 @@ export default function FastActionTriggers({
         <div className="w-5 h-5 rounded-full bg-dark-container flex items-center justify-center shrink-0">
           <Plus className="w-3.5 h-3.5 text-brand-neon stroke-3" />
         </div>
-        <span>+ Timbang Sampah Baru</span>
+        <span>Timbang Sampah Baru</span>
       </Link>
 
       {/* 2. Secondary Action: Pendaftaran Nasabah */}

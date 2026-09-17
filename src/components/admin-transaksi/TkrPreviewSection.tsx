@@ -85,7 +85,6 @@ export default function TkrPreviewSection({
             {sampleRecord.status === "diproses" ? (
               <>
                 <span className="inline-flex items-center gap-1.5 bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A] text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap shrink-0">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                   <span>Diproses</span>
                 </span>
                 <button

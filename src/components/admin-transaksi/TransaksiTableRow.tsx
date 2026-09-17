@@ -69,14 +69,12 @@ export default function TransaksiTableRow({
       <td className="py-4.5 px-6">
         {record.status === "menunggu_konfirmasi" && (
           <span className="inline-flex items-center gap-1.5 bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A] text-xs font-semibold px-3 py-1 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
             <span>Menunggu Konfirmasi</span>
           </span>
         )}
 
         {record.status === "diverifikasi" && (
           <span className="inline-flex items-center gap-1.5 bg-[#DBEAFE] text-[#1E40AF] border border-blue-200 text-xs font-semibold px-3 py-1 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
             <span>Diverifikasi</span>
           </span>
         )}
@@ -90,7 +88,6 @@ export default function TransaksiTableRow({
 
         {record.status === "ditolak" && (
           <span className="inline-flex items-center gap-1.5 bg-red-50 text-red-700 border border-red-200 text-xs font-semibold px-3 py-1 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
             <span>Ditolak</span>
           </span>
         )}

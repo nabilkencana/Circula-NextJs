@@ -58,7 +58,6 @@ export default function NavbarAdminConsole() {
         <div className="hidden sm:flex items-center gap-2.5 shrink-0">
           {/* Unit Status Pill */}
           <div className="bg-inset-gray border border-gray-200 px-3.5 py-1.5 rounded-full flex items-center gap-2 text-xs font-bold text-text-primary shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_#10B981]" />
             <Building2 className="w-3.5 h-3.5 text-gray-500" />
             <span>Bank Sampah Asri Jaya</span>
           </div>

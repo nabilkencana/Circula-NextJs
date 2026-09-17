@@ -9,10 +9,58 @@ const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
   "https://learn.smktelkom-mlg.sch.id/bank_sampah";
 
-const STR_STORAGE_KEY = "circula_admin_transaksi_str_v1";
+const STR_STORAGE_KEY = "circula_admin_transaksi_str_v2";
 const TKR_STORAGE_KEY = "circula_admin_transaksi_tkr_v1";
 
 export const INITIAL_STR_TRANSAKSI: TransaksiSetorAdminRecord[] = [
+  {
+    id: "STR-202608-1005",
+    kodeTransaksi: "STR-202608-1005",
+    tanggalWaktu: "26 Agu 2026, 10:40 WIB",
+    nasabahNama: "Agus Wijaya",
+    nasabahTelp: "087712349876",
+    rincianSampah: [
+      { namaKategori: "Kertas HVS & Arsip", berat: 5.2, isReal: false },
+      { namaKategori: "Botol PET", berat: 4.0, isReal: false },
+    ],
+    totalBerat: 9.2,
+    isRealWeight: false,
+    totalPoin: 78,
+    isEstimatedReward: true,
+    status: "menunggu_konfirmasi",
+  },
+  {
+    id: "STR-202608-1004",
+    kodeTransaksi: "STR-202608-1004",
+    tanggalWaktu: "26 Agu 2026, 10:25 WIB",
+    nasabahNama: "Rina Marlina",
+    nasabahTelp: "081298765432",
+    rincianSampah: [
+      { namaKategori: "Kaleng Aluminium", berat: 2.5, isReal: false },
+      { namaKategori: "Kaca", berat: 1.5, isReal: false },
+    ],
+    totalBerat: 4.0,
+    isRealWeight: false,
+    totalPoin: 32,
+    isEstimatedReward: true,
+    status: "menunggu_konfirmasi",
+  },
+  {
+    id: "STR-202608-1003",
+    kodeTransaksi: "STR-202608-1003",
+    tanggalWaktu: "26 Agu 2026, 10:15 WIB",
+    nasabahNama: "Hendro Prasetyo",
+    nasabahTelp: "081345678901",
+    rincianSampah: [
+      { namaKategori: "Minyak Jelantah", berat: 6.0, isReal: false },
+      { namaKategori: "Kardus", berat: 3.5, isReal: false },
+    ],
+    totalBerat: 9.5,
+    isRealWeight: false,
+    totalPoin: 85,
+    isEstimatedReward: true,
+    status: "menunggu_konfirmasi",
+  },
   {
     id: "STR-202608-1002",
     kodeTransaksi: "STR-202608-1002",
@@ -45,6 +93,22 @@ export const INITIAL_STR_TRANSAKSI: TransaksiSetorAdminRecord[] = [
     nilaiRupiah: 45000,
     isEstimatedReward: false,
     status: "selesai",
+  },
+  {
+    id: "STR-202608-0999",
+    kodeTransaksi: "STR-202608-0999",
+    tanggalWaktu: "25 Agu 2026, 16:30 WIB",
+    nasabahNama: "Siti Nurhaliza",
+    nasabahTelp: "082155667788",
+    rincianSampah: [
+      { namaKategori: "Kaca", berat: 8.0, isReal: false },
+      { namaKategori: "Kardus", berat: 4.2, isReal: false },
+    ],
+    totalBerat: 12.2,
+    isRealWeight: false,
+    totalPoin: 95,
+    isEstimatedReward: true,
+    status: "menunggu_konfirmasi",
   },
   {
     id: "STR-202608-0998",
@@ -166,11 +230,21 @@ function getAuthHeaders(): Record<string, string> {
 
 export async function getTransaksiSetorList(): Promise<TransaksiSetorAdminRecord[]> {
   if (typeof window !== "undefined") {
+    // Clear deprecated v1 cache
+    localStorage.removeItem("circula_admin_transaksi_str_v1");
+
     const stored = localStorage.getItem(STR_STORAGE_KEY);
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
+          const existingIds = new Set(parsed.map((item: TransaksiSetorAdminRecord) => item.id));
+          const missing = INITIAL_STR_TRANSAKSI.filter((item) => !existingIds.has(item.id));
+          if (missing.length > 0) {
+            const merged = [...missing, ...parsed];
+            saveTransaksiSetorList(merged);
+            return merged;
+          }
           return parsed;
         }
       } catch (e) {
