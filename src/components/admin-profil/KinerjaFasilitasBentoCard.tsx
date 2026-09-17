@@ -21,7 +21,7 @@ export default function KinerjaFasilitasBentoCard({
   const transaksi = unitData?.transaksiBulanIni ?? 38;
   const poin = unitData?.rewardTerdistribusiPoin ?? 4250;
   const rupiah = unitData?.rewardTerdistribusiRupiah ?? 1487500;
-  const appKey = unitData?.appKey ?? "97945213-34a7-48cf-baac-8740c1d18765";
+  const appKey = unitData?.appKey ?? "1d99c078-9a3f-45e0-978e-8e0806338593";
 
   return (
     <div className="bg-dark-container rounded-3xl p-6 sm:p-7 md:p-8 text-white border border-white/10 shadow-lg">

@@ -48,7 +48,7 @@ export default function TenantKeyModal() {
     setIsSeeding(true);
     setFeedback(null);
 
-    const defaultKey = process.env.NEXT_PUBLIC_DEFAULT_APP_KEY || "97945213-34a7-48cf-baac-8740c1d18765";
+    const defaultKey = process.env.NEXT_PUBLIC_DEFAULT_APP_KEY || "1d99c078-9a3f-45e0-978e-8e0806338593";
 
     try {
       const result = await fetchWithAuth(ENDPOINTS.AUTH.SEED, {
@@ -81,7 +81,7 @@ export default function TenantKeyModal() {
   };
 
   const handleSkip = () => {
-    const defaultKey = process.env.NEXT_PUBLIC_DEFAULT_APP_KEY || "97945213-34a7-48cf-baac-8740c1d18765";
+    const defaultKey = process.env.NEXT_PUBLIC_DEFAULT_APP_KEY || "1d99c078-9a3f-45e0-978e-8e0806338593";
     saveAppKey(defaultKey);
     setIsOpen(false);
   };

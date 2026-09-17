@@ -106,8 +106,9 @@ export function useLoginMultiRole() {
         }
       } catch (err) {
         console.error("Login submission error:", err);
+        const apiMsg = err instanceof Error ? err.message : "";
         setErrors({
-          submit: "Terjadi gangguan jaringan. Silakan coba beberapa saat lagi.",
+          submit: apiMsg || "Terjadi gangguan jaringan. Silakan coba beberapa saat lagi.",
         });
       } finally {
         setIsLoading(false);

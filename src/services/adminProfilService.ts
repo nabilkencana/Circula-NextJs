@@ -18,7 +18,7 @@ const INITIAL_MOCK_PROFILE: UnitBankSampahDetail = {
     "Balai RW 05, Jl. Merdeka No. 10, Kel. Sukun, Kec. Sukun, Kota Malang, Jawa Timur 65147",
   jamOperasional: "Sabtu & Minggu (08:00 - 15:00 WIB)",
   kapasitasGudang: "Maks. 5 Ton / Periode",
-  appKey: "97945213-34a7-48cf-baac-8740c1d18765",
+  appKey: "1d99c078-9a3f-45e0-978e-8e0806338593",
   statusOperasional: "aktif",
   totalNasabah: 142,
   nasabahBaruBulanIni: 12,

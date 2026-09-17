@@ -13,7 +13,7 @@ export const BASE_URL =
 
 export const DEFAULT_APP_KEY =
   process.env.NEXT_PUBLIC_DEFAULT_APP_KEY ||
-  "97945213-34a7-48cf-baac-8740c1d18765";
+  "1d99c078-9a3f-45e0-978e-8e0806338593";
 
 // Storage keys (single source of truth)
 export const APP_KEY_STORAGE_KEY = "circula_app_key";
@@ -97,10 +97,18 @@ export async function apiRequest<T>(
     });
     clearTimeout(timeoutId);
 
-    const resJson: ApiResponse<T> = await response.json();
+    let resJson: any = {};
+    const contentType = response.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      resJson = await response.json().catch(() => ({}));
+    }
 
     if (!response.ok || !resJson.success) {
-      throw new Error(resJson.message || `HTTP Error ${response.status}`);
+      const errorMsg =
+        (Array.isArray(resJson.errors) && resJson.errors.length > 0
+          ? resJson.errors.join(", ")
+          : resJson.message) || `HTTP Error ${response.status}`;
+      throw new Error(errorMsg);
     }
 
     return resJson.data;

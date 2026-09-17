@@ -27,12 +27,9 @@ export default function RegisterRoleSegmentSwitcher({
           }`}
           aria-current={isNasabah ? "page" : undefined}
         >
-          {isNasabah && (
-            <span className="w-2 h-2 rounded-full bg-brand-neon shadow-[0_0_8px_#D4E836] shrink-0" />
-          )}
           <Leaf
             className={`w-4 h-4 shrink-0 ${
-              isNasabah ? "text-brand-neon fill-brand-neon" : "text-text-secondary"
+              isNasabah ? "text-brand-neon" : "text-text-secondary"
             }`}
           />
           <span>Daftar sebagai Nasabah</span>
@@ -48,9 +45,6 @@ export default function RegisterRoleSegmentSwitcher({
           }`}
           aria-current={!isNasabah ? "page" : undefined}
         >
-          {!isNasabah && (
-            <span className="w-2 h-2 rounded-full bg-brand-neon shadow-[0_0_8px_#D4E836] shrink-0" />
-          )}
           <Building2
             className={`w-4 h-4 shrink-0 ${
               !isNasabah ? "text-brand-neon" : "text-text-secondary"
