@@ -75,7 +75,7 @@ export default function DashboardHero({
                 Unit Status: Aktif &amp; Tersinkron
               </h2>
               <p className="text-xs text-gray-400 mt-1 leading-relaxed">
-                Terhubung ke protokol multi-tenant x-app-key.
+                Terhubung ke server cloud multi-tenant Circula.
               </p>
             </div>
           </div>

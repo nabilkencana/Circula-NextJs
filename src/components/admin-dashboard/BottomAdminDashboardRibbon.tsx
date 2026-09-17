@@ -22,11 +22,7 @@ export default function BottomAdminDashboardRibbon({
         </div>
         <p className="text-gray-300 leading-relaxed">
           Dashboard operasional terhubung langsung ke basis data unit{" "}
-          <strong className="text-white font-bold">{unitNama}</strong> via enkripsi kunci tenant{" "}
-          <code className="font-mono text-brand-neon bg-brand-neon/10 px-1.5 py-0.5 rounded text-xs">
-            x-app-key
-          </code>
-          .
+          <strong className="text-white font-bold">{unitNama}</strong> dengan proteksi enkripsi data tingkat tinggi.
         </p>
       </div>
 

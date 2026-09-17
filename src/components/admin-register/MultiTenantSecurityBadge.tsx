@@ -13,7 +13,7 @@ export default function MultiTenantSecurityBadge() {
         </h4>
       </div>
       <p className="text-xs text-gray-300 mt-1.5 leading-relaxed pl-7">
-        Unit Anda langsung terdaftar dengan isolasi data independen yang terlindungi token JWT dan x-app-key.
+        Unit Anda langsung terdaftar dengan isolasi data independen yang terlindungi protokol keamanan modern.
       </p>
     </div>
   );

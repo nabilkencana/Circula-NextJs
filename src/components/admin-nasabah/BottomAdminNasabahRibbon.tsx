@@ -18,8 +18,7 @@ export default function BottomAdminNasabahRibbon() {
             Isolasi Data Multi-Tenant Terverifikasi
           </h4>
           <p className="text-xs text-gray-400 mt-0.5 max-w-xl leading-relaxed">
-            Database nasabah terisolasi 100% di bawah otentikasi header{" "}
-            <span className="font-mono text-brand-neon">x-app-key</span> unit Anda tanpa risiko
+            Database nasabah terisolasi aman dengan standar enkripsi modern unit Anda tanpa risiko
             kebocoran silang.
           </p>
         </div>

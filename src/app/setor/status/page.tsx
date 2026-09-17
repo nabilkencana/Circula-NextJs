@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import HistoriHero from "@/components/histori/HistoriHero";
-import SaldoPoinProminentCard from "@/components/histori/SaldoPoinProminentCard";
 import HistoriFilterToolbar from "@/components/histori/HistoriFilterToolbar";
 import TransactionFeed from "@/components/histori/TransactionFeed";
 import StatusStageGuideSection from "@/components/histori/StatusStageGuideSection";
@@ -65,14 +64,6 @@ function StatusContent() {
     <main className="min-h-screen bg-white">
       {/* Hero Section */}
       <HistoriHero />
-
-      {/* Prominent Balance & Metrics Summary Card */}
-      <SaldoPoinProminentCard
-        saldoPoin={summary.totalPoin}
-        totalKg={summary.totalBeratSampahKg}
-        totalTransaksi={summary.totalTransaksiSetor}
-        isLoading={isLoading && summary.totalPoin === 0}
-      />
 
       {/* Filter Toolbar: Segmented Tabs, Month Select, Search */}
       <HistoriFilterToolbar

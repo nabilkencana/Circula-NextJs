@@ -28,9 +28,8 @@ export default function KategoriHero({ stats }: KategoriHeroProps) {
             Master Kategori &amp; Nilai Tukar Sampah
           </h1>
           <p className="mt-3 text-xs sm:text-sm md:text-[15px] text-gray-300 max-w-xl leading-relaxed">
-            Kelola parameter valuation, konversi reward poin per kilogram, dan inventarisasi
-            material terpadu berbasis protokol isolasi multi-tenant{" "}
-            <span className="font-mono text-brand-neon font-semibold">x-app-key</span>.
+            Kelola parameter valuasi, konversi reward poin per kilogram, dan inventarisasi
+            material daur ulang terpadu dengan standar penetapan harga resmi.
           </p>
         </div>
 

@@ -19,8 +19,8 @@ export default function SolutionsSection() {
 
             <p className="mt-4 text-gray-300 text-sm sm:text-base leading-relaxed">
               Satu ekosistem terpadu yang memfasilitasi warga penyetor (Nasabah) dan pengurus
-              loket operasional (Admin Unit) dengan sistem isolasi data per siswa melalui header
-              resmi <code className="bg-dark-widget text-brand-neon px-2 py-0.5 rounded text-xs font-mono">x-app-key</code>.
+              loket operasional (Admin Unit) dengan sistem manajemen bank sampah modern berstandar
+              nasional dan perlindungan privasi data yang aman.
             </p>
 
             {/* Feature Progress Metrics */}
@@ -95,7 +95,6 @@ export default function SolutionsSection() {
                   <ShieldCheck className="w-4 h-4 text-brand-neon" />
                   Isolasi Data Multi-Tenant
                 </span>
-                <span className="font-mono text-white/70">Endpoint: /api/v1/*</span>
               </div>
             </div>
           </div>

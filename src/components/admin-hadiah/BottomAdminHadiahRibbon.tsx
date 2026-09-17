@@ -18,8 +18,7 @@ export default function BottomAdminHadiahRibbon() {
             Isolasi Inventaris Multi-Tenant Terverifikasi
           </h4>
           <p className="text-xs text-gray-400 mt-0.5 max-w-xl leading-relaxed">
-            Perubahan master hadiah dan stok langsung terisolasi di bawah header{" "}
-            <span className="font-mono text-brand-neon">x-app-key</span> unit Anda tanpa risiko
+            Perubahan master hadiah dan stok langsung tersinkronisasi aman untuk unit Anda tanpa risiko
             kebocoran silang.
           </p>
         </div>

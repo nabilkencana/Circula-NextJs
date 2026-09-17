@@ -1,189 +1,122 @@
 import React from "react";
 import Link from "next/link";
-import { Leaf, ChevronRight, ShieldCheck, Award } from "lucide-react";
+import { Leaf, ShieldCheck } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-gray-200 bg-white pt-14 pb-10">
+    <footer className="border-t border-gray-100 bg-[#F9F9F8] pt-14 pb-10 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 text-sm">
-          {/* Col 1: Brand & Identity */}
-          <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 text-xs">
+          {/* Col 1: Brand & Certification */}
+          <div className="space-y-3.5">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-brand-neon flex items-center justify-center shadow-xs">
-                <Leaf className="w-4 h-4 text-dark-container fill-dark-container" />
+              <div className="w-8 h-8 rounded-full bg-[#111315] flex items-center justify-center text-[#CEF241] shadow-xs">
+                <Leaf className="w-4 h-4 fill-[#CEF241]" />
               </div>
               <div className="flex flex-col">
-                <span className="font-extrabold text-base tracking-[0.16em] text-text-primary leading-none">
+                <span className="font-extrabold text-sm tracking-wider text-gray-900 leading-none uppercase">
                   CIRCULA
                 </span>
-                <span className="text-[8px] font-bold tracking-wider text-text-secondary uppercase mt-0.5">
-                  Bank Sampah Digital
+                <span className="text-[9px] font-semibold tracking-wide text-gray-500 uppercase mt-0.5">
+                  BANK SAMPAH DIGITAL
                 </span>
               </div>
             </div>
-            <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
-              Aplikasi Pengelolaan Bank Sampah Digital & Daur Ulang Multi-Tenant (UKK RPL Paket A
-              Tahun Ajaran 2026/2027, SMK Telkom Malang).
+
+            <p className="text-gray-500 leading-relaxed max-w-xs">
+              Platform bank sampah digital terintegrasi untuk ekonomi sirkular ramah lingkungan.
             </p>
-            <div className="flex flex-col gap-2 pt-1">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-inset-gray border border-gray-200 text-[11px] font-semibold text-text-primary w-fit">
+
+            <div className="pt-1">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-gray-200/80 text-[11px] font-semibold text-gray-700 shadow-2xs">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                <span>ISO 14001 Environmental System</span>
+                <span>ISO 14001 Certified</span>
               </div>
             </div>
           </div>
 
-          {/* Col 2: Navigasi Nasabah */}
+          {/* Col 2: LAYANAN */}
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-text-primary mb-4 flex items-center gap-2">
-              Navigasi Nasabah
+            <h3 className="font-extrabold text-gray-900 uppercase tracking-wider mb-3.5 text-xs">
+              LAYANAN
             </h3>
-            <ul className="space-y-2.5 text-xs sm:text-sm text-text-secondary">
+            <ul className="space-y-2.5 text-gray-600 font-medium">
               <li>
-                <Link
-                  href="/kategori-sampah"
-                  className="hover:text-text-primary transition-colors flex items-center gap-1.5 group"
-                >
-                  <ChevronRight className="w-3 h-3 text-gray-400 group-hover:text-text-primary group-hover:translate-x-0.5 transition-all" />
-                  Katalog Sampah Daur Ulang
+                <Link href="/kategori-sampah" className="hover:text-black transition-colors">
+                  Katalog Jenis Sampah
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/setor/ajukan"
-                  className="hover:text-text-primary transition-colors flex items-center gap-1.5 group"
-                >
-                  <ChevronRight className="w-3 h-3 text-gray-400 group-hover:text-text-primary group-hover:translate-x-0.5 transition-all" />
-                  Ajukan Penyetoran Sampah
+                <Link href="/setor/ajukan" className="hover:text-black transition-colors">
+                  Setor Sampah Mandiri
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/histori"
-                  className="hover:text-text-primary transition-colors flex items-center gap-1.5 group"
-                >
-                  <ChevronRight className="w-3 h-3 text-gray-400 group-hover:text-text-primary group-hover:translate-x-0.5 transition-all" />
-                  Status & Histori Penyetoran
+                <Link href="/setor/ajukan" className="hover:text-black transition-colors">
+                  Penjemputan Armada
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/tukar-poin"
-                  className="hover:text-text-primary transition-colors flex items-center gap-1.5 group"
-                >
-                  <ChevronRight className="w-3 h-3 text-gray-400 group-hover:text-text-primary group-hover:translate-x-0.5 transition-all" />
-                  Katalog Hadiah & Tukar Poin
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/nota/STR-8821"
-                  className="hover:text-text-primary transition-colors flex items-center gap-1.5 group"
-                >
-                  <ChevronRight className="w-3 h-3 text-gray-400 group-hover:text-text-primary group-hover:translate-x-0.5 transition-all" />
-                  Struk Nota Digital (Contoh)
+                <Link href="/admin/register" className="hover:text-black transition-colors">
+                  Kemitraan Komersial
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Col 3: Konsol & Kemitraan */}
+          {/* Col 3: EDUKASI & INFO */}
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-text-primary mb-4 flex items-center gap-2">
-              Konsol & Kemitraan
+            <h3 className="font-extrabold text-gray-900 uppercase tracking-wider mb-3.5 text-xs">
+              EDUKASI &amp; INFO
             </h3>
-            <ul className="space-y-2.5 text-xs sm:text-sm text-text-secondary">
+            <ul className="space-y-2.5 text-gray-600 font-medium">
               <li>
-                <Link
-                  href="/admin/register"
-                  className="hover:text-text-primary transition-colors flex items-center gap-1.5 group"
-                >
-                  <ChevronRight className="w-3 h-3 text-gray-400 group-hover:text-text-primary group-hover:translate-x-0.5 transition-all" />
-                  Registrasi Unit Bank Sampah
+                <Link href="/kategori-sampah" className="hover:text-black transition-colors">
+                  Panduan Pemilahan 3R
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/login"
-                  className="hover:text-text-primary transition-colors flex items-center gap-1.5 group"
-                >
-                  <ChevronRight className="w-3 h-3 text-gray-400 group-hover:text-text-primary group-hover:translate-x-0.5 transition-all" />
-                  Portal Login Multi-Role
+                <Link href="/kategori-sampah" className="hover:text-black transition-colors">
+                  Standar Nilai Konversi
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/register"
-                  className="hover:text-text-primary transition-colors flex items-center gap-1.5 group"
-                >
-                  <ChevronRight className="w-3 h-3 text-gray-400 group-hover:text-text-primary group-hover:translate-x-0.5 transition-all" />
-                  Daftar Akun Nasabah Baru
+                <Link href="/#alur-setor" className="hover:text-black transition-colors">
+                  Pusat Bantuan &amp; FAQ
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/login"
-                  className="hover:text-text-primary transition-colors flex items-center gap-1.5 group"
-                >
-                  <ChevronRight className="w-3 h-3 text-gray-400 group-hover:text-text-primary group-hover:translate-x-0.5 transition-all" />
-                  Konsol Operasional Unit DLH
+                <Link href="/#" className="hover:text-black transition-colors">
+                  Kebijakan Privasi
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Col 4: Edukasi & Panduan */}
+          {/* Col 4: KONTAK LOKET */}
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-text-primary mb-4 flex items-center gap-2">
-              Edukasi & Bantuan
+            <h3 className="font-extrabold text-gray-900 uppercase tracking-wider mb-3.5 text-xs">
+              KONTAK LOKET
             </h3>
-            <ul className="space-y-2.5 text-xs sm:text-sm text-text-secondary">
-              <li>
-                <Link
-                  href="/#alur-setor"
-                  className="hover:text-text-primary transition-colors flex items-center gap-1.5 group"
+            <div className="space-y-2 text-gray-600 font-medium">
+              <p>Unit Pusat Grogol, Jakarta Barat</p>
+              <p>Senin - Sabtu: 08.00 - 16.30 WIB</p>
+              <p>
+                <a
+                  href="mailto:halo@circula.id"
+                  className="font-bold text-gray-900 hover:underline"
                 >
-                  <ChevronRight className="w-3 h-3 text-gray-400 group-hover:text-text-primary group-hover:translate-x-0.5 transition-all" />
-                  Alur 4 Langkah Setor Sampah
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/#katalog-sampah"
-                  className="hover:text-text-primary transition-colors flex items-center gap-1.5 group"
-                >
-                  <ChevronRight className="w-3 h-3 text-gray-400 group-hover:text-text-primary group-hover:translate-x-0.5 transition-all" />
-                  Panduan Klasifikasi 3R
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/#unit-resmi"
-                  className="hover:text-text-primary transition-colors flex items-center gap-1.5 group"
-                >
-                  <ChevronRight className="w-3 h-3 text-gray-400 group-hover:text-text-primary group-hover:translate-x-0.5 transition-all" />
-                  Jaringan Unit Resmi Kota
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/kategori-sampah"
-                  className="hover:text-text-primary transition-colors flex items-center gap-1.5 group"
-                >
-                  <ChevronRight className="w-3 h-3 text-gray-400 group-hover:text-text-primary group-hover:translate-x-0.5 transition-all" />
-                  Indeks Fluktuasi Harga Pasar
-                </Link>
-              </li>
-            </ul>
+                  halo@circula.id
+                </a>
+              </p>
+            </div>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 pt-6 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-text-secondary">
-          <p>© 2026 Circula Eco-Waste System. Seluruh hak cipta dilindungi.</p>
-          <div className="flex flex-wrap items-center gap-4 text-xs">
-          </div>
+        <div className="mt-12 pt-6 border-t border-gray-200/70 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500 font-medium">
+          <p>© 2026 Circula Technologies. Hak cipta dilindungi.</p>
+          <p>Sistem Pengelolaan Sampah Digital Terintegrasi</p>
         </div>
       </div>
     </footer>

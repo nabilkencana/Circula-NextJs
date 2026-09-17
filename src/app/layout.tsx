@@ -14,7 +14,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "CIRCULA — Bank Sampah Digital & Daur Ulang Multi-Tenant (UKK Paket A)",
+  title: "CIRCULA — Bank Sampah Digital & Daur Ulang Terintegrasi",
   description:
     "Platform digital multi-tenant pengelolaan sampah terintegrasi: timbangan digital akurat, indeks harga pasar transparan, dan penukaran poin reward instan untuk lingkungan bebas sampah.",
   keywords: [
@@ -22,8 +22,8 @@ export const metadata: Metadata = {
     "Circula",
     "Daur Ulang",
     "Eco-Waste Management",
-    "UKK RPL 2026",
-    "SMK Telkom Malang",
+    "Ekonomi Sirkular",
+    "Sistem Bank Sampah Modern",
     "Tukar Poin Sampah",
   ],
 };

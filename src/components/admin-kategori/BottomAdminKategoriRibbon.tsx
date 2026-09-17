@@ -15,8 +15,7 @@ export default function BottomAdminKategoriRibbon() {
         </div>
         <div>
           <h4 className="font-bold text-sm sm:text-base text-white">
-            Perubahan master kategori sampah langsung terisolasi di bawah header{" "}
-            <span className="font-mono text-brand-neon">x-app-key</span> unit Anda.
+            Perubahan master kategori sampah langsung tersinkronisasi aman untuk unit Anda.
           </h4>
           <p className="text-xs text-gray-400 mt-0.5 max-w-xl leading-relaxed">
             Setiap transaksi penimbangan akan merefleksikan tarif rupiah dan kompensasi poin secara

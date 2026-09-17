@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Leaf, ArrowRight, Menu, X, Star, ChevronDown, ChevronRight, LogOut } from "lucide-react";
+import { Leaf, ArrowRight, Menu, X, Star, ChevronDown, LogOut, User } from "lucide-react";
 import { getCurrentUser, logout } from "@/services/authService";
 import { getSaldoNasabah } from "@/services/tukarPoinService";
 import { getToken } from "@/lib/api/client";
@@ -65,82 +65,136 @@ export default function Navbar({
 
   const isNasabah = userRole === "nasabah" || (sessionUser?.role === "NASABAH");
   const isAdmin = userRole === "admin" || (sessionUser?.role === "ADMIN");
-  const currentPoints = livePoints ?? (userPoints ?? 0);
-  const currentName = sessionUser?.namaLengkap || sessionUser?.username || userName || "Nasabah";
+  const isLoggedIn = isNasabah || isAdmin;
+  const currentPoints = livePoints ?? (userPoints ?? 150);
+  const currentName = sessionUser?.namaLengkap || sessionUser?.username || userName || "Budi Santoso";
 
   const handleLogout = () => {
     logout();
     window.location.href = "/login";
   };
 
-  const navLinks = [
-    {
-      name: "Beranda",
-      href: "/",
-      isActive: pathname === "/",
-    },
-    {
-      name: "Katalog Sampah",
-      href: "/kategori-sampah",
-      isActive: pathname.startsWith("/kategori-sampah"),
-    },
-    {
-      name: "Setor Sampah",
-      href: "/setor/ajukan",
-      isActive: pathname === "/setor/ajukan" || pathname === "/setor",
-    },
-    {
-      name: "Tukar Poin",
-      href: "/tukar-poin",
-      isActive: pathname.startsWith("/tukar-poin"),
-    },
-    {
-      name: "Histori Setoran",
-      href: "/histori",
-      isActive: pathname.startsWith("/histori") || pathname.startsWith("/setor/status"),
-    },
-  ];
+  // Nav links vary based on whether user is logged in or guest
+  const navLinks = isLoggedIn
+    ? isAdmin
+      ? [
+          {
+            name: "Dashboard",
+            href: "/admin/dashboard",
+            isActive: pathname === "/admin/dashboard",
+          },
+          {
+            name: "Transaksi",
+            href: "/admin/transaksi",
+            isActive: pathname.startsWith("/admin/transaksi"),
+          },
+          {
+            name: "Katalog Sampah",
+            href: "/admin/kategori-sampah",
+            isActive:
+              pathname.startsWith("/admin/kategori-sampah") ||
+              pathname.startsWith("/kategori-sampah"),
+          },
+          {
+            name: "Kelola Hadiah",
+            href: "/admin/hadiah",
+            isActive: pathname.startsWith("/admin/hadiah"),
+          },
+        ]
+      : [
+          {
+            name: "Katalog Sampah",
+            href: "/kategori-sampah",
+            isActive: pathname.startsWith("/kategori-sampah"),
+          },
+          {
+            name: "Setor Sampah",
+            href: "/setor/ajukan",
+            isActive: pathname === "/setor/ajukan" || pathname === "/setor",
+          },
+          {
+            name: "Tukar Poin",
+            href: "/tukar-poin",
+            isActive: pathname.startsWith("/tukar-poin"),
+          },
+          {
+            name: "Histori Setoran",
+            href: "/histori",
+            isActive:
+              pathname.startsWith("/histori") || pathname.startsWith("/setor/status"),
+          },
+        ]
+    : [
+        {
+          name: "Beranda",
+          href: "/",
+          isActive: pathname === "/",
+        },
+        {
+          name: "Katalog Sampah",
+          href: "/kategori-sampah",
+          isActive: pathname.startsWith("/kategori-sampah"),
+        },
+        {
+          name: "Cara Kerja",
+          href: "/#alur-setor",
+          isActive: false,
+        },
+        {
+          name: "Unit & Loket",
+          href: "/#unit-resmi",
+          isActive: false,
+        },
+      ];
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/85 backdrop-blur-xl border-b border-gray-100/80 transition-all shadow-[0_2px_16px_-4px_rgba(0,0,0,0.03)]">
+    <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-gray-100/90 transition-all shadow-[0_1px_12px_rgba(0,0,0,0.02)]">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand / Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="w-9 h-9 rounded-xl bg-dark-container flex items-center justify-center text-brand-neon shadow-sm group-hover:scale-105 group-hover:shadow-md transition-all duration-200">
-            <Leaf className="w-5 h-5 fill-brand-neon" />
+          <div className="w-8 h-8 rounded-full bg-[#111315] flex items-center justify-center text-[#CEF241] shadow-xs group-hover:scale-105 transition-transform">
+            <Leaf className="w-4 h-4 fill-[#CEF241]" />
           </div>
-          <span className="font-extrabold text-lg tracking-tight text-text-primary">
-            Circula<span className="text-brand-neon">.</span>
-          </span>
+          <div className="flex flex-col">
+            <span className="font-extrabold text-sm tracking-wider text-gray-900 leading-none uppercase">
+              CIRCULA
+            </span>
+            <span className="text-[8px] font-bold tracking-wider text-gray-500 uppercase mt-0.5">
+              BANK SAMPAH DIGITAL
+            </span>
+          </div>
         </Link>
 
-        {/* Desktop Navigation Links — Modern Floating Dock Pill */}
-        <div className="hidden md:flex items-center gap-1 bg-[#F4F5F4]/80 p-1.5 rounded-full border border-gray-200/60 backdrop-blur-xs">
+        {/* Desktop Navigation Links with Active Underline Indicator */}
+        <div className="hidden md:flex items-center gap-7 lg:gap-8">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`px-4 py-1.5 text-xs rounded-full transition-all duration-200 font-semibold ${
+              className={`relative py-1 text-xs font-semibold transition-colors duration-150 ${
                 link.isActive
-                  ? "bg-white text-dark-container shadow-xs font-bold"
-                  : "text-text-secondary hover:text-dark-container hover:bg-white/60"
+                  ? "text-gray-900 font-bold"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
             >
               {link.name}
+              {link.isActive && (
+                <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#CEF241] rounded-full" />
+              )}
             </Link>
           ))}
         </div>
 
         {/* Right Actions / Account Bar */}
-        <div className="hidden sm:flex items-center gap-2.5">
+        <div className="hidden sm:flex items-center gap-3">
           {isNasabah || isAdmin ? (
-            <div className="relative flex items-center gap-2">
+            <div className="relative flex items-center gap-2.5">
               {isNasabah && (
                 <Link
                   href="/tukar-poin"
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-dark-container text-brand-neon text-xs font-bold shadow-xs hover:opacity-95 transition-opacity"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#111315] text-[#CEF241] text-xs font-bold shadow-xs hover:opacity-95 transition-opacity"
                 >
-                  <Star className="w-3.5 h-3.5 fill-brand-neon text-brand-neon" />
+                  <Star className="w-3.5 h-3.5 fill-[#CEF241] text-[#CEF241]" />
                   <span>{currentPoints} Poin</span>
                 </Link>
               )}
@@ -148,10 +202,10 @@ export default function Navbar({
                 <button
                   type="button"
                   onClick={() => setProfileDropdownOpen((prev) => !prev)}
-                  className="flex items-center gap-2 pl-1.5 pr-3 py-1 rounded-full border border-gray-200/90 bg-white hover:bg-gray-50 shadow-xs text-xs font-semibold text-text-primary transition-all cursor-pointer"
+                  className="flex items-center gap-2 pl-1.5 pr-3 py-1 rounded-full border border-gray-200/80 bg-white hover:bg-gray-50 shadow-2xs text-xs font-bold text-gray-900 transition-all cursor-pointer"
                 >
-                  <div className="w-6 h-6 rounded-full bg-brand-neon text-dark-container flex items-center justify-center text-[10px] font-black shadow-xs">
-                    {currentName.substring(0, 2).toUpperCase()}
+                  <div className="w-6 h-6 rounded-full bg-gray-100 border border-gray-200 text-gray-700 flex items-center justify-center">
+                    <User className="w-3.5 h-3.5 text-gray-700" />
                   </div>
                   <span className="max-w-30 truncate">{currentName}</span>
                   <ChevronDown className="w-3.5 h-3.5 text-gray-400" />

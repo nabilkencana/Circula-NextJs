@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { TransaksiPenyetoran, StatusPenyetoran } from "@/types/historiSetor";
-import { getMySetorHistory } from "@/services/historiSetorService";
+import { getMySetorHistory, DEFAULT_HISTORI_TRANSACTIONS } from "@/services/historiSetorService";
 import { getSaldoNasabah } from "@/services/tukarPoinService";
 
 export interface NasabahSummaryMetrics {
@@ -11,19 +11,21 @@ export interface NasabahSummaryMetrics {
 }
 
 export function useHistoriSetor(initialData: TransaksiPenyetoran[] = []) {
-  const [transactions, setTransactions] = useState<TransaksiPenyetoran[]>(initialData);
+  const [transactions, setTransactions] = useState<TransaksiPenyetoran[]>(
+    initialData.length > 0 ? initialData : DEFAULT_HISTORI_TRANSACTIONS
+  );
   const [summary, setSummary] = useState<NasabahSummaryMetrics>({
-    namaNasabah: "",
-    totalPoin: 0,
-    totalBeratSampahKg: 0,
-    totalTransaksiSetor: 0,
+    namaNasabah: "Budi Santoso",
+    totalPoin: 150,
+    totalBeratSampahKg: 21.5,
+    totalTransaksiSetor: 3,
   });
   const [filterStatus, setFilterStatus] = useState<"semua" | StatusPenyetoran>(
-    "menunggu_konfirmasi"
+    "semua"
   );
   const [filterBulan, setFilterBulan] = useState<string>("2026-08");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(initialData.length === 0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Background fetch to synchronize with backend if reachable
   useEffect(() => {

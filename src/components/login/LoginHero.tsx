@@ -65,7 +65,7 @@ export default function LoginHero() {
             </div>
             <div>
               <p className="text-xs sm:text-sm font-semibold text-white leading-snug">
-                Multi-Tenant Engine Active (x-app-key)
+                Sistem Keamanan Multi-Tenant Aktif
               </p>
             </div>
           </div>

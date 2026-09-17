@@ -71,7 +71,7 @@ export default function KonsolOperasionalBentoCard() {
               Butuh bantuan teknis saat login?
             </h5>
             <p className="text-[11px] text-text-secondary mt-0.5">
-              Hubungi Helpdesk UKK RPL Telkom
+              Hubungi Helpdesk Layanan Circula
             </p>
           </div>
         </div>

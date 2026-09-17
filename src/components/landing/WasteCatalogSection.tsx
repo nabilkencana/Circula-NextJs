@@ -22,8 +22,8 @@ export default function WasteCatalogSection() {
           Nilai Tukar Sampah Daur Ulang Hari Ini
         </h2>
         <p className="text-text-secondary text-sm sm:text-base mt-2.5 leading-relaxed">
-          Standar baku acuan harga beli per kilogram (Rp/kg) dan reward poin resmi sesuai
-          kontrak backend UKK RPL 2026/2027.
+          Standar baku acuan harga beli per kilogram (Rp/kg) dan reward poin resmi yang
+          diperbarui secara berkala mengikuti indeks pasar daur ulang nasional.
         </p>
       </div>
 
