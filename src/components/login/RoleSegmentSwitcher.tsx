@@ -26,12 +26,9 @@ export default function RoleSegmentSwitcher({
         }`}
         aria-pressed={activeRole === "NASABAH"}
       >
-        {activeRole === "NASABAH" && (
-          <span className="w-2 h-2 rounded-full bg-brand-neon shadow-[0_0_8px_#D4E836] shrink-0" />
-        )}
         <Leaf
           className={`w-4 h-4 shrink-0 ${
-            activeRole === "NASABAH" ? "text-brand-neon fill-brand-neon" : "text-text-secondary"
+            activeRole === "NASABAH" ? "text-brand-neon" : "text-text-secondary"
           }`}
         />
         <span>Masuk sebagai Nasabah</span>
@@ -48,9 +45,6 @@ export default function RoleSegmentSwitcher({
         }`}
         aria-pressed={activeRole === "ADMIN"}
       >
-        {activeRole === "ADMIN" && (
-          <span className="w-2 h-2 rounded-full bg-brand-neon shadow-[0_0_8px_#D4E836] shrink-0" />
-        )}
         <Building2
           className={`w-4 h-4 shrink-0 ${
             activeRole === "ADMIN" ? "text-brand-neon" : "text-text-secondary"

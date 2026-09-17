@@ -31,17 +31,12 @@ export default function Footer() {
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                 <span>ISO 14001 Environmental System</span>
               </div>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-inset-gray border border-gray-200 text-[11px] font-semibold text-text-primary w-fit">
-                <Award className="w-3.5 h-3.5 text-brand-neon-hover fill-brand-neon" />
-                <span>Standar UKK RPL 2026/2027</span>
-              </div>
             </div>
           </div>
 
           {/* Col 2: Navigasi Nasabah */}
           <div>
             <h3 className="text-xs font-bold uppercase tracking-wider text-text-primary mb-4 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-brand-neon inline-block" />
               Navigasi Nasabah
             </h3>
             <ul className="space-y-2.5 text-xs sm:text-sm text-text-secondary">
@@ -96,7 +91,6 @@ export default function Footer() {
           {/* Col 3: Konsol & Kemitraan */}
           <div>
             <h3 className="text-xs font-bold uppercase tracking-wider text-text-primary mb-4 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-brand-neon inline-block" />
               Konsol & Kemitraan
             </h3>
             <ul className="space-y-2.5 text-xs sm:text-sm text-text-secondary">
@@ -142,7 +136,6 @@ export default function Footer() {
           {/* Col 4: Edukasi & Panduan */}
           <div>
             <h3 className="text-xs font-bold uppercase tracking-wider text-text-primary mb-4 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-brand-neon inline-block" />
               Edukasi & Bantuan
             </h3>
             <ul className="space-y-2.5 text-xs sm:text-sm text-text-secondary">

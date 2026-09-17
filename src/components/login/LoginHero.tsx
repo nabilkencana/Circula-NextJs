@@ -50,8 +50,6 @@ export default function LoginHero() {
           <div className="bg-dark-widget rounded-2xl p-4 sm:p-5 border border-white/12 backdrop-blur-sm flex items-center gap-3.5 hover:border-brand-neon/40 transition-all group">
             <div className="w-10 h-10 rounded-xl bg-brand-neon/15 text-brand-neon flex items-center justify-center shrink-0 relative group-hover:scale-105 transition-transform">
               <CheckCircle2 className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-400" />
             </div>
             <div>
               <p className="text-xs sm:text-sm font-semibold text-white leading-snug">

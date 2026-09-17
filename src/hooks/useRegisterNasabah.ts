@@ -208,8 +208,17 @@ export function useRegisterNasabah() {
         }
       } catch (err) {
         console.error("Registration error:", err);
+        const apiMsg = err instanceof Error ? err.message : "";
+        // Detect x-app-key / App Maker error and show friendly message
+        const isAppKeyError =
+          apiMsg.toLowerCase().includes("x-app-key") ||
+          apiMsg.toLowerCase().includes("app maker") ||
+          apiMsg.toLowerCase().includes("ditolak");
+
         setErrors({
-          submit: "Terjadi gangguan koneksi. Silakan coba lagi beberapa saat lagi.",
+          submit: isAppKeyError
+            ? "Sistem belum dikonfigurasi (App Key tidak valid). Silakan hubungi administrator atau gunakan tombol 'Setup App Key' di beranda."
+            : apiMsg || "Terjadi gangguan koneksi. Silakan coba lagi beberapa saat lagi.",
         });
       } finally {
         setIsSubmitting(false);

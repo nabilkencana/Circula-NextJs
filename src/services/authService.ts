@@ -52,19 +52,11 @@ export async function registerNasabah(
     };
   }
 
-  // Fallback simulation
-  await new Promise((r) => setTimeout(r, 800));
-  return {
-    success: true,
-    message: "Pendaftaran akun nasabah berhasil (Simulasi UKK Circula)!",
-    data: {
-      id: `nsb-${new Date().getFullYear()}${String(new Date().getMonth() + 1).padStart(2, "0")}-${Math.floor(1000 + Math.random() * 9000)}`,
-      username: body.username,
-      namaLengkap: body.namaLengkap,
-      role: "NASABAH",
-      createdAt: new Date().toISOString(),
-    },
-  };
+  // API responded with an error — surface it to the user instead of silently succeeding
+  throw new Error(
+    result.error ||
+      "Pendaftaran gagal. Periksa kembali data Anda atau hubungi administrator."
+  );
 }
 
 // ─── Login ────────────────────────────────────────────────────────────────────
@@ -127,9 +119,11 @@ export async function loginUser(payload: LoginPayload): Promise<LoginResponse> {
 // ─── Seed App Key ─────────────────────────────────────────────────────────────
 
 export async function seedAppKey(): Promise<boolean> {
-  const result = await fetchWithAuth(ENDPOINTS.AUTH.SEED, { method: "POST", timeoutMs: 6000 });
+  const result = await fetchWithAuth(ENDPOINTS.AUTH.SEED, { method: "POST", timeoutMs: 8000 });
   if (result.ok) {
-    saveAppKey("circula-ukk-2026");
+    // Save the env key as the verified working app key
+    const envKey = process.env.NEXT_PUBLIC_DEFAULT_APP_KEY || "97945213-34a7-48cf-baac-8740c1d18765";
+    saveAppKey(envKey);
     return true;
   }
   return false;

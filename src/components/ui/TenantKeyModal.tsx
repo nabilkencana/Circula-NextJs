@@ -48,28 +48,28 @@ export default function TenantKeyModal() {
     setIsSeeding(true);
     setFeedback(null);
 
+    const defaultKey = process.env.NEXT_PUBLIC_DEFAULT_APP_KEY || "97945213-34a7-48cf-baac-8740c1d18765";
+
     try {
       const result = await fetchWithAuth(ENDPOINTS.AUTH.SEED, {
         method: "POST",
-        timeoutMs: 6000,
+        timeoutMs: 8000,
       });
 
-      const seededKey = "circula-ukk-2026";
-      saveAppKey(seededKey);
-      setAppKey(seededKey);
-
       if (result.ok) {
+        saveAppKey(defaultKey);
+        setAppKey(defaultKey);
         setFeedback({
           type: "success",
-          message: "Auto-seed berhasil! App Key telah dikonfigurasi secara otomatis.",
+          message: "Auto-seed berhasil! App Key telah dikonfigurasi dan siap digunakan.",
         });
+        setTimeout(() => setIsOpen(false), 1400);
       } else {
         setFeedback({
-          type: "success",
-          message: "Menggunakan App Key default untuk sesi demonstrasi UKK.",
+          type: "error",
+          message: `Seed gagal: ${result.error || "Periksa koneksi server."}`,
         });
       }
-      setTimeout(() => setIsOpen(false), 1400);
     } catch {
       setFeedback({
         type: "error",
@@ -81,7 +81,8 @@ export default function TenantKeyModal() {
   };
 
   const handleSkip = () => {
-    saveAppKey("circula-ukk-2026");
+    const defaultKey = process.env.NEXT_PUBLIC_DEFAULT_APP_KEY || "97945213-34a7-48cf-baac-8740c1d18765";
+    saveAppKey(defaultKey);
     setIsOpen(false);
   };
 
