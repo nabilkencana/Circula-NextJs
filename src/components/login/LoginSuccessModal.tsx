@@ -128,14 +128,6 @@ export default function LoginSuccessModal({
               <Home className="w-3.5 h-3.5" />
               <span>Kembali ke Beranda</span>
             </Link>
-            <span className="text-gray-300">•</span>
-            <button
-              type="button"
-              onClick={onClose}
-              className="text-xs font-semibold text-text-secondary hover:text-text-primary py-1 cursor-pointer"
-            >
-              Tutup
-            </button>
           </div>
         </div>
       </div>

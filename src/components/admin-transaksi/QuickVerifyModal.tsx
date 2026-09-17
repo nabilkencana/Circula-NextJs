@@ -130,8 +130,8 @@ function QuickVerifyModalForm({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl max-w-lg w-full border border-gray-200 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 max-h-[92vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity duration-200">
+      <div className="bg-white rounded-3xl max-w-lg w-full border border-gray-200 shadow-2xl overflow-hidden animate-modal-enter max-h-[92vh] flex flex-col">
         {/* Header */}
         <div className="px-6 py-5 border-b border-gray-200 flex items-center justify-between bg-inset-gray shrink-0">
           <div className="flex items-center gap-3">

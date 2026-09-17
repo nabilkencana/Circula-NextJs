@@ -9,7 +9,7 @@ interface CardSelesaiProps {
 
 export default function CardSelesai({ transaksi }: CardSelesaiProps) {
   return (
-    <div className="bg-white rounded-3xl border border-gray-200/90 p-5 sm:p-7 shadow-[0_1px_3px_rgba(0,0,0,0.02)] transition-all hover:border-gray-300">
+    <div className="bg-white rounded-3xl border border-gray-200/90 p-5 sm:p-7 shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-lg hover:border-gray-300 transition-all duration-300">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
@@ -27,7 +27,7 @@ export default function CardSelesai({ transaksi }: CardSelesaiProps) {
         </div>
 
         {/* Status Pill Badge */}
-        <div className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#ECFDF5] border border-[#A7F3D0] text-[#065F46] text-xs font-semibold">
+        <div className="self-start sm:self-auto inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#ECFDF5] border border-[#A7F3D0] text-[#065F46] text-xs font-semibold shadow-2xs">
           <div className="w-3.5 h-3.5 rounded-sm border border-[#065F46] flex items-center justify-center text-[9px] font-bold">
             ✓
           </div>
@@ -35,8 +35,28 @@ export default function CardSelesai({ transaksi }: CardSelesaiProps) {
         </div>
       </div>
 
+      {/* Completed Workflow Pipeline Stepper */}
+      <div className="pt-4 pb-1">
+        <div className="flex items-center justify-between text-[11px] font-bold text-gray-400">
+          <div className="flex items-center gap-1.5 text-emerald-600 font-bold">
+            <div className="w-4.5 h-4.5 rounded-full bg-emerald-100 flex items-center justify-center text-[10px]">✓</div>
+            <span className="hidden sm:inline">1. Pengajuan</span>
+          </div>
+          <div className="h-0.5 flex-1 mx-2 sm:mx-3 bg-emerald-400 rounded-full" />
+          <div className="flex items-center gap-1.5 text-emerald-600 font-bold">
+            <div className="w-4.5 h-4.5 rounded-full bg-emerald-100 flex items-center justify-center text-[10px]">✓</div>
+            <span>2. Timbangan Selesai</span>
+          </div>
+          <div className="h-0.5 flex-1 mx-2 sm:mx-3 bg-emerald-400 rounded-full" />
+          <div className="flex items-center gap-1.5 text-emerald-600 font-extrabold">
+            <div className="w-4.5 h-4.5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">✓</div>
+            <span className="hidden sm:inline">3. Poin Terbit</span>
+          </div>
+        </div>
+      </div>
+
       {/* 3-Column Unified Bento Grid Container */}
-      <div className="bg-[#F9FAFB] rounded-2xl border border-gray-100 p-4 sm:p-5 my-4.5 grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
+      <div className="bg-[#F9FAFB] rounded-2xl border border-gray-100 p-4 sm:p-5 my-4 grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
         {/* Col 1: Hasil Timbangan Petugas */}
         <div>
           <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 block mb-2.5">

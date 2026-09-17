@@ -18,15 +18,15 @@ export default function TransactionFeed({
         {[1, 2].map((idx) => (
           <div
             key={idx}
-            className="bg-white rounded-3xl border border-gray-200 p-8 h-64 animate-pulse flex flex-col justify-between"
+            className="bg-white rounded-3xl border border-gray-200 p-8 h-64 flex flex-col justify-between overflow-hidden relative"
           >
-            <div className="w-1/3 h-5 bg-gray-200 rounded" />
+            <div className="w-1/3 h-5 bg-gray-200/80 rounded animate-shimmer" />
             <div className="grid grid-cols-3 gap-4">
-              <div className="h-20 bg-gray-100 rounded-2xl" />
-              <div className="h-20 bg-gray-100 rounded-2xl" />
-              <div className="h-20 bg-gray-100 rounded-2xl" />
+              <div className="h-20 bg-gray-100 rounded-2xl animate-shimmer" />
+              <div className="h-20 bg-gray-100 rounded-2xl animate-shimmer" />
+              <div className="h-20 bg-gray-100 rounded-2xl animate-shimmer" />
             </div>
-            <div className="w-full h-8 bg-gray-100 rounded-xl" />
+            <div className="w-full h-8 bg-gray-100 rounded-xl animate-shimmer" />
           </div>
         ))}
       </div>
@@ -36,8 +36,8 @@ export default function TransactionFeed({
   if (transactions.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 text-center">
-        <div className="w-16 h-16 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mx-auto mb-4">
-          <Inbox className="w-8 h-8" />
+        <div className="w-16 h-16 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mx-auto mb-4 animate-float shadow-inner">
+          <Inbox className="w-8 h-8 text-gray-500" />
         </div>
         <h3 className="text-base font-bold text-text-primary">
           Tidak Ada Transaksi Penyetoran
@@ -51,8 +51,14 @@ export default function TransactionFeed({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2 space-y-5">
-      {transactions.map((tx) => (
-        <TransactionCard key={tx.id} transaksi={tx} />
+      {transactions.map((tx, idx) => (
+        <div
+          key={tx.id}
+          className="animate-card-enter"
+          style={{ animationDelay: `${Math.min(idx * 80, 480)}ms` }}
+        >
+          <TransactionCard transaksi={tx} />
+        </div>
       ))}
     </div>
   );

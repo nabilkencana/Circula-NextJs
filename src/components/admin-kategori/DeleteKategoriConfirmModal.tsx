@@ -28,7 +28,7 @@ export default function DeleteKategoriConfirmModal({
       />
 
       {/* Modal Card */}
-      <div className="relative w-full max-w-md bg-white rounded-3xl p-6 sm:p-7 shadow-2xl border border-gray-200 z-10 animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-md bg-white rounded-3xl p-6 sm:p-7 shadow-2xl border border-gray-200 z-10 animate-modal-enter">
         {/* Warning Icon Badge */}
         <div className="w-12 h-12 rounded-2xl bg-red-50 border border-red-200 text-red-600 flex items-center justify-center mb-4">
           <AlertTriangle className="w-6 h-6" />

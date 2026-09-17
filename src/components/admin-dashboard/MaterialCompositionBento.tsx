@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { CompositionMaterialStat } from "@/types/adminDashboard";
@@ -14,6 +14,13 @@ export default function MaterialCompositionBento({
   materials,
   totalTonaseMasukKg,
 }: MaterialCompositionBentoProps) {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoaded(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="bg-dark-container text-white rounded-3xl p-5 sm:p-6 shadow-md border border-white/10 flex flex-col justify-between h-full">
       <div>
@@ -42,9 +49,9 @@ export default function MaterialCompositionBento({
               </div>
               <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
                 <div
-                  className="h-full rounded-full transition-all duration-500"
+                  className="h-full rounded-full transition-all duration-1000 ease-out"
                   style={{
-                    width: `${Math.min(mat.persentase, 100)}%`,
+                    width: isLoaded ? `${Math.min(mat.persentase, 100)}%` : "0%",
                     backgroundColor: mat.barColorHex,
                   }}
                 />
@@ -58,10 +65,10 @@ export default function MaterialCompositionBento({
       <div className="mt-8 pt-4">
         <Link
           href="/admin/laporan"
-          className="w-full py-2.5 px-4 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 text-xs font-bold text-white text-center flex items-center justify-center gap-1.5 transition-colors group shadow-xs"
+          className="btn-interactive w-full py-2.5 px-4 rounded-full bg-white/5 hover:bg-white/10 active:scale-95 border border-white/15 text-xs font-bold text-white text-center flex items-center justify-center gap-1.5 transition-all group shadow-xs"
         >
           <span>Lihat Detail Rekapitulasi Lengkap</span>
-          <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+          <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
         </Link>
       </div>
     </div>

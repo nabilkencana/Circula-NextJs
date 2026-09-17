@@ -31,7 +31,7 @@ export default function FastActionTriggers({
             onTimbangBaru();
           }
         }}
-        className="group relative flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-brand-neon hover:bg-brand-neon-hover text-dark-container font-bold text-xs sm:text-sm shadow-xs transition-all active:scale-[0.98]"
+        className="btn-interactive group relative flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-brand-neon hover:bg-brand-neon-hover text-dark-container font-bold text-xs sm:text-sm shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all active:scale-95"
       >
         <div className="w-5 h-5 rounded-full bg-dark-container flex items-center justify-center shrink-0">
           <Plus className="w-3.5 h-3.5 text-brand-neon stroke-3" />
@@ -48,7 +48,7 @@ export default function FastActionTriggers({
             onDaftarNasabah();
           }
         }}
-        className="flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-white hover:bg-gray-50 text-text-primary border border-gray-200 font-bold text-xs sm:text-sm shadow-xs transition-colors active:scale-[0.98]"
+        className="btn-interactive flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-white hover:bg-gray-50 text-text-primary border border-gray-200 font-bold text-xs sm:text-sm shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all active:scale-95"
       >
         <Users className="w-4 h-4 text-sky-600 shrink-0" />
         <span>Pendaftaran Nasabah</span>
@@ -63,7 +63,7 @@ export default function FastActionTriggers({
             onUpdateHarga();
           }
         }}
-        className="flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-white hover:bg-gray-50 text-text-primary border border-gray-200 font-bold text-xs sm:text-sm shadow-xs transition-colors active:scale-[0.98]"
+        className="btn-interactive flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-white hover:bg-gray-50 text-text-primary border border-gray-200 font-bold text-xs sm:text-sm shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all active:scale-95"
       >
         <Tag className="w-4 h-4 text-amber-600 shrink-0" />
         <span>Perbarui Harga Kategori</span>
@@ -78,7 +78,7 @@ export default function FastActionTriggers({
             onCetakPdf();
           }
         }}
-        className="flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-white hover:bg-gray-50 text-text-primary border border-gray-200 font-bold text-xs sm:text-sm shadow-xs transition-colors active:scale-[0.98]"
+        className="btn-interactive flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-white hover:bg-gray-50 text-text-primary border border-gray-200 font-bold text-xs sm:text-sm shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all active:scale-95"
       >
         <FileText className="w-4 h-4 text-gray-500 shrink-0" />
         <span>Cetak Rekapitulasi PDF</span>

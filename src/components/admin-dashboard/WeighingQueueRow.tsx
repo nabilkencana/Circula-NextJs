@@ -21,11 +21,10 @@ export default function WeighingQueueRow({
           <span className="font-mono font-bold text-sm text-text-primary">
             {queueItem.kodeTransaksi}
           </span>
-          <span
-            className="w-2 h-2 rounded-full bg-amber-500 shrink-0"
-            title="Menunggu verifikasi"
-            aria-label="Status: Menunggu verifikasi"
-          />
+          <span className="relative flex h-2 w-2 shrink-0" title="Menunggu verifikasi">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
+          </span>
         </div>
         <p className="text-xs text-text-secondary mt-1">
           {queueItem.waktuPengajuan}
@@ -57,7 +56,7 @@ export default function WeighingQueueRow({
         <button
           type="button"
           onClick={() => onTimbang(queueItem)}
-          className="bg-brand-neon hover:bg-brand-neon-hover text-dark-container font-bold text-xs px-4 py-2 rounded-full inline-flex items-center gap-1.5 shrink-0 shadow-2xs transition-all active:scale-95 cursor-pointer"
+          className="btn-interactive bg-brand-neon hover:bg-brand-neon-hover text-dark-container font-bold text-xs px-4 py-2 rounded-full inline-flex items-center gap-1.5 shrink-0 shadow-2xs transition-all active:scale-95 cursor-pointer"
         >
           <span>Timbang Sekarang</span>
           <ArrowRight className="w-3.5 h-3.5" />

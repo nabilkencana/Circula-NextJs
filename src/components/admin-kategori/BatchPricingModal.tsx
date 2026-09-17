@@ -36,7 +36,7 @@ export default function BatchPricingModal({
       />
 
       {/* Modal Card */}
-      <div className="relative w-full max-w-md bg-white rounded-3xl p-6 sm:p-7 shadow-2xl border border-gray-200 z-10 animate-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-md bg-white rounded-3xl p-6 sm:p-7 shadow-2xl border border-gray-200 z-10 animate-modal-enter">
         {/* Header */}
         <div className="flex items-start justify-between pb-4 border-b border-gray-100">
           <div className="flex items-center gap-3">

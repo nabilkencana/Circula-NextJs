@@ -48,13 +48,18 @@ export default function KategoriGridCard({
       {/* 6-Card Grid */}
       {records.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-          {records.map((record) => (
-            <KategoriItemCard
+          {records.map((record, idx) => (
+            <div
               key={record.id}
-              record={record}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
+              className="animate-card-enter flex flex-col h-full"
+              style={{ animationDelay: `${Math.min(idx * 60, 480)}ms` }}
+            >
+              <KategoriItemCard
+                record={record}
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
+            </div>
           ))}
         </div>
       ) : (

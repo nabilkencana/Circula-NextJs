@@ -66,7 +66,7 @@ export default function NavbarAdminConsole() {
           <Link
             href="/login"
             title="Keluar dari Konsol Admin"
-            className="w-8 h-8 rounded-full border border-gray-200 hover:bg-red-50 hover:border-red-200 hover:text-red-600 text-text-secondary flex items-center justify-center transition-colors shadow-2xs"
+            className="btn-interactive w-8 h-8 rounded-full border border-gray-200 hover:bg-red-50 hover:border-red-200 hover:text-red-600 text-text-secondary flex items-center justify-center transition-all active:scale-95 shadow-2xs"
             aria-label="Logout"
           >
             <LogOut className="w-3.5 h-3.5" />

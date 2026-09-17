@@ -48,13 +48,18 @@ export default function HadiahGridCard({
       {/* 4-Card Responsive Grid */}
       {records.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
-          {records.map((record) => (
-            <HadiahItemCard
+          {records.map((record, idx) => (
+            <div
               key={record.id}
-              record={record}
-              onEdit={onEdit}
-              onDelete={onDelete}
-            />
+              className="animate-card-enter flex flex-col h-full"
+              style={{ animationDelay: `${Math.min(idx * 60, 480)}ms` }}
+            >
+              <HadiahItemCard
+                record={record}
+                onEdit={onEdit}
+                onDelete={onDelete}
+              />
+            </div>
           ))}
         </div>
       ) : (

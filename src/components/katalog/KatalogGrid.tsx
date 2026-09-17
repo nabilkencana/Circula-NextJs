@@ -56,12 +56,17 @@ export default function KatalogGrid({
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 my-8">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {items.map((item) => (
-          <KatalogCard
+        {items.map((item, idx) => (
+          <div
             key={item.id}
-            item={item}
-            onOpenEstimator={onOpenEstimator}
-          />
+            className="animate-card-enter flex flex-col h-full"
+            style={{ animationDelay: `${Math.min(idx * 50, 400)}ms` }}
+          >
+            <KatalogCard
+              item={item}
+              onOpenEstimator={onOpenEstimator}
+            />
+          </div>
         ))}
       </div>
     </section>

@@ -3,19 +3,25 @@
 import React from "react";
 import { Users, Scale, Banknote, Star } from "lucide-react";
 import { DashboardKpiSummary } from "@/types/adminDashboard";
+import { useCountUp } from "@/hooks/useCountUp";
 
 interface DashboardKpiGridProps {
   kpi: DashboardKpiSummary;
 }
 
 export default function DashboardKpiGrid({ kpi }: DashboardKpiGridProps) {
+  const animatedNasabah = useCountUp(kpi.totalNasabah, 750);
+  const animatedTonase = useCountUp(kpi.tonaseBulanIniTon, 800, 2);
+  const animatedValuasi = useCountUp(kpi.valuasiKasRupiah, 900);
+  const animatedPoin = useCountUp(kpi.poinAktifBeredar, 850);
+
   return (
     <section
       aria-label="Ringkasan Metrik Kinerja Operasional"
       className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8"
     >
       {/* 1. Nasabah Terdaftar */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col justify-between transition-all hover:shadow-sm">
+      <div className="stagger-1 bg-white border border-gray-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col justify-between transition-all duration-300 hover:shadow-md hover:-translate-y-1">
         <div>
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-text-secondary">
@@ -26,8 +32,8 @@ export default function DashboardKpiGrid({ kpi }: DashboardKpiGridProps) {
             </div>
           </div>
           <div className="mt-2.5">
-            <span className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight font-sans">
-              {kpi.totalNasabah.toLocaleString("id-ID")} Jiwa
+            <span className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight font-mono">
+              {animatedNasabah} Jiwa
             </span>
           </div>
         </div>
@@ -39,7 +45,7 @@ export default function DashboardKpiGrid({ kpi }: DashboardKpiGridProps) {
       </div>
 
       {/* 2. Tonase Bulan Ini */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col justify-between transition-all hover:shadow-sm">
+      <div className="stagger-2 bg-white border border-gray-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col justify-between transition-all duration-300 hover:shadow-md hover:-translate-y-1">
         <div>
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-text-secondary">
@@ -50,8 +56,8 @@ export default function DashboardKpiGrid({ kpi }: DashboardKpiGridProps) {
             </div>
           </div>
           <div className="mt-2.5">
-            <span className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight font-sans">
-              {kpi.tonaseBulanIniTon.toFixed(2)} Ton
+            <span className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight font-mono">
+              {animatedTonase} Ton
             </span>
           </div>
         </div>
@@ -63,7 +69,7 @@ export default function DashboardKpiGrid({ kpi }: DashboardKpiGridProps) {
       </div>
 
       {/* 3. Valuasi Kas Masuk */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col justify-between transition-all hover:shadow-sm">
+      <div className="stagger-3 bg-white border border-gray-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col justify-between transition-all duration-300 hover:shadow-md hover:-translate-y-1">
         <div>
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-text-secondary">
@@ -74,8 +80,8 @@ export default function DashboardKpiGrid({ kpi }: DashboardKpiGridProps) {
             </div>
           </div>
           <div className="mt-2.5">
-            <span className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight font-sans">
-              Rp {kpi.valuasiKasRupiah.toLocaleString("id-ID")}
+            <span className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight font-mono">
+              Rp {animatedValuasi}
             </span>
           </div>
         </div>
@@ -87,7 +93,7 @@ export default function DashboardKpiGrid({ kpi }: DashboardKpiGridProps) {
       </div>
 
       {/* 4. Poin Aktif Beredar */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col justify-between transition-all hover:shadow-sm">
+      <div className="stagger-4 bg-white border border-gray-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col justify-between transition-all duration-300 hover:shadow-md hover:-translate-y-1">
         <div>
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold uppercase tracking-wider text-text-secondary">
@@ -98,8 +104,8 @@ export default function DashboardKpiGrid({ kpi }: DashboardKpiGridProps) {
             </div>
           </div>
           <div className="mt-2.5">
-            <span className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight font-sans">
-              {kpi.poinAktifBeredar.toLocaleString("id-ID")} Poin
+            <span className="text-2xl sm:text-3xl font-extrabold text-text-primary tracking-tight font-mono">
+              {animatedPoin} Poin
             </span>
           </div>
         </div>

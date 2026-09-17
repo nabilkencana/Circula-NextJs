@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { Star, Scale, History, ArrowRight, PlusCircle, Sparkles, TrendingUp } from "lucide-react";
+import { useCountUp } from "@/hooks/useCountUp";
 
 interface SaldoPoinProminentCardProps {
   saldoPoin: number;
@@ -19,6 +20,9 @@ export default function SaldoPoinProminentCard({
   namaNasabah,
   isLoading = false,
 }: SaldoPoinProminentCardProps) {
+  const animatedSaldo = useCountUp(saldoPoin, 700);
+  const animatedKg = useCountUp(totalKg, 700, 1);
+  const animatedTrx = useCountUp(totalTransaksi, 600);
   if (isLoading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-6">
@@ -54,8 +58,8 @@ export default function SaldoPoinProminentCard({
                 Saldo Poin Reward Aktif
               </span>
               <div className="flex items-baseline gap-2.5 mt-0.5">
-                <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-brand-neon tracking-tight">
-                  {saldoPoin.toLocaleString("id-ID")}
+                <span className="text-3xl sm:text-4xl lg:text-5xl font-black text-brand-neon tracking-tight font-mono">
+                  {animatedSaldo}
                 </span>
                 <span className="text-lg sm:text-xl font-bold text-white/80">Poin</span>
                 <span className="text-xs text-emerald-400 font-semibold ml-2 inline-flex items-center gap-1 bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-500/30">
@@ -73,8 +77,8 @@ export default function SaldoPoinProminentCard({
                 <Scale className="w-4 h-4 text-brand-neon" />
                 <span className="font-semibold">Total Sampah Terkumpul</span>
               </div>
-              <p className="text-xl sm:text-2xl font-black text-white">
-                {totalKg.toFixed(1)} <span className="text-xs font-normal text-white/60">kg</span>
+              <p className="text-xl sm:text-2xl font-black text-white font-mono">
+                {animatedKg} <span className="text-xs font-normal text-white/60">kg</span>
               </p>
             </div>
 
@@ -83,8 +87,8 @@ export default function SaldoPoinProminentCard({
                 <History className="w-4 h-4 text-brand-neon" />
                 <span className="font-semibold">Total Penyetoran</span>
               </div>
-              <p className="text-xl sm:text-2xl font-black text-white">
-                {totalTransaksi} <span className="text-xs font-normal text-white/60">kali</span>
+              <p className="text-xl sm:text-2xl font-black text-white font-mono">
+                {animatedTrx} <span className="text-xs font-normal text-white/60">kali</span>
               </p>
             </div>
           </div>
@@ -93,7 +97,7 @@ export default function SaldoPoinProminentCard({
           <div className="flex flex-col sm:flex-row lg:flex-col gap-2.5 shrink-0 justify-center">
             <Link
               href="/tukar-poin"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-brand-neon hover:bg-brand-neon-hover text-dark-container font-extrabold text-xs sm:text-sm shadow-md transition-all active:scale-[0.98]"
+              className="btn-interactive inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-brand-neon hover:bg-brand-neon-hover active:scale-95 text-dark-container font-extrabold text-xs sm:text-sm shadow-md transition-all"
             >
               <Star className="w-4 h-4 fill-dark-container" />
               <span>Tukarkan Poin Hadiah</span>
@@ -102,7 +106,7 @@ export default function SaldoPoinProminentCard({
 
             <Link
               href="/setor/ajukan"
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/15 text-white font-bold text-xs sm:text-sm border border-white/15 transition-all"
+              className="btn-interactive inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 text-white font-bold text-xs sm:text-sm border border-white/15 transition-all"
             >
               <PlusCircle className="w-4 h-4 text-brand-neon" />
               <span>Ajukan Setor Baru</span>

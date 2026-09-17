@@ -29,9 +29,9 @@ export default function SubmissionSuccessModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm transition-opacity duration-200">
       <div
-        className="bg-white rounded-3xl border border-gray-200 shadow-2xl max-w-md w-full overflow-hidden relative"
+        className="bg-white rounded-3xl border border-gray-200 shadow-2xl max-w-md w-full overflow-hidden relative animate-modal-enter"
         role="dialog"
         aria-modal="true"
       >

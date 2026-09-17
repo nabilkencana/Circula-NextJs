@@ -56,7 +56,7 @@ export default function RewardCard({
   );
 
   return (
-    <div className="bg-white border border-gray-200/80 rounded-3xl p-5 flex flex-col justify-between hover:border-gray-300 hover:shadow-md transition-all duration-200 group">
+    <div className="bg-white border border-gray-200/80 rounded-3xl p-5 flex flex-col justify-between hover:border-gray-300 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
       <div>
         {/* Top Image Container */}
         <div className="relative rounded-2xl overflow-hidden aspect-16/10 bg-[#F4F5F4] flex items-center justify-center mb-4">
@@ -165,10 +165,10 @@ export default function RewardCard({
           <button
             type="button"
             onClick={() => onRedeem(item)}
-            className="w-full py-3 px-5 rounded-full bg-[#111315] hover:bg-black text-white font-extrabold text-sm flex items-center justify-between transition-all cursor-pointer shadow-xs group/btn"
+            className="btn-interactive w-full py-3 px-5 rounded-full bg-[#111315] hover:bg-black active:scale-[0.98] text-white font-extrabold text-sm flex items-center justify-between transition-all cursor-pointer shadow-xs group/btn"
           >
             <span className="pl-1">Donasikan Poin</span>
-            <div className="w-7 h-7 rounded-full bg-brand-neon text-[#111315] flex items-center justify-center shrink-0 group-hover/btn:scale-105 transition-transform">
+            <div className="w-7 h-7 rounded-full bg-brand-neon text-[#111315] flex items-center justify-center shrink-0 group-hover/btn:scale-110 transition-transform">
               <ArrowRight className="w-3.5 h-3.5" />
             </div>
           </button>
@@ -177,7 +177,7 @@ export default function RewardCard({
             type="button"
             onClick={() => onRedeem(item)}
             disabled={isOutOfStock}
-            className={`w-full py-3 px-5 rounded-full font-extrabold text-sm flex items-center justify-between transition-all cursor-pointer group/btn ${
+            className={`btn-interactive w-full py-3 px-5 rounded-full font-extrabold text-sm flex items-center justify-between transition-all cursor-pointer group/btn active:scale-[0.98] ${
               isOutOfStock
                 ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                 : "bg-brand-neon hover:opacity-95 text-black shadow-xs hover:shadow-md"
@@ -186,7 +186,7 @@ export default function RewardCard({
             <span className="pl-1 text-black font-extrabold">
               {isOutOfStock ? "Stok Habis" : "Tukar Sekarang"}
             </span>
-            <div className="w-7 h-7 rounded-full bg-black text-white flex items-center justify-center shrink-0 group-hover/btn:scale-105 transition-transform">
+            <div className="w-7 h-7 rounded-full bg-black text-white flex items-center justify-center shrink-0 group-hover/btn:scale-110 transition-transform">
               <ArrowRight className="w-3.5 h-3.5 text-white" />
             </div>
           </button>

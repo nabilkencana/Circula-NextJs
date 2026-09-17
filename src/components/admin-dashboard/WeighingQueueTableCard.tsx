@@ -43,12 +43,17 @@ export default function WeighingQueueTableCard({
         {/* Tickets List */}
         <div className="mt-5 space-y-3">
           {queueList.length > 0 ? (
-            queueList.map((ticket) => (
-              <WeighingQueueRow
+            queueList.map((ticket, idx) => (
+              <div
                 key={ticket.id}
-                queueItem={ticket}
-                onTimbang={onTimbang}
-              />
+                className="animate-card-enter"
+                style={{ animationDelay: `${Math.min(idx * 70, 350)}ms` }}
+              >
+                <WeighingQueueRow
+                  queueItem={ticket}
+                  onTimbang={onTimbang}
+                />
+              </div>
             ))
           ) : (
             <div className="p-8 text-center bg-inset-gray rounded-2xl border border-gray-200/80">

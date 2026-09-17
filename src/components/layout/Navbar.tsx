@@ -8,6 +8,7 @@ import { getCurrentUser, logout } from "@/services/authService";
 import { getSaldoNasabah } from "@/services/tukarPoinService";
 import { getToken } from "@/lib/api/client";
 import { UserSessionData } from "@/types/auth";
+import { useCountUp } from "@/hooks/useCountUp";
 
 export interface NavbarProps {
   userRole?: "guest" | "nasabah" | "admin";
@@ -67,6 +68,7 @@ export default function Navbar({
   const isAdmin = userRole === "admin" || (sessionUser?.role === "ADMIN");
   const isLoggedIn = isNasabah || isAdmin;
   const currentPoints = livePoints ?? (userPoints ?? 150);
+  const animatedPoints = useCountUp(currentPoints, 650);
   const currentName = sessionUser?.namaLengkap || sessionUser?.username || userName || "Budi Santoso";
 
   const handleLogout = () => {
@@ -192,10 +194,10 @@ export default function Navbar({
               {isNasabah && (
                 <Link
                   href="/tukar-poin"
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#111315] text-[#CEF241] text-xs font-bold shadow-xs hover:opacity-95 transition-opacity"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#111315] text-[#CEF241] text-xs font-bold shadow-xs hover:opacity-95 transition-all btn-interactive"
                 >
                   <Star className="w-3.5 h-3.5 fill-[#CEF241] text-[#CEF241]" />
-                  <span>{currentPoints} Poin</span>
+                  <span>{animatedPoints} Poin</span>
                 </Link>
               )}
               <div className="relative">

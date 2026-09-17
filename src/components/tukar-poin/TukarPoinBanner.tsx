@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { Star, ReceiptText, ArrowUpRight } from "lucide-react";
 import { SaldoNasabahSummary } from "@/types/tukarPoin";
+import { useCountUp } from "@/hooks/useCountUp";
 
 interface TukarPoinBannerProps {
   saldoSummary: SaldoNasabahSummary;
@@ -19,6 +20,10 @@ export default function TukarPoinBanner({
     ? saldoSummary.nilaiKonversiRupiah
     : points * 350;
   const totalTrx = saldoSummary.totalTransaksiSelesai || 14;
+
+  const animatedPoints = useCountUp(points, 700);
+  const animatedKasValue = useCountUp(kasValue, 800);
+  const animatedTotalTrx = useCountUp(totalTrx, 600);
 
   return (
     <div className="w-full bg-white rounded-3xl border border-gray-200/80 p-6 sm:p-8 lg:p-9 shadow-xs">
@@ -51,7 +56,7 @@ export default function TukarPoinBanner({
 
               <Link
                 href="/histori"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/15 text-white text-[11px] font-semibold transition-colors shrink-0"
+                className="btn-interactive inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white text-[11px] font-semibold transition-all shrink-0"
               >
                 <ReceiptText className="w-3 h-3 text-gray-300" />
                 <span>Riwayat Penukaran</span>
@@ -60,8 +65,8 @@ export default function TukarPoinBanner({
 
             {/* Points Value Row */}
             <div className="my-4 flex items-baseline gap-2 relative z-10">
-              <span className="text-brand-neon font-black text-4xl sm:text-5xl tracking-tight leading-none">
-                {points.toLocaleString("id-ID")}
+              <span className="text-brand-neon font-black text-4xl sm:text-5xl tracking-tight leading-none font-mono">
+                {animatedPoints}
               </span>
               <span className="text-xs font-bold text-white uppercase tracking-wider">
                 POIN TERSEDIA
@@ -71,7 +76,7 @@ export default function TukarPoinBanner({
             {/* Card Footer Metric */}
             <div className="pt-2 border-t border-white/10 text-[11px] text-gray-400 font-medium relative z-10 flex items-center justify-between">
               <span>
-                Nilai Tukar Kas: <strong className="text-white font-bold">Rp {kasValue.toLocaleString("id-ID")}</strong> • {totalTrx} Transaksi Sukses
+                Nilai Tukar Kas: <strong className="text-white font-bold">Rp {animatedKasValue}</strong> • {animatedTotalTrx} Transaksi Sukses
               </span>
             </div>
           </div>
