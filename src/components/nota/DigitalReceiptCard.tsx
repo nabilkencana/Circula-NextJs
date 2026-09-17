@@ -8,8 +8,8 @@ import ReceiptSignatureFooter from "./ReceiptSignatureFooter";
 
 interface DigitalReceiptCardProps {
   activeTab: TipeNota;
-  notaSetor: NotaSetorDetail;
-  notaTukar: NotaTukarDetail;
+  notaSetor: NotaSetorDetail | null;
+  notaTukar: NotaTukarDetail | null;
 }
 
 export default function DigitalReceiptCard({
@@ -20,7 +20,7 @@ export default function DigitalReceiptCard({
   return (
     <div className="max-w-4xl mx-auto my-4 bg-white border border-gray-200 rounded-3xl p-6 sm:p-10 md:p-12 shadow-sm print-receipt-sheet print:m-0 print:p-0 print:border-none print:shadow-none relative">
       {/* ================= MODE 1: NOTA PENYETORAN SAMPAH (STR) ================= */}
-      {activeTab === "setor" ? (
+      {activeTab === "setor" && notaSetor ? (
         <div>
           {/* Header */}
           <ReceiptHeader unitName={notaSetor.namaUnit} />
@@ -28,7 +28,7 @@ export default function DigitalReceiptCard({
           {/* 4-Column Metadata Inset */}
           <ReceiptMetadataGrid
             kodeTransaksi={notaSetor.kodeTransaksi}
-            waktuVerifikasi="26 Agu 2026, 09:35 WIB"
+            waktuVerifikasi={notaSetor.waktuVerifikasi}
             namaNasabah={notaSetor.namaNasabah}
             noTelepon={notaSetor.noTelepon}
           />
@@ -52,7 +52,7 @@ export default function DigitalReceiptCard({
             digitalSignatureHash={notaSetor.digitalSignatureHash}
           />
         </div>
-      ) : (
+      ) : activeTab === "tukar" && notaTukar ? (
         /* ================= MODE 2: NOTA PENUKARAN POIN (TKR) ================= */
         <div>
           {/* Header */}
@@ -61,7 +61,7 @@ export default function DigitalReceiptCard({
           {/* 4-Column Metadata Inset */}
           <ReceiptMetadataGrid
             kodeTransaksi={notaTukar.kodeTransaksi}
-            waktuVerifikasi="26 Agu 2026, 11:20 WIB"
+            waktuVerifikasi={notaTukar.waktuTransaksi}
             namaNasabah={notaTukar.namaNasabah}
             noTelepon="085678901234"
           />
@@ -135,7 +135,7 @@ export default function DigitalReceiptCard({
             digitalSignatureHash="81f72a4b-51dc-492c-85a2-c19ebdf817ea"
           />
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

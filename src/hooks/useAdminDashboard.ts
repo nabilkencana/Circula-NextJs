@@ -8,13 +8,13 @@ import {
 } from "@/types/adminDashboard";
 import {
   getDashboardTelemetry,
-  INITIAL_DASHBOARD_DATA,
+  EMPTY_DASHBOARD_DATA,
 } from "@/services/adminDashboardService";
 
 export function useAdminDashboard() {
   const router = useRouter();
   const [telemetry, setTelemetry] = useState<DashboardTelemetryData>(
-    INITIAL_DASHBOARD_DATA
+    EMPTY_DASHBOARD_DATA
   );
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,8 +27,8 @@ export function useAdminDashboard() {
       setTelemetry(data);
     } catch (err: unknown) {
       console.error("Failed to load admin dashboard data:", err);
-      setError("Gagal memuat telemetri dashboard. Menampilkan data offline.");
-      setTelemetry(INITIAL_DASHBOARD_DATA);
+      setError("Gagal memuat telemetri dashboard.");
+      setTelemetry(EMPTY_DASHBOARD_DATA);
     } finally {
       setIsLoading(false);
     }
@@ -45,8 +45,8 @@ export function useAdminDashboard() {
       } catch (err: unknown) {
         console.error("Failed to load admin dashboard data:", err);
         if (isMounted) {
-          setError("Gagal memuat telemetri dashboard. Menampilkan data offline.");
-          setTelemetry(INITIAL_DASHBOARD_DATA);
+          setError("Gagal memuat telemetri dashboard.");
+          setTelemetry(EMPTY_DASHBOARD_DATA);
         }
       } finally {
         if (isMounted) {

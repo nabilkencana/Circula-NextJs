@@ -6,6 +6,7 @@ import {
   TransaksiTkrAdminRecord,
   TransaksiViewType,
   SampahItemRincian,
+  VerifySetorPayload,
 } from "@/types/adminTransaksi";
 import {
   getTransaksiSetorList,
@@ -14,13 +15,11 @@ import {
   finalizeTransaksiSetor,
   completeTkrPenukaran,
   calculateTelemetryStats,
-  INITIAL_STR_TRANSAKSI,
-  INITIAL_TKR_TRANSAKSI,
 } from "@/services/adminTransaksiService";
 
 export function useAdminTransaksi() {
-  const [strList, setStrList] = useState<TransaksiSetorAdminRecord[]>(INITIAL_STR_TRANSAKSI);
-  const [tkrList, setTkrList] = useState<TransaksiTkrAdminRecord[]>(INITIAL_TKR_TRANSAKSI);
+  const [strList, setStrList] = useState<TransaksiSetorAdminRecord[]>([]);
+  const [tkrList, setTkrList] = useState<TransaksiTkrAdminRecord[]>([]);
   const [loading, setLoading] = useState(false);
 
   const [viewType, setViewType] = useState<TransaksiViewType>("STR");
@@ -159,12 +158,18 @@ export function useAdminTransaksi() {
   }, []);
 
   const handleConfirmVerify = useCallback(
-    async (updatedItems: SampahItemRincian[], totalBerat: number, totalPoin: number) => {
+    async (
+      payload: VerifySetorPayload,
+      updatedItems: SampahItemRincian[],
+      totalBerat: number,
+      totalPoin: number
+    ) => {
       if (!selectedRecordForVerify) return;
       try {
         setIsSubmitting(true);
         const updated = await verifyTimbanganSetor(
           selectedRecordForVerify.id,
+          payload,
           updatedItems,
           totalBerat,
           totalPoin
@@ -173,9 +178,17 @@ export function useAdminTransaksi() {
           prev.map((item) => (item.id === updated.id ? updated : item))
         );
         handleCloseVerify();
+
+        let message = `Penyetoran ${updated.kodeTransaksi} berhasil diverifikasi (${totalBerat} kg).`;
+        if (payload.status === "selesai") {
+          message = `Penyetoran ${updated.kodeTransaksi} berhasil diselesaikan! Poin nasabah telah diperbarui (+${totalPoin} Poin).`;
+        } else if (payload.status === "ditolak") {
+          message = `Pengajuan penyetoran ${updated.kodeTransaksi} telah ditolak.`;
+        }
+
         setToastMessage({
           type: "success",
-          message: `Timbangan ${updated.kodeTransaksi} berhasil diverifikasi (${totalBerat} kg, +${totalPoin} Poin).`,
+          message,
         });
       } catch (err) {
         console.error("Error verifying transaksi:", err);

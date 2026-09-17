@@ -9,10 +9,9 @@ import {
 } from "@/types/kategoriSampah";
 import {
   getKategoriSampah,
-  MOCK_KATEGORI_SAMPAH,
 } from "@/services/kategoriSampahService";
 
-export function useKatalogSampah(initialItems: KategoriSampah[] = MOCK_KATEGORI_SAMPAH) {
+export function useKatalogSampah(initialItems: KategoriSampah[] = []) {
   const [items, setItems] = useState<KategoriSampah[]>(initialItems);
   const [isLoading, setIsLoading] = useState<boolean>(initialItems.length === 0);
   const [filterState, setFilterState] = useState<KatalogFilterState>({

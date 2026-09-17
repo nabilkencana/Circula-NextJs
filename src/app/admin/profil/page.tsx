@@ -8,6 +8,7 @@ import ProfilFormCard from "@/components/admin-profil/ProfilFormCard";
 import KinerjaFasilitasBentoCard from "@/components/admin-profil/KinerjaFasilitasBentoCard";
 import AksesCepatPengelolaanCard from "@/components/admin-profil/AksesCepatPengelolaanCard";
 import BottomAdminProfilRibbon from "@/components/admin-profil/BottomAdminProfilRibbon";
+import SaveProfilConfirmModal from "@/components/admin-profil/SaveProfilConfirmModal";
 import { useAdminProfil } from "@/hooks/useAdminProfil";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 
@@ -52,6 +53,16 @@ export default function AdminProfilPage() {
 
       {/* Shared Enterprise Footer */}
       <Footer />
+
+      {/* Save Profile Confirmation Modal */}
+      <SaveProfilConfirmModal
+        isOpen={controller.isConfirmModalOpen}
+        unitData={controller.unitData}
+        formData={controller.formData}
+        isSaving={controller.isSaving}
+        onClose={controller.handleCloseConfirm}
+        onConfirm={controller.handleConfirmSave}
+      />
 
       {/* Toast Notification */}
       {controller.toast.show && (

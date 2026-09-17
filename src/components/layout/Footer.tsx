@@ -183,16 +183,6 @@ export default function Footer() {
         <div className="mt-12 pt-6 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-text-secondary">
           <p>© 2026 Circula Eco-Waste System. Seluruh hak cipta dilindungi.</p>
           <div className="flex flex-wrap items-center gap-4 text-xs">
-            <span className="font-medium text-text-primary">
-              UKK RPL Paket A 2026/2027 • SMK Telkom Malang
-            </span>
-            <span className="text-gray-300">•</span>
-            <Link href="/kategori-sampah" className="hover:text-text-primary transition-colors">
-              Katalog
-            </Link>
-            <Link href="/login" className="hover:text-text-primary transition-colors">
-              Masuk
-            </Link>
           </div>
         </div>
       </div>

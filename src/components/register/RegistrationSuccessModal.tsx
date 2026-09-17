@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { CheckCircle2, ArrowRight, Home, ShieldCheck } from "lucide-react";
 import { RegisterResponse } from "@/types/auth";
 
@@ -16,6 +17,27 @@ export default function RegistrationSuccessModal({
   data,
   onClose,
 }: RegistrationSuccessModalProps) {
+  const router = useRouter();
+  const [countdown, setCountdown] = useState<number>(5);
+
+  useEffect(() => {
+    if (!isOpen || !data) return;
+
+    setCountdown(5);
+    const interval = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          router.push("/login");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isOpen, data, router]);
+
   if (!isOpen || !data) return null;
 
   return (
@@ -72,9 +94,12 @@ export default function RegistrationSuccessModal({
             href="/login"
             className="w-full py-3 px-5 rounded-full bg-brand-neon hover:bg-brand-neon-hover text-text-primary font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all"
           >
-            <span>Masuk ke Akun Sekarang</span>
+            <span>Masuk ke Akun Sekarang ({countdown}s)</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
+          <p className="text-[11px] text-text-secondary text-center">
+            Mengalihkan otomatis ke halaman masuk dalam {countdown} detik...
+          </p>
 
           <div className="flex items-center justify-center gap-2 pt-1">
             <Link

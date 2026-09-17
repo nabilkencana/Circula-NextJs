@@ -5,10 +5,14 @@ import {
   LoginResponse,
   UserSessionData,
 } from "@/types/auth";
-import { fetchWithAuth, saveAppKey, TOKEN_STORAGE_KEY, USER_STORAGE_KEY, ROLE_STORAGE_KEY } from "@/lib/api/client";
+import { fetchWithAuth, saveAppKey, clearAuth, TOKEN_STORAGE_KEY, USER_STORAGE_KEY, ROLE_STORAGE_KEY } from "@/lib/api/client";
 import { ENDPOINTS } from "@/lib/api/endpoints";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+
+export function logout(): void {
+  clearAuth();
+}
 
 function storeSession(token: string, user: UserSessionData): void {
   if (typeof window !== "undefined") {
@@ -106,7 +110,7 @@ export async function loginUser(payload: LoginPayload): Promise<LoginResponse> {
 
   const result = await fetchWithAuth<any>(
     ENDPOINTS.AUTH.LOGIN,
-    { method: "POST", body: JSON.stringify(body), timeoutMs: 8000 }
+    { method: "POST", body: JSON.stringify(body), timeoutMs: 25000 }
   );
 
   if (result.ok && result.data?.token) {
@@ -126,9 +130,9 @@ export async function loginUser(payload: LoginPayload): Promise<LoginResponse> {
         : undefined,
     };
 
-    if (payload.rememberMe) {
-      storeSession(raw.token, userSession);
-    }
+    // Selalu simpan sesi agar RouteGuard konsisten dgn state login.
+    // (rememberMe ukur dibiarkan utk UI, tapi simpan tidak dikondisikan.)
+    storeSession(raw.token, userSession);
 
     return {
       success: true,

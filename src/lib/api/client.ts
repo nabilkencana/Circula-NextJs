@@ -61,13 +61,21 @@ export function hasAppKey(): boolean {
   return !!getAppKey();
 }
 
+export function clearAuth(): void {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+    localStorage.removeItem(USER_STORAGE_KEY);
+    localStorage.removeItem(ROLE_STORAGE_KEY);
+  }
+}
+
 // ─── Core request function ────────────────────────────────────────────────────
 
 export async function apiRequest<T>(
   endpoint: string,
   options: RequestInit & { timeoutMs?: number } = {}
 ): Promise<T> {
-  const { timeoutMs = 5000, ...fetchOptions } = options;
+  const { timeoutMs = 25000, ...fetchOptions } = options;
 
   const token = getToken();
   const appKey = getAppKey();
@@ -159,7 +167,7 @@ export const fetchWithAuth = async <T>(
   try {
     if (endpoint.startsWith("http")) {
       // External absolute URL: call directly without BASE_URL prefix
-      const { timeoutMs = 5000, ...fetchOptions } = options;
+      const { timeoutMs = 25000, ...fetchOptions } = options;
       const controller = new AbortController();
       const t = setTimeout(() => controller.abort(), timeoutMs);
       const res = await fetch(endpoint, {

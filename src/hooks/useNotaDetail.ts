@@ -5,16 +5,14 @@ import { TipeNota, NotaSetorDetail, NotaTukarDetail } from "@/types/nota";
 import {
   getNotaSetorById,
   getNotaTukarById,
-  MOCK_NOTA_SETOR,
-  MOCK_NOTA_TUKAR,
 } from "@/services/notaService";
 
 export function useNotaDetail(id: string) {
   const isTkrInitial = id ? id.toUpperCase().startsWith("TKR") : false;
 
   const [activeTab, setActiveTab] = useState<TipeNota>(isTkrInitial ? "tukar" : "setor");
-  const [notaSetor, setNotaSetor] = useState<NotaSetorDetail>(MOCK_NOTA_SETOR);
-  const [notaTukar, setNotaTukar] = useState<NotaTukarDetail>(MOCK_NOTA_TUKAR);
+  const [notaSetor, setNotaSetor] = useState<NotaSetorDetail | null>(null);
+  const [notaTukar, setNotaTukar] = useState<NotaTukarDetail | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -37,7 +35,10 @@ export function useNotaDetail(id: string) {
           }
         }
       } catch {
-        // use fallback
+        if (isMounted) {
+          setNotaSetor(null);
+          setNotaTukar(null);
+        }
       } finally {
         if (isMounted) {
           setIsLoading(false);

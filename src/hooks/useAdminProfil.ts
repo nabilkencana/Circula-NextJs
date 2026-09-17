@@ -128,38 +128,45 @@ export function useAdminProfil() {
     }
   }, [unitData]);
 
-  const handleSubmit = useCallback(
-    async (e: FormEvent) => {
-      e.preventDefault();
-      setIsSaving(true);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
-      try {
-        const res = await updateUnitProfil(formData);
-        if (res.success) {
-          setUnitData(res.data);
-          setIsDirty(false);
-          setToast({
-            show: true,
-            message: "Pembaruan profil unit berhasil disimpan!",
-            type: "success",
-          });
-        }
-      } catch (err) {
-        console.error("Failed to update profile:", err);
+  const handleInitiateSave = useCallback((e?: FormEvent) => {
+    if (e) e.preventDefault();
+    setIsConfirmModalOpen(true);
+  }, []);
+
+  const handleCloseConfirm = useCallback(() => {
+    setIsConfirmModalOpen(false);
+  }, []);
+
+  const handleConfirmSave = useCallback(async () => {
+    setIsSaving(true);
+    try {
+      const res = await updateUnitProfil(formData);
+      if (res.success) {
+        setUnitData(res.data);
+        setIsDirty(false);
+        setIsConfirmModalOpen(false);
         setToast({
           show: true,
-          message: "Gagal menyimpan profil unit. Silakan coba lagi.",
-          type: "error",
+          message: "Pembaruan profil unit berhasil disimpan!",
+          type: "success",
         });
-      } finally {
-        setIsSaving(false);
-        setTimeout(() => {
-          setToast((prev) => ({ ...prev, show: false }));
-        }, 3500);
       }
-    },
-    [formData]
-  );
+    } catch (err) {
+      console.error("Failed to update profile:", err);
+      setToast({
+        show: true,
+        message: "Gagal menyimpan profil unit. Silakan coba lagi.",
+        type: "error",
+      });
+    } finally {
+      setIsSaving(false);
+      setTimeout(() => {
+        setToast((prev) => ({ ...prev, show: false }));
+      }, 3500);
+    }
+  }, [formData]);
 
   return {
     unitData,
@@ -170,11 +177,15 @@ export function useAdminProfil() {
     isLoading,
     copiedAppKey,
     toast,
+    isConfirmModalOpen,
     handleFieldChange,
     handleInputChange,
     handleLogoUpload,
     handleReset,
     handleCopyAppKey,
-    handleSubmit,
+    handleInitiateSave,
+    handleCloseConfirm,
+    handleConfirmSave,
+    handleSubmit: handleInitiateSave,
   };
 }

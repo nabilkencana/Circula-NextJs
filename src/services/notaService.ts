@@ -1,83 +1,121 @@
-import { NotaSetorDetail, NotaTukarDetail } from "@/types/nota";
+import { NotaSetorDetail, NotaTukarDetail, ItemNotaSetor } from "@/types/nota";
 import { fetchWithAuth } from "@/lib/api/client";
 import { ENDPOINTS } from "@/lib/api/endpoints";
 
-export const MOCK_NOTA_SETOR: NotaSetorDetail = {
-  tipe: "setor",
-  kodeTransaksi: "STR-202608-1001",
-  waktuVerifikasi: "2026-08-26T09:35:00Z",
-  namaUnit: "Unit Bank Sampah Asri Jaya (ID: UNIT-04)",
-  unitId: "UNIT-04",
-  namaNasabah: "Budi Santoso",
-  noTelepon: "085678901234",
-  items: [
-    {
-      sku: "PLS-PET-01",
-      materialNama: "Botol Plastik PET (Bersih)",
-      kategori: "plastik",
-      timbanganRealKg: 10.0,
-      poinPerKg: 10,
-      subtotalPoin: 100,
-    },
-    {
-      sku: "KRT-BOX-02",
-      materialNama: "Kardus & Karton Bekas",
-      kategori: "kertas",
-      timbanganRealKg: 5.0,
-      poinPerKg: 5,
-      subtotalPoin: 25,
-    },
-  ],
-  totalBeratKg: 15.0,
-  estimasiNilaiRupiah: 45000,
-  saldoSebelumTransaksi: 25,
-  totalPoinDiterbitkan: 125,
-  totalSaldoAkhir: 150,
-  petugasPenimbang: "Ahmad Fauzi (Admin Unit)",
-  catatanPetugas:
-    "Berat sampah sesuai hasil timbangan real petugas dan memenuhi standar 3R.",
-  digitalSignatureHash: "9498c6d6-c2de-450d-a391-e80fbff5386c",
-  status: "selesai",
-};
+function formatTgl(iso?: string): string {
+  if (!iso) return "-";
+  try {
+    return (
+      new Date(iso).toLocaleDateString("id-ID", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }) + " WIB"
+    );
+  } catch {
+    return iso;
+  }
+}
 
-export const MOCK_NOTA_TUKAR: NotaTukarDetail = {
-  tipe: "tukar",
-  kodeTransaksi: "TKR-202608-5001",
-  waktuTransaksi: "2026-08-26T11:20:00Z",
-  namaNasabah: "Budi Santoso",
-  itemDitukar: "Voucher Pulsa / E-Wallet Rp 25.000",
-  poinTerpakai: 75,
-  sisaSaldoPoin: 75,
-  merchantClaimCode: "PLSA-8823-9912",
-  status: "selesai",
-};
+export function adaptNotaSetor(raw: any): NotaSetorDetail {
+  const nasabah = raw.nasabah || {};
+  const detail = Array.isArray(raw.detailSetors) ? raw.detailSetors : [];
+  const items: ItemNotaSetor[] = detail.map((d: any, idx: number) => {
+    const kat = d.kategoriSampah || {};
+    return {
+      sku: `SMP-${String(idx + 1).padStart(3, "0")}`,
+      materialNama: kat.namaKategori || d.kategori || "Material Daur Ulang",
+      kategori: (kat.jenis || d.jenis || "plastik") as any,
+      timbanganRealKg: Number(d.beratKg) || 0,
+      poinPerKg: Number(kat.poinPerKg || d.poinPerKg) || 10,
+      subtotalPoin: Number(d.subtotalPoin) || 0,
+    };
+  });
 
-export async function getNotaSetorById(id: string): Promise<NotaSetorDetail> {
-  const result = await fetchWithAuth<NotaSetorDetail>(
+  const totalBeratKg = Number(raw.totalBeratKg) || 0;
+  const totalPoinDiterbitkan = Number(raw.totalPoin) || 0;
+  const saldoAkhir = Number(nasabah.saldoPoin) || totalPoinDiterbitkan;
+  const saldoSebelum = Math.max(0, saldoAkhir - totalPoinDiterbitkan);
+  const estimasiRupiah = detail.reduce((acc: number, curr: any) => {
+    const harga = Number(curr.kategoriSampah?.hargaPerKg) || 2000;
+    return acc + Math.round((Number(curr.beratKg) || 0) * harga);
+  }, 0);
+
+  return {
+    tipe: "setor",
+    kodeTransaksi: raw.kodeSetor || raw.kodeTransaksi || raw.id || "STR-NOT-SET",
+    waktuVerifikasi: formatTgl(raw.updatedAt || raw.tanggal || raw.createdAt),
+    namaUnit: "Bank Sampah Asri Jaya (#JKT-042)",
+    unitId: "JKT-042",
+    namaNasabah: nasabah.namaNasabah || nasabah.namaLengkap || "Nasabah Circula",
+    noTelepon: nasabah.telp || "085678901234",
+    items,
+    totalBeratKg,
+    estimasiNilaiRupiah: estimasiRupiah || totalBeratKg * 3000,
+    saldoSebelumTransaksi: saldoSebelum,
+    totalPoinDiterbitkan,
+    totalSaldoAkhir: saldoAkhir,
+    petugasPenimbang: "Petugas Lapangan Bank Sampah",
+    catatanPetugas:
+      raw.catatan || raw.catatanAdmin || "Berat sampah sesuai hasil timbangan real petugas.",
+    digitalSignatureHash: (raw.id || "sig-hash").replace(/-/g, "").slice(0, 16).toUpperCase(),
+    status: "selesai",
+  };
+}
+
+export function adaptNotaTukar(raw: any): NotaTukarDetail {
+  const nasabah = raw.nasabah || {};
+  const hadiah = raw.hadiah || {};
+  return {
+    tipe: "tukar",
+    kodeTransaksi: raw.kodePenukaran || raw.kodeTransaksi || raw.id || "TKR-NOT-SET",
+    waktuTransaksi: formatTgl(raw.updatedAt || raw.tanggal || raw.createdAt),
+    namaNasabah: nasabah.namaNasabah || nasabah.namaLengkap || "Nasabah Circula",
+    itemDitukar: hadiah.namaHadiah || raw.itemDitukar || "Voucher Hadiah",
+    poinTerpakai: Number(raw.poinTerpakai) || 0,
+    sisaSaldoPoin: Number(nasabah.saldoPoin) || 0,
+    merchantClaimCode: (raw.id || "VOUCHER").slice(-8).toUpperCase(),
+    status: "selesai",
+  };
+}
+
+export async function getNotaSetorById(id: string): Promise<NotaSetorDetail | null> {
+  const result = await fetchWithAuth<any>(
     ENDPOINTS.SETOR.NOTA(id)
   );
 
   if (result.ok && result.data) {
-    return result.data;
+    return adaptNotaSetor(result.data);
   }
 
-  return {
-    ...MOCK_NOTA_SETOR,
-    kodeTransaksi: id || MOCK_NOTA_SETOR.kodeTransaksi,
-  };
+  // Resilient fallback: search user's setor transactions if id is a kodeSetor or UUID lookup failed
+  try {
+    const fallbackList = await fetchWithAuth<any[]>(ENDPOINTS.SETOR.MY_SETOR());
+    if (fallbackList.ok && Array.isArray(fallbackList.data)) {
+      const match = fallbackList.data.find(
+        (it) => it.id === id || it.kodeSetor === id
+      );
+      if (match) {
+        return adaptNotaSetor(match);
+      }
+    }
+  } catch {
+    // Ignore fallback errors
+  }
+
+  return null;
 }
 
-export async function getNotaTukarById(id: string): Promise<NotaTukarDetail> {
-  const result = await fetchWithAuth<NotaTukarDetail>(
+export async function getNotaTukarById(id: string): Promise<NotaTukarDetail | null> {
+  const result = await fetchWithAuth<any>(
     ENDPOINTS.TUKAR_POIN.NOTA(id)
   );
 
   if (result.ok && result.data) {
-    return result.data;
+    return adaptNotaTukar(result.data);
   }
 
-  return {
-    ...MOCK_NOTA_TUKAR,
-    kodeTransaksi: id || MOCK_NOTA_TUKAR.kodeTransaksi,
-  };
+  return null;
 }

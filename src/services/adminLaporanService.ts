@@ -4,221 +4,137 @@ import { LAPORAN } from "@/lib/api/endpoints";
 
 const STORAGE_CACHE_PREFIX = "circula_admin_laporan_cache_";
 
-export const MOCK_REKAPITULASI_DATA: Record<string, RekapitulasiBulananResponse> = {
-  "2026-08": {
-    periodeBulan: "2026-08",
-    periodeLabel: "Agustus 2026",
+function emptyRekapitulasi(bulan: string): RekapitulasiBulananResponse {
+  const [year, month] = bulan.split("-");
+  const monthNames = [
+    "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+  ];
+  const monthIndex = parseInt(month, 10) - 1;
+  return {
+    periodeBulan: bulan,
+    periodeLabel: `${monthNames[monthIndex] || "Bulan"} ${year}`,
     totalVolume: {
-      totalKg: 1250,
-      totalTon: 1.25,
-      growthPercentage: 18.4,
-      comparedToMonth: "Juli 2026",
+      totalKg: 0,
+      totalTon: 0,
+      growthPercentage: 0,
+      comparedToMonth: "Bulan Lalu",
     },
     pembayaranKas: {
-      totalRupiah: 2875000,
-      rataRataTransaksiRupiah: 75650,
+      totalRupiah: 0,
+      rataRataTransaksiRupiah: 0,
     },
     sirkulasiReward: {
-      totalPoinDiterbitkan: 3420,
-      totalPoinTerpakai: 1150,
-      totalKlaimVoucherSelesai: 14,
+      totalPoinDiterbitkan: 0,
+      totalPoinTerpakai: 0,
+      totalKlaimVoucherSelesai: 0,
     },
-    breakdownMaterials: [
-      {
-        kategoriKey: "plastik",
-        badgeLabel: "PLASTIK",
-        subLabel: "Botol PET, Cup, Jerigen Bersih (Grade A & B)",
-        tonaseKg: 650.0,
-        tonaseTon: 0.65,
-        valuasiRupiah: 2275000,
-        rewardPoin: 2100,
-        persentaseTotal: 52.0,
-        colorHex: "#3B82F6",
-      },
-      {
-        kategoriKey: "kertas",
-        badgeLabel: "KERTAS",
-        subLabel: "Kardus & Karton Bekas, Kertas HVS & Arsip Dokumen",
-        tonaseKg: 400.0,
-        tonaseTon: 0.40,
-        valuasiRupiah: 800000,
-        rewardPoin: 1000,
-        persentaseTotal: 32.0,
-        colorHex: "#F59E0B",
-      },
-      {
-        kategoriKey: "logam",
-        badgeLabel: "LOGAM",
-        subLabel: "Kaleng Aluminium Minuman, Tembaga Super Kupas",
-        tonaseKg: 120.0,
-        tonaseTon: 0.12,
-        valuasiRupiah: 1440000,
-        rewardPoin: 300,
-        persentaseTotal: 9.6,
-        colorHex: "#A855F7",
-      },
-      {
-        kategoriKey: "kaca",
-        badgeLabel: "KACA",
-        subLabel: "Botol Kaca Bening & Botol Sirup Utuh",
-        tonaseKg: 80.0,
-        tonaseTon: 0.08,
-        valuasiRupiah: 120000,
-        rewardPoin: 20,
-        persentaseTotal: 6.4,
-        colorHex: "#10B981",
-      },
-    ],
+    breakdownMaterials: [],
     compliance: {
       isoStandard: "ISO 14001:2015",
       dinasTujuan: "Dinas Lingkungan Hidup Kabupaten/Kota",
-      penanggungJawab: "Bapak H. Sukirman",
-      signatureVerified: true,
+      penanggungJawab: "Bank Sampah Circula",
+      signatureVerified: false,
     },
-  },
-  "2026-07": {
-    periodeBulan: "2026-07",
-    periodeLabel: "Juli 2026",
+  };
+}
+
+function normalizeRekapitulasi(apiData: any, bulan: string): RekapitulasiBulananResponse {
+  const tonase = apiData.rekapitulasiTonase || {};
+  const breakdown = apiData.breakdownJenisSampah || {};
+  const penukaran = apiData.rekapitulasiPenukaranPoin || {};
+
+  const totalKg = Number(tonase.totalKg) || 0;
+  const totalTon = Number(tonase.totalTon) || Number((totalKg / 1000).toFixed(3));
+  const totalRupiah = Number(tonase.totalEstimasiPembayaranRupiah) || 0;
+  const totalPoinDiterbitkan = Number(tonase.totalPoinDiterbitkan) || 0;
+  const totalPoinTerpakai = Number(penukaran.totalPoinTerpakai) || 0;
+  const totalTransaksiPenukaran = Number(penukaran.totalTransaksiPenukaran) || 0;
+
+  const [year, month] = bulan.split("-");
+  const monthNames = [
+    "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+  ];
+  const monthIndex = parseInt(month, 10) - 1;
+  const periodeLabel = `${monthNames[monthIndex] || "Bulan"} ${year}`;
+
+  const materialsConfig: Array<{
+    key: "plastik" | "kertas" | "logam" | "kaca";
+    label: string;
+    subLabel: string;
+    color: string;
+  }> = [
+    {
+      key: "plastik",
+      label: "PLASTIK",
+      subLabel: "Botol PET, Cup, Jerigen Bersih (Grade A & B)",
+      color: "#3B82F6",
+    },
+    {
+      key: "kertas",
+      label: "KERTAS",
+      subLabel: "Kardus & Karton Bekas, Kertas HVS & Arsip Dokumen",
+      color: "#F59E0B",
+    },
+    {
+      key: "logam",
+      label: "LOGAM",
+      subLabel: "Kaleng Aluminium Minuman, Tembaga Super Kupas",
+      color: "#A855F7",
+    },
+    {
+      key: "kaca",
+      label: "KACA",
+      subLabel: "Botol Kaca Bening, Sirup, Kecap, Jar Selai Utuh",
+      color: "#10B981",
+    },
+  ];
+
+  const breakdownMaterials = materialsConfig.map((cfg) => {
+    const item = breakdown[cfg.key] || {};
+    const itemKg = Number(item.tonaseKg) || 0;
+    const persentase = totalKg > 0 ? Number(((itemKg / totalKg) * 100).toFixed(1)) : 0;
+    return {
+      kategoriKey: cfg.key,
+      badgeLabel: cfg.label,
+      subLabel: cfg.subLabel,
+      tonaseKg: itemKg,
+      tonaseTon: Number((itemKg / 1000).toFixed(2)),
+      valuasiRupiah: Number(item.rupiah) || 0,
+      rewardPoin: Number(item.poin) || 0,
+      persentaseTotal: persentase,
+      colorHex: cfg.color,
+    };
+  });
+
+  return {
+    periodeBulan: bulan,
+    periodeLabel,
     totalVolume: {
-      totalKg: 1055,
-      totalTon: 1.055,
-      growthPercentage: 12.1,
-      comparedToMonth: "Juni 2026",
+      totalKg,
+      totalTon,
+      growthPercentage: Number(tonase.growthPercentage) || 0,
+      comparedToMonth: "Bulan Lalu",
     },
     pembayaranKas: {
-      totalRupiah: 2420000,
-      rataRataTransaksiRupiah: 71170,
+      totalRupiah,
+      rataRataTransaksiRupiah: totalTransaksiPenukaran > 0 ? Math.round(totalRupiah / totalTransaksiPenukaran) : totalRupiah,
     },
     sirkulasiReward: {
-      totalPoinDiterbitkan: 2950,
-      totalPoinTerpakai: 920,
-      totalKlaimVoucherSelesai: 11,
+      totalPoinDiterbitkan,
+      totalPoinTerpakai,
+      totalKlaimVoucherSelesai: totalTransaksiPenukaran,
     },
-    breakdownMaterials: [
-      {
-        kategoriKey: "plastik",
-        badgeLabel: "PLASTIK",
-        subLabel: "Botol PET, Cup, Jerigen Bersih (Grade A & B)",
-        tonaseKg: 540.0,
-        tonaseTon: 0.54,
-        valuasiRupiah: 1890000,
-        rewardPoin: 1750,
-        persentaseTotal: 51.2,
-        colorHex: "#3B82F6",
-      },
-      {
-        kategoriKey: "kertas",
-        badgeLabel: "KERTAS",
-        subLabel: "Kardus & Karton Bekas, Kertas HVS & Arsip Dokumen",
-        tonaseKg: 350.0,
-        tonaseTon: 0.35,
-        valuasiRupiah: 700000,
-        rewardPoin: 850,
-        persentaseTotal: 33.2,
-        colorHex: "#F59E0B",
-      },
-      {
-        kategoriKey: "logam",
-        badgeLabel: "LOGAM",
-        subLabel: "Kaleng Aluminium Minuman, Tembaga Super Kupas",
-        tonaseKg: 100.0,
-        tonaseTon: 0.10,
-        valuasiRupiah: 1200000,
-        rewardPoin: 260,
-        persentaseTotal: 9.5,
-        colorHex: "#A855F7",
-      },
-      {
-        kategoriKey: "kaca",
-        badgeLabel: "KACA",
-        subLabel: "Botol Kaca Bening & Botol Sirup Utuh",
-        tonaseKg: 65.0,
-        tonaseTon: 0.065,
-        valuasiRupiah: 97500,
-        rewardPoin: 15,
-        persentaseTotal: 6.1,
-        colorHex: "#10B981",
-      },
-    ],
+    breakdownMaterials,
     compliance: {
       isoStandard: "ISO 14001:2015",
       dinasTujuan: "Dinas Lingkungan Hidup Kabupaten/Kota",
-      penanggungJawab: "Bapak H. Sukirman",
-      signatureVerified: true,
+      penanggungJawab: "Bank Sampah Circula",
+      signatureVerified: Boolean(apiData.signatureVerified),
     },
-  },
-  "2026-06": {
-    periodeBulan: "2026-06",
-    periodeLabel: "Juni 2026",
-    totalVolume: {
-      totalKg: 940,
-      totalTon: 0.94,
-      growthPercentage: 8.7,
-      comparedToMonth: "Mei 2026",
-    },
-    pembayaranKas: {
-      totalRupiah: 2150000,
-      rataRataTransaksiRupiah: 67180,
-    },
-    sirkulasiReward: {
-      totalPoinDiterbitkan: 2600,
-      totalPoinTerpakai: 780,
-      totalKlaimVoucherSelesai: 9,
-    },
-    breakdownMaterials: [
-      {
-        kategoriKey: "plastik",
-        badgeLabel: "PLASTIK",
-        subLabel: "Botol PET, Cup, Jerigen Bersih (Grade A & B)",
-        tonaseKg: 480.0,
-        tonaseTon: 0.48,
-        valuasiRupiah: 1680000,
-        rewardPoin: 1550,
-        persentaseTotal: 51.0,
-        colorHex: "#3B82F6",
-      },
-      {
-        kategoriKey: "kertas",
-        badgeLabel: "KERTAS",
-        subLabel: "Kardus & Karton Bekas, Kertas HVS & Arsip Dokumen",
-        tonaseKg: 310.0,
-        tonaseTon: 0.31,
-        valuasiRupiah: 620000,
-        rewardPoin: 750,
-        persentaseTotal: 33.0,
-        colorHex: "#F59E0B",
-      },
-      {
-        kategoriKey: "logam",
-        badgeLabel: "LOGAM",
-        subLabel: "Kaleng Aluminium Minuman, Tembaga Super Kupas",
-        tonaseKg: 95.0,
-        tonaseTon: 0.095,
-        valuasiRupiah: 1140000,
-        rewardPoin: 230,
-        persentaseTotal: 10.1,
-        colorHex: "#A855F7",
-      },
-      {
-        kategoriKey: "kaca",
-        badgeLabel: "KACA",
-        subLabel: "Botol Kaca Bening & Botol Sirup Utuh",
-        tonaseKg: 55.0,
-        tonaseTon: 0.055,
-        valuasiRupiah: 82500,
-        rewardPoin: 12,
-        persentaseTotal: 5.9,
-        colorHex: "#10B981",
-      },
-    ],
-    compliance: {
-      isoStandard: "ISO 14001:2015",
-      dinasTujuan: "Dinas Lingkungan Hidup Kabupaten/Kota",
-      penanggungJawab: "Bapak H. Sukirman",
-      signatureVerified: true,
-    },
-  },
-};
+  };
+}
 
 export async function getRekapitulasiBulanan(bulan: string): Promise<RekapitulasiBulananResponse> {
   if (typeof window !== "undefined") {
@@ -234,22 +150,19 @@ export async function getRekapitulasiBulanan(bulan: string): Promise<Rekapitulas
   }
 
   try {
-    const data = await apiRequest<RekapitulasiBulananResponse>(
+    const data = await apiRequest<any>(
       LAPORAN.REKAPITULASI_BULANAN(bulan)
     );
-    if (data && data.totalVolume) {
+    if (data && (data.rekapitulasiTonase || data.totalVolume)) {
+      const normalized = data.totalVolume ? data : normalizeRekapitulasi(data, bulan);
       if (typeof window !== "undefined") {
-        localStorage.setItem(`${STORAGE_CACHE_PREFIX}${bulan}`, JSON.stringify(data));
+        localStorage.setItem(`${STORAGE_CACHE_PREFIX}${bulan}`, JSON.stringify(normalized));
       }
-      return data;
+      return normalized;
     }
   } catch (err) {
-    console.warn(`[LaporanService] API offline for ${bulan}, using mock data:`, err);
+    console.warn(`[LaporanService] API offline for ${bulan}:`, err);
   }
 
-  const fallback = MOCK_REKAPITULASI_DATA[bulan] || MOCK_REKAPITULASI_DATA["2026-08"];
-  if (typeof window !== "undefined") {
-    localStorage.setItem(`${STORAGE_CACHE_PREFIX}${bulan}`, JSON.stringify(fallback));
-  }
-  return fallback;
+  return emptyRekapitulasi(bulan);
 }

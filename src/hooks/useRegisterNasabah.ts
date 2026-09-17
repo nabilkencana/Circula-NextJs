@@ -26,6 +26,44 @@ const INITIAL_FORM_STATE: RegisterFormState = {
   fotoProfil: null,
 };
 
+export function validateSingleField(
+  name: string,
+  value: string,
+  currentPassword?: string
+): string | null {
+  if (name === "namaLengkap") {
+    if (!value.trim()) return "Nama lengkap wajib diisi.";
+    if (value.trim().length < 3) return "Nama lengkap minimal 3 karakter.";
+  }
+  if (name === "username") {
+    if (!value.trim()) return "Username wajib diisi.";
+    if (value.trim().length < 4) return "Username minimal 4 karakter.";
+    if (!/^[a-z0-9_.]+$/.test(value.trim()))
+      return "Hanya huruf kecil, angka, garis bawah (_), dan titik (.).";
+  }
+  if (name === "nomorWhatsapp") {
+    const clean = value.replace(/\D/g, "");
+    if (!value.trim()) return "Nomor WhatsApp aktif wajib diisi.";
+    if (clean.length < 8 || clean.length > 15)
+      return "Nomor WhatsApp tidak valid (minimal 9 digit angka).";
+  }
+  if (name === "alamatLengkap") {
+    if (!value.trim()) return "Alamat domisili lengkap wajib diisi.";
+    if (value.trim().length < 10)
+      return "Alamat domisili terlalu singkat (minimal 10 karakter).";
+  }
+  if (name === "password") {
+    if (!value) return "Kata sandi wajib diisi.";
+    if (value.length < 8) return "Kata sandi minimal 8 karakter.";
+  }
+  if (name === "confirmPassword") {
+    if (!value) return "Konfirmasi kata sandi wajib diisi.";
+    if (currentPassword && value !== currentPassword)
+      return "Kata sandi dan konfirmasi tidak cocok.";
+  }
+  return null;
+}
+
 export function useRegisterNasabah() {
   const [formData, setFormData] = useState<RegisterFormState>(INITIAL_FORM_STATE);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -46,21 +84,56 @@ export function useRegisterNasabah() {
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name, value } = e.target;
+      const cleanedValue =
+        name === "username" ? value.toLowerCase().replace(/\s+/g, "") : value;
+
       setFormData((prev) => ({
         ...prev,
-        [name]: name === "username" ? value.toLowerCase().replace(/\s+/g, "") : value,
+        [name]: cleanedValue,
       }));
 
-      // Clear field error on change
+      // Real-time re-validation if error already existed
       if (errors[name]) {
+        const fieldError = validateSingleField(
+          name,
+          cleanedValue,
+          name === "confirmPassword" ? formData.password : undefined
+        );
         setErrors((prev) => {
           const next = { ...prev };
-          delete next[name];
+          if (fieldError) {
+            next[name] = fieldError;
+          } else {
+            delete next[name];
+          }
           return next;
         });
       }
     },
-    [errors]
+    [errors, formData.password]
+  );
+
+  const handleInputBlur = useCallback(
+    (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name, value } = e.target;
+      const cleanedValue =
+        name === "username" ? value.toLowerCase().replace(/\s+/g, "") : value;
+      const fieldError = validateSingleField(
+        name,
+        cleanedValue,
+        formData.password
+      );
+      setErrors((prev) => {
+        const next = { ...prev };
+        if (fieldError) {
+          next[name] = fieldError;
+        } else {
+          delete next[name];
+        }
+        return next;
+      });
+    },
+    [formData.password]
   );
 
   const handleTermsToggle = useCallback(() => {
@@ -239,6 +312,7 @@ export function useRegisterNasabah() {
     isSuccessModalOpen,
     registeredData,
     handleInputChange,
+    handleInputBlur,
     handleTermsToggle,
     handleAvatarChange,
     handleAvatarRemove,

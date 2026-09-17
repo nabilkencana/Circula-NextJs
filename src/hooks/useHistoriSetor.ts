@@ -1,14 +1,23 @@
-"use client";
-
 import { useState, useMemo, useEffect } from "react";
 import { TransaksiPenyetoran, StatusPenyetoran } from "@/types/historiSetor";
-import {
-  getMySetorHistory,
-  MOCK_TRANSAKSI_HISTORI,
-} from "@/services/historiSetorService";
+import { getMySetorHistory } from "@/services/historiSetorService";
+import { getSaldoNasabah } from "@/services/tukarPoinService";
 
-export function useHistoriSetor(initialData: TransaksiPenyetoran[] = MOCK_TRANSAKSI_HISTORI) {
+export interface NasabahSummaryMetrics {
+  namaNasabah: string;
+  totalPoin: number;
+  totalBeratSampahKg: number;
+  totalTransaksiSetor: number;
+}
+
+export function useHistoriSetor(initialData: TransaksiPenyetoran[] = []) {
   const [transactions, setTransactions] = useState<TransaksiPenyetoran[]>(initialData);
+  const [summary, setSummary] = useState<NasabahSummaryMetrics>({
+    namaNasabah: "",
+    totalPoin: 0,
+    totalBeratSampahKg: 0,
+    totalTransaksiSetor: 0,
+  });
   const [filterStatus, setFilterStatus] = useState<"semua" | StatusPenyetoran>(
     "menunggu_konfirmasi"
   );
@@ -20,14 +29,27 @@ export function useHistoriSetor(initialData: TransaksiPenyetoran[] = MOCK_TRANSA
   useEffect(() => {
     let isMounted = true;
     async function loadData() {
-      if (transactions.length === 0) {
-        setIsLoading(true);
-      }
+      setIsLoading(true);
       try {
-        const data = await getMySetorHistory(filterBulan);
-        if (isMounted && data && data.length > 0) {
-          setTransactions(data);
+        const [data, sumData] = await Promise.all([
+          getMySetorHistory(filterBulan),
+          getSaldoNasabah(),
+        ]);
+        if (isMounted) {
+          if (data && Array.isArray(data)) {
+            setTransactions(data);
+          }
+          if (sumData) {
+            setSummary({
+              namaNasabah: "",
+              totalPoin: Number(sumData.saldoPoinAktif ?? sumData.saldoPoinSaatIni ?? 0),
+              totalBeratSampahKg: Number(sumData.totalSampahDisetorKg ?? 0),
+              totalTransaksiSetor: Number(sumData.totalTransaksiSelesai ?? (data?.length || 0)),
+            });
+          }
         }
+      } catch (err) {
+        console.error("Failed to load history data:", err);
       } finally {
         if (isMounted) {
           setIsLoading(false);
@@ -39,7 +61,7 @@ export function useHistoriSetor(initialData: TransaksiPenyetoran[] = MOCK_TRANSA
     return () => {
       isMounted = false;
     };
-  }, [filterBulan, transactions.length]);
+  }, [filterBulan]);
 
   // Dynamic filter counters for tab badges
   const statusCounts = useMemo(() => {
@@ -84,6 +106,7 @@ export function useHistoriSetor(initialData: TransaksiPenyetoran[] = MOCK_TRANSA
   return {
     transactions,
     filteredTransactions,
+    summary,
     filterStatus,
     setFilterStatus,
     filterBulan,

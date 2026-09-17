@@ -97,7 +97,7 @@ export default function CardSelesai({ transaksi }: CardSelesaiProps) {
         </div>
 
         <Link
-          href={`/nota/${transaksi.kodeSetor}`}
+          href={`/nota/${transaksi.id || transaksi.kodeSetor}`}
           className="self-start sm:self-auto inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-text-primary text-text-primary font-bold hover:bg-brand-neon hover:border-brand-neon transition-all cursor-pointer shadow-xs"
         >
           <FileText className="w-3.5 h-3.5" />

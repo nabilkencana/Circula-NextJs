@@ -1,5 +1,6 @@
 import {
   NasabahRecord,
+  StatusNasabah,
   CreateNasabahPayload,
   UpdateNasabahPayload,
 } from "@/types/adminNasabah";
@@ -7,46 +8,6 @@ import { apiRequest } from "@/lib/api/client";
 import { NASABAH } from "@/lib/api/endpoints";
 
 const STORAGE_KEY = "circula_admin_nasabah_list_v1";
-
-export const INITIAL_MOCK_NASABAH: NasabahRecord[] = [
-  {
-    id: "NSB-001",
-    namaLengkap: "Budi Santoso",
-    tanggalDaftar: "26 Agu 2026",
-    telp: "085678901234",
-    alamat: "Jl. Merdeka No. 12, RT 03/05",
-    username: "nasabah_budi",
-    saldoPoin: 150,
-    status: "aktif",
-    fotoProfilUrl:
-      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80",
-  },
-  {
-    id: "NSB-002",
-    namaLengkap: "Siti Aminah",
-    tanggalDaftar: "24 Agu 2026",
-    telp: "081987654321",
-    alamat: "Jl. Mawar Indah No. 45",
-    username: "nasabah_siti",
-    saldoPoin: 80,
-    status: "aktif",
-    fotoProfilUrl:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&auto=format&fit=crop&q=80",
-  },
-  {
-    id: "NSB-003",
-    namaLengkap: "Dewi Lestari",
-    tanggalDaftar: "26 Agu 2026",
-    telp: "081987654321",
-    alamat: "Jl. Kenanga No. 5, RT 02/01",
-    username: "nasabah_dewi",
-    saldoPoin: 0,
-    isNew: true,
-    status: "aktif",
-    fotoProfilUrl:
-      "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=120&auto=format&fit=crop&q=80",
-  },
-];
 
 // ─── localStorage helpers ─────────────────────────────────────────────────────
 
@@ -60,36 +21,41 @@ function saveToLocalStorage(records: NasabahRecord[]) {
   }
 }
 
-function readFromLocalStorage(): NasabahRecord[] | null {
-  if (typeof window !== "undefined") {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) return JSON.parse(saved);
-    } catch (e) {
-      console.warn("[adminNasabahService] Failed to parse localStorage:", e);
-    }
-  }
-  return null;
-}
-
 // ─── Service Functions ────────────────────────────────────────────────────────
 
 export async function getNasabahList(): Promise<NasabahRecord[]> {
-  const cached = readFromLocalStorage();
-  if (cached && cached.length > 0) return cached;
-
-  try {
-    const data = await apiRequest<NasabahRecord[]>(NASABAH.LIST);
-    if (Array.isArray(data) && data.length > 0) {
-      saveToLocalStorage(data);
-      return data;
-    }
-  } catch (err) {
-    console.warn("[adminNasabahService] Fetch fallback to mock data:", err);
+  const data = await apiRequest<any[]>(NASABAH.LIST);
+  if (Array.isArray(data) && data.length > 0) {
+    const mapped = data.map(mapNasabahApi);
+    saveToLocalStorage(mapped);
+    return mapped;
   }
+  return [];
+}
 
-  saveToLocalStorage(INITIAL_MOCK_NASABAH);
-  return INITIAL_MOCK_NASABAH;
+// Backend nasabah field: { id, username, namaNasabah, telp, alamat, saldoPoin, foto, createdAt, ... }
+// Frontend NasabahRecord butuh namaLengkap/status/tanggalDaftar/fotoProfilUrl.
+function mapNasabahApi(raw: any): NasabahRecord {
+  return {
+    id: raw.id,
+    namaLengkap: raw.namaNasabah || raw.namaLengkap || raw.username,
+    username: raw.username,
+    telp: raw.telp || "",
+    alamat: raw.alamat || "",
+    saldoPoin: Number(raw.saldoPoin) || 0,
+    status: (raw.status as StatusNasabah) || "aktif",
+    tanggalDaftar: raw.tanggalDaftar || formatTanggal(raw.createdAt || new Date().toISOString()),
+    fotoProfilUrl: raw.fotoProfilUrl || raw.foto || "",
+  };
+}
+
+function formatTanggal(iso: string): string {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
+  } catch {
+    return iso;
+  }
 }
 
 export async function createNasabah(

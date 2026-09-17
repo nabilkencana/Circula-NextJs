@@ -3,9 +3,20 @@ export type StatusTkr = "diproses" | "selesai" | "dibatalkan";
 export type TransaksiViewType = "STR" | "TKR";
 
 export interface SampahItemRincian {
+  kategoriSampahId?: string;
   namaKategori: string;
   berat: number; // in kg
   isReal?: boolean; // true if weighed by admin
+  poinPerKg?: number;
+}
+
+export interface VerifySetorPayload {
+  status: StatusSetor;
+  catatanAdmin?: string;
+  itemsReal?: {
+    kategoriSampahId: string;
+    beratKgReal: number;
+  }[];
 }
 
 export interface TransaksiSetorAdminRecord {

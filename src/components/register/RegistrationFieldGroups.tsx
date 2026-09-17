@@ -10,12 +10,16 @@ interface RegistrationFieldGroupsProps {
   onInputChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
+  onInputBlur?: (
+    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
 }
 
 export default function RegistrationFieldGroups({
   formData,
   errors,
   onInputChange,
+  onInputBlur,
 }: RegistrationFieldGroupsProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -42,6 +46,7 @@ export default function RegistrationFieldGroups({
               name="namaLengkap"
               value={formData.namaLengkap}
               onChange={onInputChange}
+              onBlur={onInputBlur}
               placeholder="Contoh: Budi Santoso"
               className={`w-full pl-10 pr-3.5 py-2.5 bg-white border ${
                 errors.namaLengkap
@@ -79,6 +84,7 @@ export default function RegistrationFieldGroups({
               name="username"
               value={formData.username}
               onChange={onInputChange}
+              onBlur={onInputBlur}
               placeholder="budisantoso26"
               autoCapitalize="none"
               className={`w-full pl-10 pr-3.5 py-2.5 bg-white border ${
@@ -110,7 +116,7 @@ export default function RegistrationFieldGroups({
         </label>
         <div className="relative flex rounded-xl border border-gray-200 bg-white overflow-hidden focus-within:border-dark-container focus-within:ring-1 focus-within:ring-dark-container">
           <div className="flex items-center px-3.5 bg-inset-gray border-r border-gray-200 text-xs font-bold text-text-primary select-none">
-            <span>🇮🇩 +62</span>
+            <span>+62</span>
           </div>
           <input
             type="tel"
@@ -118,6 +124,7 @@ export default function RegistrationFieldGroups({
             name="nomorWhatsapp"
             value={formData.nomorWhatsapp}
             onChange={onInputChange}
+            onBlur={onInputBlur}
             placeholder="81234567890"
             className={`w-full px-3.5 py-2.5 text-sm text-text-primary placeholder:text-gray-400 focus:outline-none ${
               errors.nomorWhatsapp ? "bg-red-50/20" : ""
@@ -153,6 +160,7 @@ export default function RegistrationFieldGroups({
             rows={3}
             value={formData.alamatLengkap}
             onChange={onInputChange}
+            onBlur={onInputBlur}
             placeholder="Jl. Veteran No. 12, RT 03/RW 02, Kec. Lowokwaru, Kota Malang"
             className={`w-full pl-10 pr-3.5 py-2.5 bg-white border ${
               errors.alamatLengkap
@@ -192,6 +200,7 @@ export default function RegistrationFieldGroups({
               name="password"
               value={formData.password}
               onChange={onInputChange}
+              onBlur={onInputBlur}
               placeholder="Minimal 8 karakter"
               className={`w-full pl-10 pr-10 py-2.5 bg-white border ${
                 errors.password
@@ -237,6 +246,7 @@ export default function RegistrationFieldGroups({
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={onInputChange}
+              onBlur={onInputBlur}
               placeholder="Ulangi kata sandi"
               className={`w-full pl-10 pr-10 py-2.5 bg-white border ${
                 errors.confirmPassword

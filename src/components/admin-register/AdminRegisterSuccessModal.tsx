@@ -77,7 +77,7 @@ export default function AdminRegisterSuccessModal({
         {/* Actions */}
         <div className="space-y-2.5 pt-2">
           <Link
-            href="/admin/login?registered=true"
+            href="/login?registered=true"
             className="w-full py-3 px-5 rounded-full bg-brand-neon hover:bg-brand-neon-hover text-text-primary font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all"
           >
             <span>Masuk ke Konsol Admin Sekarang</span>

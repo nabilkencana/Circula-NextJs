@@ -118,7 +118,7 @@ export default function TransaksiTableRow({
 
         {record.status === "selesai" && (
           <Link
-            href={`/nota/${record.kodeTransaksi}`}
+            href={`/nota/${record.id}`}
             className="inline-flex items-center gap-1.5 border border-gray-200 hover:bg-gray-50 text-text-primary text-xs font-semibold px-4 py-2 rounded-full transition-colors cursor-pointer whitespace-nowrap"
           >
             <Printer className="w-3.5 h-3.5 text-gray-500" />

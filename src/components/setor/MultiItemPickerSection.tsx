@@ -77,6 +77,9 @@ export default function MultiItemPickerSection({
 
       {/* Confirmation Checkbox Container */}
       <div
+        data-testid="terms-checkbox"
+        role="checkbox"
+        aria-checked={confirmedTerms}
         onClick={() => onConfirmedTermsChange(!confirmedTerms)}
         className="mt-6 p-4 rounded-2xl bg-inset-gray border border-gray-200 flex items-start gap-3 cursor-pointer hover:border-gray-300 transition-all select-none"
       >

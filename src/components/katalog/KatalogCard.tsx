@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
-import { ArrowRight, Star } from "lucide-react";
+import { ArrowRight, Star, Recycle, Box, Sparkles } from "lucide-react";
 import { KategoriSampah } from "@/types/kategoriSampah";
 
 interface KatalogCardProps {
@@ -16,6 +16,7 @@ const BADGE_COLOR_MAP: Record<string, string> = {
 };
 
 export default function KatalogCard({ item, onOpenEstimator }: KatalogCardProps) {
+  const [imgError, setImgError] = useState<boolean>(false);
   const badgeClass =
     BADGE_COLOR_MAP[item.jenisSampah] ||
     "bg-dark-container/90 text-white border-white/20";
@@ -23,14 +24,25 @@ export default function KatalogCard({ item, onOpenEstimator }: KatalogCardProps)
   return (
     <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group hover:-translate-y-1">
       {/* Thumbnail with Category Tag */}
-      <div className="relative h-48 w-full overflow-hidden bg-gray-100">
-        <Image
-          src={item.imageUrl}
-          alt={item.namaKategori}
-          fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          className="object-cover group-hover:scale-105 transition-transform duration-500"
-        />
+      <div className="relative h-48 w-full overflow-hidden bg-gray-100 flex items-center justify-center">
+        {!imgError && item.imageUrl ? (
+          <Image
+            src={item.imageUrl}
+            alt={item.namaKategori}
+            fill
+            loading="lazy"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <div className="w-full h-full bg-linear-to-br from-emerald-50 to-slate-100 flex flex-col items-center justify-center p-4 text-center">
+            <Recycle className="w-10 h-10 text-emerald-600/60 mb-1 animate-pulse" />
+            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              {item.namaKategori}
+            </span>
+          </div>
+        )}
         <div className="absolute top-3 left-3">
           <span
             className={`text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full border backdrop-blur-md ${badgeClass}`}

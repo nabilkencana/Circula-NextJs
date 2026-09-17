@@ -26,7 +26,7 @@ export const SETOR = {
   MY_SETOR: (bulan?: string) =>
     `/api/v1/setor-sampah/my-setor${bulan ? `?bulan=${bulan}` : ""}`,
   DETAIL: (id: string) => `/api/v1/setor-sampah/${id}`,
-  NOTA: (kodeSetor: string) => `/api/v1/setor-sampah/nota/${kodeSetor}`,
+  NOTA: (id: string) => `/api/v1/setor-sampah/${id}`,
 } as const;
 
 // ─── Admin Setor Verifikasi ───────────────────────────────────────────────────
@@ -39,7 +39,8 @@ export const ADMIN_SETOR = {
     return `/api/v1/setor-sampah/admin/list${qs ? `?${qs}` : ""}`;
   },
   VERIFY: (id: string) => `/api/v1/setor-sampah/admin/verify/${id}`,
-  VERIFIKASI: (id: string) => `/api/v1/setor-sampah/admin/verifikasi/${id}`,
+  // Alias deprecated — backend hanya terima /admin/verify/
+  VERIFIKASI: (id: string) => `/api/v1/setor-sampah/admin/verify/${id}`,
 } as const;
 
 // ─── Hadiah & Penukaran Poin ─────────────────────────────────────────────────
@@ -61,8 +62,8 @@ export const PENUKARAN = {
 
 // ─── Nasabah (Admin) ──────────────────────────────────────────────────────────
 export const NASABAH = {
-  LIST: "/api/v1/nasabah",
-  DETAIL: (id: string) => `/api/v1/nasabah/${id}`,
+  LIST: "/api/v1/admin/nasabah",
+  DETAIL: (id: string) => `/api/v1/admin/nasabah/${id}`,
 } as const;
 
 // ─── Dashboard & Laporan ──────────────────────────────────────────────────────

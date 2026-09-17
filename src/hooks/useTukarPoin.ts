@@ -10,13 +10,12 @@ import {
 import {
   getHadiahList,
   tukarPoinHadiah,
-  MOCK_HADIAH_LIST,
-  MOCK_SALDO_SUMMARY,
+  getSaldoNasabah,
 } from "@/services/tukarPoinService";
 
-export function useTukarPoin(initialItems: HadiahItem[] = MOCK_HADIAH_LIST) {
+export function useTukarPoin(initialItems: HadiahItem[] = []) {
   const [items, setItems] = useState<HadiahItem[]>(initialItems);
-  const [saldoSummary, setSaldoSummary] = useState<SaldoNasabahSummary>(MOCK_SALDO_SUMMARY);
+  const [saldoSummary, setSaldoSummary] = useState<SaldoNasabahSummary | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<KategoriHadiah>("semua");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -27,25 +26,33 @@ export function useTukarPoin(initialItems: HadiahItem[] = MOCK_HADIAH_LIST) {
   >(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Background fetch to sync items if API is active
+  // Background fetch to sync items & user point balance if API is active
   useEffect(() => {
     let isMounted = true;
-    async function loadRewards() {
+    async function loadInitialData() {
       setIsLoading(true);
       try {
-        const data = await getHadiahList();
-        if (isMounted && data && data.length > 0) {
-          setItems(data);
+        const [rewards, saldo] = await Promise.all([
+          getHadiahList(),
+          getSaldoNasabah(),
+        ]);
+        if (isMounted) {
+          if (rewards && rewards.length > 0) {
+            setItems(rewards);
+          }
+          if (saldo) {
+            setSaldoSummary(saldo);
+          }
         }
-      } catch {
-        // keep initialItems
+      } catch (err) {
+        console.error("Failed to load rewards or saldo:", err);
       } finally {
         if (isMounted) {
           setIsLoading(false);
         }
       }
     }
-    loadRewards();
+    loadInitialData();
     return () => {
       isMounted = false;
     };
@@ -73,10 +80,12 @@ export function useTukarPoin(initialItems: HadiahItem[] = MOCK_HADIAH_LIST) {
   }, [items, selectedCategory, searchQuery]);
 
   const isPointSufficient = (poinDibutuhkan: number) => {
+    if (!saldoSummary) return false;
     return saldoSummary.saldoPoinAktif >= poinDibutuhkan;
   };
 
   const kekuranganPoin = (poinDibutuhkan: number) => {
+    if (!saldoSummary) return 0;
     return Math.max(0, poinDibutuhkan - saldoSummary.saldoPoinAktif);
   };
 
@@ -101,19 +110,39 @@ export function useTukarPoin(initialItems: HadiahItem[] = MOCK_HADIAH_LIST) {
       const res = await tukarPoinHadiah({ hadiahId: activeItemToRedeem.id });
       if (res.success && res.data) {
         setRedemptionSuccessData(res.data);
-        // Deduct points from local saldo
+        // Deduct points from local saldo snapshot
         setSaldoSummary((prev) => ({
-          ...prev,
+          saldoPoinSaatIni: res.data.sisaPoin,
           saldoPoinAktif: res.data.sisaPoin,
+          totalSampahDisetorKg: prev?.totalSampahDisetorKg ?? 0,
           nilaiKonversiRupiah: res.data.sisaPoin * 350,
-          poinTerpakaiBulanIni: prev.poinTerpakaiBulanIni + res.data.poinTerpakai,
-          totalTransaksiSelesai: prev.totalTransaksiSelesai + 1,
+          poinTerpakaiBulanIni: (prev?.poinTerpakaiBulanIni ?? 0) + res.data.poinTerpakai,
+          totalTransaksiSelesai: (prev?.totalTransaksiSelesai ?? 0) + 1,
         }));
+        // Deduct local item stock
+        setItems((prev) =>
+          prev.map((it) =>
+            it.id === activeItemToRedeem.id
+              ? { ...it, stok: Math.max(0, it.stok - 1) }
+              : it
+          )
+        );
       } else {
         setErrorMessage(res.message || "Gagal memproses penukaran poin.");
       }
-    } catch {
-      setErrorMessage("Terjadi kendala jaringan saat memproses penukaran poin.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Gagal memproses penukaran poin.";
+      if (
+        msg.toLowerCase().includes("tidak cukup") ||
+        msg.toLowerCase().includes("kurang") ||
+        msg.toLowerCase().includes("insufficient")
+      ) {
+        setErrorMessage(
+          "Poin reward Anda belum mencukupi untuk menukarkan hadiah ini. Kumpulkan lebih banyak poin dengan menyetorkan sampah!"
+        );
+      } else {
+        setErrorMessage(msg || "Terjadi kendala saat memproses penukaran poin.");
+      }
     } finally {
       setIsSubmitting(false);
     }

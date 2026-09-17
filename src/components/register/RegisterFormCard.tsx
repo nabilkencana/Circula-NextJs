@@ -22,6 +22,7 @@ export default function RegisterFormCard({ controller }: RegisterFormCardProps) 
     avatarPreview,
     isSubmitting,
     handleInputChange,
+    handleInputBlur,
     handleTermsToggle,
     handleAvatarChange,
     handleAvatarRemove,
@@ -59,6 +60,7 @@ export default function RegisterFormCard({ controller }: RegisterFormCardProps) 
           formData={formData}
           errors={errors}
           onInputChange={handleInputChange}
+          onInputBlur={handleInputBlur}
         />
 
         {/* Terms Compliance Checkbox */}

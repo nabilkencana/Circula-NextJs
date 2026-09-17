@@ -11,6 +11,15 @@ import AlurPenukaranGuideSection from "@/components/tukar-poin/AlurPenukaranGuid
 import PreFooterTukarRibbon from "@/components/tukar-poin/PreFooterTukarRibbon";
 import TukarPoinConfirmModal from "@/components/tukar-poin/TukarPoinConfirmModal";
 import { useTukarPoin } from "@/hooks/useTukarPoin";
+import { SaldoNasabahSummary } from "@/types/tukarPoin";
+
+const ZERO_SALDO: SaldoNasabahSummary = {
+  saldoPoinSaatIni: 0,
+  saldoPoinAktif: 0,
+  nilaiKonversiRupiah: 0,
+  poinTerpakaiBulanIni: 0,
+  totalTransaksiSelesai: 0,
+};
 
 function TukarPoinContent() {
   const {
@@ -34,12 +43,14 @@ function TukarPoinContent() {
     handleCloseSuccessModal,
   } = useTukarPoin();
 
+  const effectiveSaldo = saldoSummary ?? ZERO_SALDO;
+
   return (
     <div className="min-h-screen bg-white font-sans text-text-primary flex flex-col selection:bg-brand-neon selection:text-dark-container">
       {/* Authenticated Navbar matching Blueprint */}
       <Navbar
         userRole="nasabah"
-        userPoints={saldoSummary.saldoPoinAktif}
+        userPoints={effectiveSaldo.saldoPoinAktif}
         userName="Budi Santoso"
       />
 
@@ -48,7 +59,7 @@ function TukarPoinContent() {
         <TukarPoinHero />
 
         {/* Active Point Balance Strip */}
-        <ActiveBalanceStrip saldoSummary={saldoSummary} />
+        <ActiveBalanceStrip saldoSummary={effectiveSaldo} />
 
         {/* Category Segment Tabs & Search */}
         <RewardFilterToolbar
@@ -80,7 +91,7 @@ function TukarPoinContent() {
       {/* Confirmation & Success Dialog Modal */}
       <TukarPoinConfirmModal
         item={activeItemToRedeem}
-        saldoSummary={saldoSummary}
+        saldoSummary={effectiveSaldo}
         isOpen={Boolean(activeItemToRedeem || redemptionSuccessData)}
         onClose={redemptionSuccessData ? handleCloseSuccessModal : handleCancelRedeem}
         onConfirm={handleConfirmRedeem}

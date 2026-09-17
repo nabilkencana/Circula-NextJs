@@ -2,7 +2,7 @@ import {
   CreateSetorSampahPayload,
   SetorSampahSubmissionResponse,
 } from "@/types/setorSampah";
-import { getKategoriSampah, MOCK_KATEGORI_SAMPAH } from "./kategoriSampahService";
+import { getKategoriSampah } from "./kategoriSampahService";
 import { KategoriSampah } from "@/types/kategoriSampah";
 import { fetchWithAuth } from "@/lib/api/client";
 import { ENDPOINTS } from "@/lib/api/endpoints";
@@ -67,20 +67,7 @@ export async function submitPengajuanSetor(
     };
   }
 
-  // Optimistic fallback — simulated receipt so UX never blocks
-  return {
-    success: true,
-    message: "Pengajuan penyetoran sampah berhasil dibuat (Mode Simulasi UKK).",
-    data: {
-      id: `setor-${Date.now()}`,
-      kodeSetor: generateKodeSetor(),
-      tanggal: payload.tanggal,
-      totalEstimasiBeratKg: Number(totalBerat.toFixed(1)),
-      totalEstimasiPoin: totalPoin,
-      totalEstimasiRupiah: totalRupiah,
-      status: "menunggu_konfirmasi",
-    },
-  };
+  throw new Error(result.error || "Pengajuan gagal. Coba lagi.");
 }
 
 export async function getKategoriSampahOptions(): Promise<KategoriSampah[]> {
@@ -88,7 +75,7 @@ export async function getKategoriSampahOptions(): Promise<KategoriSampah[]> {
     const data = await getKategoriSampah();
     if (data && data.length > 0) return data;
   } catch (err) {
-    console.warn("[SetorService] Failed to load options, using mock fallback:", err);
+    console.warn("[SetorService] Failed to load options:", err);
   }
-  return MOCK_KATEGORI_SAMPAH;
+  return [];
 }

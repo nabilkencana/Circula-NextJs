@@ -19,13 +19,15 @@ export default function LaporanPeriodToolbar({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const monthOptions = [
+    { label: "September 2026 (2026-09)", value: "2026-09" },
     { label: "Agustus 2026 (2026-08)", value: "2026-08" },
     { label: "Juli 2026 (2026-07)", value: "2026-07" },
     { label: "Juni 2026 (2026-06)", value: "2026-06" },
   ];
 
   const quickPills = [
-    { label: "Bulan Ini (Agu 2026)", value: "2026-08" },
+    { label: "Sep 2026", value: "2026-09" },
+    { label: "Agu 2026", value: "2026-08" },
     { label: "Juli 2026", value: "2026-07" },
     { label: "Juni 2026", value: "2026-06" },
   ];

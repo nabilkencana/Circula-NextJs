@@ -33,8 +33,26 @@ export interface TukarPoinResponse {
 }
 
 export interface SaldoNasabahSummary {
+  saldoPoinSaatIni: number;
   saldoPoinAktif: number;
-  nilaiKonversiRupiah: number;
-  poinTerpakaiBulanIni: number;
-  totalTransaksiSelesai: number;
+  totalSampahDisetorKg?: number;
+  totalPoinDidapat?: number;
+  totalPoinDitukar?: number;
+  nilaiKonversiRupiah?: number;
+  poinTerpakaiBulanIni?: number;
+  totalTransaksiSelesai?: number;
+  transaksiTerakhirSetor?: {
+    kodeSetor: string;
+    tanggal: string;
+    beratKg: number;
+    poin: number;
+    status: string;
+  };
+  transaksiTerakhirTukar?: {
+    kodePenukaran: string;
+    tanggal: string;
+    hadiah: string;
+    poin: number;
+    status: string;
+  };
 }

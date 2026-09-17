@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams, useRouter } from "next/navigation";
 import { CheckCircle2, ArrowRight, ShieldCheck, Home } from "lucide-react";
 import { UserSessionData } from "@/types/auth";
 
@@ -16,10 +17,34 @@ export default function LoginSuccessModal({
   user,
   onClose,
 }: LoginSuccessModalProps) {
-  if (!isOpen || !user) return null;
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [countdown, setCountdown] = useState<number>(3);
 
-  const isNasabah = user.role === "NASABAH";
-  const targetRedirect = isNasabah ? "/setor/ajukan" : "/histori";
+  const isNasabah = user?.role === "NASABAH";
+  const next = searchParams.get("next");
+  const fallback = isNasabah ? "/setor/ajukan" : "/admin/dashboard";
+  const targetRedirect = next && next.startsWith("/") ? next : fallback;
+
+  useEffect(() => {
+    if (!isOpen || !user) return;
+
+    setCountdown(3);
+    const interval = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          router.push(targetRedirect);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isOpen, user, targetRedirect, router]);
+
+  if (!isOpen || !user) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
@@ -87,10 +112,13 @@ export default function LoginSuccessModal({
             className="w-full py-3 px-5 rounded-full bg-brand-neon hover:bg-brand-neon-hover text-text-primary font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all"
           >
             <span>
-              {isNasabah ? "Lanjut ke Form Setor Sampah" : "Lanjut ke Konsol Riwayat"}
+              {isNasabah ? "Lanjut ke Form Setor Sampah" : "Lanjut ke Dashboard Admin"} ({countdown}s)
             </span>
             <ArrowRight className="w-4 h-4" />
           </Link>
+          <p className="text-[11px] text-text-secondary text-center">
+            Mengalihkan otomatis ke halaman tujuan dalam {countdown} detik...
+          </p>
 
           <div className="flex items-center justify-center gap-2 pt-1">
             <Link

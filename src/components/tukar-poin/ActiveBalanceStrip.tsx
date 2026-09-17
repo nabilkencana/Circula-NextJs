@@ -8,7 +8,8 @@ interface ActiveBalanceStripProps {
 }
 
 export default function ActiveBalanceStrip({ saldoSummary }: ActiveBalanceStripProps) {
-  const rupiahText = `Setara Rp ${saldoSummary.nilaiKonversiRupiah.toLocaleString("id-ID")}`;
+  const nilaiKonversi = saldoSummary.nilaiKonversiRupiah ?? (saldoSummary.saldoPoinAktif * 350);
+  const rupiahText = `Setara Rp ${nilaiKonversi.toLocaleString("id-ID")}`;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 mt-6 sm:mt-8">

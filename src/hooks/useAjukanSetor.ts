@@ -11,89 +11,67 @@ import {
   getKategoriSampahOptions,
   submitPengajuanSetor,
 } from "@/services/setorSampahService";
-import { MOCK_KATEGORI_SAMPAH } from "@/services/kategoriSampahService";
+import { getSaldoNasabah } from "@/services/tukarPoinService";
+import { getCurrentUser } from "@/services/authService";
 import { useToast } from "@/components/ui/ToastProvider";
 
-const USER_INITIAL_BALANCE = 150;
+const getTodayString = () => {
+  const d = new Date();
+  return d.toISOString().split("T")[0];
+};
 
 export function useAjukanSetor(initialParams?: {
   kategoriId?: string | null;
   berat?: string | null;
 }) {
   const { toast } = useToast();
-  const [categories, setCategories] =
-    useState<KategoriSampah[]>(MOCK_KATEGORI_SAMPAH);
-  const [tanggal, setTanggal] = useState<string>("2026-08-26");
+  const [categories, setCategories] = useState<KategoriSampah[]>([]);
+  const [tanggal, setTanggal] = useState<string>(getTodayString);
   const [metodePenyerahan, setMetodePenyerahan] = useState<"drop-off" | "jemput">(
     "drop-off"
   );
   const [catatan, setCatatan] = useState<string>("");
   const [confirmedTerms, setConfirmedTerms] = useState<boolean>(true);
+  const [saldoAkunSaatIni, setSaldoAkunSaatIni] = useState<number>(0);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState<boolean>(false);
 
   // Dynamic multi-item list state
   const [items, setItems] = useState<SetorSampahItemInput[]>(() => {
-    // Initial 2 items matching blueprint visual
-    const petCat =
-      MOCK_KATEGORI_SAMPAH.find((c) => c.namaKategori.includes("PET")) ||
-      MOCK_KATEGORI_SAMPAH[0];
-    const kardusCat =
-      MOCK_KATEGORI_SAMPAH.find((c) => c.namaKategori.includes("Kardus")) ||
-      MOCK_KATEGORI_SAMPAH[1];
-
-    const baseItems: SetorSampahItemInput[] = [
-      {
-        tempId: "item-1",
-        kategoriSampahId: petCat.id,
-        namaKategori: petCat.namaKategori,
-        jenisSampah: petCat.jenisSampah,
-        beratKg: 4.5,
-        hargaPerKg: petCat.hargaPerKg,
-        poinPerKg: petCat.poinPerKg,
-        subtotalPoin: Math.round(4.5 * petCat.poinPerKg),
-        subtotalRupiah: Math.round(4.5 * petCat.hargaPerKg),
-      },
-      {
-        tempId: "item-2",
-        kategoriSampahId: kardusCat.id,
-        namaKategori: kardusCat.namaKategori,
-        jenisSampah: kardusCat.jenisSampah,
-        beratKg: 2.0,
-        hargaPerKg: kardusCat.hargaPerKg,
-        poinPerKg: kardusCat.poinPerKg,
-        subtotalPoin: Math.round(2.0 * kardusCat.poinPerKg),
-        subtotalRupiah: Math.round(2.0 * kardusCat.hargaPerKg),
-      },
-    ];
+    // Seed rows from loaded categories (empty at mount -> empty list)
+    const makeItem = (
+      cat: KategoriSampah,
+      i: number,
+      beratKg: number
+    ): SetorSampahItemInput => ({
+      tempId: `item-${i + 1}`,
+      kategoriSampahId: cat.id,
+      namaKategori: cat.namaKategori,
+      jenisSampah: cat.jenisSampah,
+      beratKg,
+      hargaPerKg: cat.hargaPerKg,
+      poinPerKg: cat.poinPerKg,
+      subtotalPoin: Math.round(beratKg * cat.poinPerKg),
+      subtotalRupiah: Math.round(beratKg * cat.hargaPerKg),
+    });
 
     if (initialParams?.kategoriId) {
-      const targetCat = MOCK_KATEGORI_SAMPAH.find(
-        (c) => c.id === initialParams.kategoriId
-      );
+      const targetCat = categories.find((c) => c.id === initialParams.kategoriId);
       if (targetCat) {
         const parsedWeight = initialParams.berat
           ? parseFloat(initialParams.berat)
           : 5;
         const safeWeight =
           isNaN(parsedWeight) || parsedWeight <= 0 ? 5 : parsedWeight;
-
-        return [
-          {
-            tempId: `param-${Date.now()}`,
-            kategoriSampahId: targetCat.id,
-            namaKategori: targetCat.namaKategori,
-            jenisSampah: targetCat.jenisSampah,
-            beratKg: safeWeight,
-            hargaPerKg: targetCat.hargaPerKg,
-            poinPerKg: targetCat.poinPerKg,
-            subtotalPoin: Math.round(safeWeight * targetCat.poinPerKg),
-            subtotalRupiah: Math.round(safeWeight * targetCat.hargaPerKg),
-          },
-          ...baseItems.filter((it) => it.kategoriSampahId !== targetCat.id),
-        ];
+        return [makeItem(targetCat, 0, safeWeight)];
       }
     }
 
-    return baseItems;
+    const petCat = categories.find((c) => c.namaKategori.includes("PET"));
+    const kardusCat = categories.find((c) => c.namaKategori.includes("Kardus"));
+    const seeds = [petCat, kardusCat].filter(
+      (c): c is KategoriSampah => Boolean(c)
+    );
+    return seeds.map((cat, i) => makeItem(cat, i, i === 0 ? 4.5 : 2.0));
   });
 
   // Submission & UI feedback state
@@ -103,16 +81,45 @@ export function useAjukanSetor(initialParams?: {
     useState<SetorSampahSubmissionResponse["data"] | null>(null);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false);
 
-  // Load available categories from API
+  // Load available categories and live balance from API
   useEffect(() => {
     let isMounted = true;
-    async function loadCats() {
-      const data = await getKategoriSampahOptions();
-      if (isMounted && data && data.length > 0) {
-        setCategories(data);
+    async function loadData() {
+      try {
+        const [cats, saldo] = await Promise.all([
+          getKategoriSampahOptions(),
+          getSaldoNasabah(),
+        ]);
+        if (isMounted) {
+          if (cats && cats.length > 0) {
+            setCategories(cats);
+            setItems((prev) => {
+              if (prev.length > 0) return prev;
+              const firstCat = cats[0];
+              return [
+                {
+                  tempId: `item-${Date.now()}`,
+                  kategoriSampahId: firstCat.id,
+                  namaKategori: firstCat.namaKategori,
+                  jenisSampah: firstCat.jenisSampah,
+                  beratKg: 1.0,
+                  hargaPerKg: firstCat.hargaPerKg,
+                  poinPerKg: firstCat.poinPerKg,
+                  subtotalPoin: Math.round(1.0 * firstCat.poinPerKg),
+                  subtotalRupiah: Math.round(1.0 * firstCat.hargaPerKg),
+                },
+              ];
+            });
+          }
+          if (saldo && typeof saldo.saldoPoinAktif === "number") {
+            setSaldoAkunSaatIni(saldo.saldoPoinAktif);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load initial categories or saldo:", err);
       }
     }
-    loadCats();
+    loadData();
     return () => {
       isMounted = false;
     };
@@ -122,8 +129,12 @@ export function useAjukanSetor(initialParams?: {
   const addItem = useCallback(() => {
     // Pick next category that is not yet selected if possible
     const usedIds = new Set(items.map((it) => it.kategoriSampahId));
-    const nextCat =
-      categories.find((c) => !usedIds.has(c.id)) || categories[0] || MOCK_KATEGORI_SAMPAH[0];
+    const defaultCat = categories.find((c) => !usedIds.has(c.id));
+    const nextCat = defaultCat || categories[0];
+    if (!nextCat) {
+      setErrorMessage("Kategori sampah belum tersedia. Muat ulang halaman.");
+      return;
+    }
 
     const newItem: SetorSampahItemInput = {
       tempId: `item-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
@@ -228,11 +239,10 @@ export function useAjukanSetor(initialParams?: {
     return items.reduce((acc, curr) => acc + curr.subtotalRupiah, 0);
   }, [items]);
 
-  const saldoAkunSaatIni = USER_INITIAL_BALANCE;
   const proyeksiSaldoAkhir = saldoAkunSaatIni + totalEstimasiPoin;
 
-  // Form Submit Handler
-  const handleSubmit = async (e?: React.FormEvent) => {
+  // Pre-submit validation: open confirmation modal
+  const handleInitiateSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setErrorMessage(null);
 
@@ -248,6 +258,22 @@ export function useAjukanSetor(initialParams?: {
       return;
     }
 
+    const invalidItem = items.find((it) => it.beratKg <= 0);
+    if (invalidItem) {
+      setErrorMessage("Setiap jenis sampah harus memiliki berat minimal 0.1 kg.");
+      return;
+    }
+
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleCloseConfirm = () => {
+    setIsConfirmModalOpen(false);
+  };
+
+  // Form Submit Handler (executed from confirm modal)
+  const handleConfirmSubmit = async () => {
+    setErrorMessage(null);
     setIsSubmitting(true);
 
     const payload: CreateSetorSampahPayload = {
@@ -264,6 +290,7 @@ export function useAjukanSetor(initialParams?: {
       const response = await submitPengajuanSetor(payload);
       if (response.success && response.data) {
         setSubmissionResult(response.data);
+        setIsConfirmModalOpen(false);
         setIsSuccessModalOpen(true);
         toast({
           variant: "success",
@@ -277,9 +304,12 @@ export function useAjukanSetor(initialParams?: {
       }
     } catch (err) {
       console.error("[useAjukanSetor] Submit error:", err);
-      const msg = "Terjadi kesalahan saat menghubungi server. Silakan coba lagi.";
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "Terjadi kesalahan saat menghubungi server. Silakan coba lagi.";
       setErrorMessage(msg);
-      toast({ variant: "error", title: "Kesalahan Koneksi", message: msg });
+      toast({ variant: "error", title: "Kesalahan", message: msg });
     } finally {
       setIsSubmitting(false);
     }
@@ -314,8 +344,12 @@ export function useAjukanSetor(initialParams?: {
     isSubmitting,
     errorMessage,
     submissionResult,
+    isConfirmModalOpen,
     isSuccessModalOpen,
-    handleSubmit,
+    handleInitiateSubmit,
+    handleConfirmSubmit,
+    handleCloseConfirm,
+    handleSubmit: handleInitiateSubmit,
     closeSuccessModal,
   };
 }

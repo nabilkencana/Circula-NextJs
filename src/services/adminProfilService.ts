@@ -8,25 +8,24 @@ import { AUTH } from "@/lib/api/endpoints";
 
 const STORAGE_KEY = "circula_admin_unit_profile_v1";
 
-const INITIAL_MOCK_PROFILE: UnitBankSampahDetail = {
-  id: "unit-04",
-  kodeUnit: "UNIT-04",
-  namaUnit: "Bank Sampah Asri Jaya RW 05",
-  namaPengelola: "Bapak H. Sukirman",
-  telp: "81234567890",
-  alamatLengkap:
-    "Balai RW 05, Jl. Merdeka No. 10, Kel. Sukun, Kec. Sukun, Kota Malang, Jawa Timur 65147",
-  jamOperasional: "Sabtu & Minggu (08:00 - 15:00 WIB)",
-  kapasitasGudang: "Maks. 5 Ton / Periode",
-  appKey: "1d99c078-9a3f-45e0-978e-8e0806338593",
-  statusOperasional: "aktif",
-  totalNasabah: 142,
-  nasabahBaruBulanIni: 12,
-  akumulasiTonaseTon: 12.5,
-  transaksiBulanIni: 38,
-  rewardTerdistribusiPoin: 4250,
-  rewardTerdistribusiRupiah: 1487500,
-  terakhirDisimpan: "Hari ini, 09:12 WIB",
+const EMPTY_PROFILE: UnitBankSampahDetail = {
+  id: "",
+  kodeUnit: "",
+  namaUnit: "",
+  namaPengelola: "",
+  telp: "",
+  alamatLengkap: "",
+  jamOperasional: "",
+  kapasitasGudang: "",
+  appKey: "",
+  statusOperasional: "nonaktif",
+  totalNasabah: 0,
+  nasabahBaruBulanIni: 0,
+  akumulasiTonaseTon: 0,
+  transaksiBulanIni: 0,
+  rewardTerdistribusiPoin: 0,
+  rewardTerdistribusiRupiah: 0,
+  terakhirDisimpan: "",
 };
 
 export async function getUnitProfil(): Promise<UnitBankSampahDetail> {
@@ -49,21 +48,21 @@ export async function getUnitProfil(): Promise<UnitBankSampahDetail> {
     if (data && data.adminBank) {
       const adminBank = data.adminBank;
       return {
-        ...INITIAL_MOCK_PROFILE,
-        namaUnit: adminBank.namaUnit || INITIAL_MOCK_PROFILE.namaUnit,
-        namaPengelola: adminBank.namaPengelola || INITIAL_MOCK_PROFILE.namaPengelola,
-        telp: adminBank.telp || INITIAL_MOCK_PROFILE.telp,
-        alamatLengkap: adminBank.alamatLengkap || INITIAL_MOCK_PROFILE.alamatLengkap,
+        ...EMPTY_PROFILE,
+        namaUnit: adminBank.namaUnit || EMPTY_PROFILE.namaUnit,
+        namaPengelola: adminBank.namaPengelola || EMPTY_PROFILE.namaPengelola,
+        telp: adminBank.telp || EMPTY_PROFILE.telp,
+        alamatLengkap: adminBank.alamatLengkap || EMPTY_PROFILE.alamatLengkap,
       };
     }
   } catch (err) {
     console.warn(
-      "[adminProfilService] Network unreachable or dev mode. Simulating unit data:",
+      "[adminProfilService] Network unreachable. Unit profile unavailable:",
       err
     );
   }
 
-  return INITIAL_MOCK_PROFILE;
+  return EMPTY_PROFILE;
 }
 
 export async function updateUnitProfil(

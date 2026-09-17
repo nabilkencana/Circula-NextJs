@@ -30,7 +30,7 @@ export async function registerAdminBank(
     {
       method: "POST",
       body: JSON.stringify(requestBody),
-      timeoutMs: 8000,
+      timeoutMs: 25000,
     }
   );
 

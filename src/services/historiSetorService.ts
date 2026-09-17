@@ -2,58 +2,6 @@ import { TransaksiPenyetoran } from "@/types/historiSetor";
 import { apiRequest } from "@/lib/api/client";
 import { SETOR } from "@/lib/api/endpoints";
 
-// ─── Mock fallback data ───────────────────────────────────────────────────────
-
-export const MOCK_TRANSAKSI_HISTORI: TransaksiPenyetoran[] = [
-  {
-    id: "tx-1002",
-    kodeSetor: "STR-202608-1002",
-    tanggalPengajuan: "2026-08-26T10:00:00Z",
-    status: "menunggu_konfirmasi",
-    metodePenyerahan: "drop-off",
-    lokasiTujuan: "Drop-off Mandiri Unit Pusat",
-    catatanNasabah: "Sampah sudah dipilah rapi dalam 2 karung",
-    totalBeratKg: 6.5,
-    totalPoin: 55,
-    items: [
-      { kategoriNama: "Botol Plastik PET (Est. 4.5 Kg)", beratKg: 4.5, isRealWeight: false, poinSubtotal: 45, rupiahSubtotal: 15750 },
-      { kategoriNama: "Kardus & Karton (Est. 2.0 Kg)", beratKg: 2.0, isRealWeight: false, poinSubtotal: 10, rupiahSubtotal: 4000 },
-    ],
-  },
-  {
-    id: "tx-1001",
-    kodeSetor: "STR-202608-1001",
-    tanggalPengajuan: "2026-08-26T09:15:00Z",
-    tanggalVerifikasi: "2026-08-26T09:35:00Z",
-    status: "selesai",
-    metodePenyerahan: "drop-off",
-    lokasiTujuan: "Unit Penimbangan Pusat",
-    petugasVerifikator: "Ahmad Fauzi (Timbangan Tera Digital #04)",
-    catatanPetugas: "Berat sampah sesuai hasil timbangan real",
-    totalBeratKg: 15.0,
-    totalPoin: 150,
-    items: [
-      { kategoriNama: "Botol Plastik PET: 10.0 Kg", beratKg: 10.0, isRealWeight: true, poinSubtotal: 100, rupiahSubtotal: 35000 },
-      { kategoriNama: "Kardus & Karton: 5.0 Kg", beratKg: 5.0, isRealWeight: true, poinSubtotal: 25, rupiahSubtotal: 10000 },
-    ],
-  },
-  {
-    id: "tx-0994",
-    kodeSetor: "STR-202608-0994",
-    tanggalPengajuan: "2026-08-14T14:20:00Z",
-    tanggalVerifikasi: "2026-08-14T14:45:00Z",
-    status: "ditolak",
-    metodePenyerahan: "drop-off",
-    lokasiTujuan: "Unit Penimbangan Pusat",
-    catatanPetugas: "Sampah botol plastik masih tercampur cairan residu oli dan tidak memenuhi standar kebersihan 3R.",
-    totalBeratKg: 6.0,
-    totalPoin: 0,
-    items: [
-      { kategoriNama: "Botol Plastik Bekas Oli (Tercemar)", beratKg: 6.0, isRealWeight: false, poinSubtotal: 0, rupiahSubtotal: 0 },
-    ],
-  },
-];
-
 // ─── Response shape normalization ─────────────────────────────────────────────
 
 type StatusMap = Record<string, TransaksiPenyetoran["status"]>;
@@ -121,9 +69,9 @@ export async function getMySetorHistory(
     if (Array.isArray(data) && data.length > 0) {
       return data.map(normalizeHistori);
     }
-    return MOCK_TRANSAKSI_HISTORI;
+    return [];
   } catch {
-    return MOCK_TRANSAKSI_HISTORI;
+    return [];
   }
 }
 
@@ -132,6 +80,6 @@ export async function getDetailSetor(id: string): Promise<TransaksiPenyetoran | 
     const data = await apiRequest<ApiHistoriItem>(SETOR.DETAIL(id));
     return data ? normalizeHistori(data, 0) : null;
   } catch {
-    return MOCK_TRANSAKSI_HISTORI.find((t) => t.id === id) ?? null;
+    return null;
   }
 }

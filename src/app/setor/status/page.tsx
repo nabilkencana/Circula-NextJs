@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import HistoriHero from "@/components/histori/HistoriHero";
+import SaldoPoinProminentCard from "@/components/histori/SaldoPoinProminentCard";
 import HistoriFilterToolbar from "@/components/histori/HistoriFilterToolbar";
 import TransactionFeed from "@/components/histori/TransactionFeed";
 import StatusStageGuideSection from "@/components/histori/StatusStageGuideSection";
@@ -15,9 +16,11 @@ import { StatusPenyetoran } from "@/types/historiSetor";
 function StatusContent() {
   const searchParams = useSearchParams();
   const initialStatus = (searchParams.get("status") as StatusPenyetoran) || undefined;
+  const initialBulan = searchParams.get("bulan") || undefined;
 
   const {
     filteredTransactions,
+    summary,
     filterStatus,
     setFilterStatus,
     filterBulan,
@@ -36,12 +39,40 @@ function StatusContent() {
     ) {
       setFilterStatus(initialStatus);
     }
-  }, [initialStatus, setFilterStatus]);
+    if (initialBulan && /^\d{4}-\d{2}$/.test(initialBulan)) {
+      setFilterBulan(initialBulan);
+    }
+  }, [initialStatus, initialBulan, setFilterStatus, setFilterBulan]);
+
+  // Persist filter into URL search params smoothly
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (filterStatus && filterStatus !== "menunggu_konfirmasi") {
+        params.set("status", filterStatus);
+      } else {
+        params.delete("status");
+      }
+      if (filterBulan) {
+        params.set("bulan", filterBulan);
+      }
+      const newUrl = `${window.location.pathname}?${params.toString()}`;
+      window.history.replaceState(null, "", newUrl);
+    }
+  }, [filterStatus, filterBulan]);
 
   return (
     <main className="min-h-screen bg-white">
       {/* Hero Section */}
       <HistoriHero />
+
+      {/* Prominent Balance & Metrics Summary Card */}
+      <SaldoPoinProminentCard
+        saldoPoin={summary.totalPoin}
+        totalKg={summary.totalBeratSampahKg}
+        totalTransaksi={summary.totalTransaksiSetor}
+        isLoading={isLoading && summary.totalPoin === 0}
+      />
 
       {/* Filter Toolbar: Segmented Tabs, Month Select, Search */}
       <HistoriFilterToolbar

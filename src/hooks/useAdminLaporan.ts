@@ -2,15 +2,39 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { RekapitulasiBulananResponse } from "@/types/adminLaporan";
-import {
-  getRekapitulasiBulanan,
-  MOCK_REKAPITULASI_DATA,
-} from "@/services/adminLaporanService";
+import { getRekapitulasiBulanan } from "@/services/adminLaporanService";
+
+const EMPTY_REKAPITULASI: RekapitulasiBulananResponse = {
+  periodeBulan: "",
+  periodeLabel: "",
+  totalVolume: {
+    totalKg: 0,
+    totalTon: 0,
+    growthPercentage: 0,
+    comparedToMonth: "Bulan Lalu",
+  },
+  pembayaranKas: {
+    totalRupiah: 0,
+    rataRataTransaksiRupiah: 0,
+  },
+  sirkulasiReward: {
+    totalPoinDiterbitkan: 0,
+    totalPoinTerpakai: 0,
+    totalKlaimVoucherSelesai: 0,
+  },
+  breakdownMaterials: [],
+  compliance: {
+    isoStandard: "",
+    dinasTujuan: "",
+    penanggungJawab: "",
+    signatureVerified: false,
+  },
+};
 
 export function useAdminLaporan() {
   const [selectedBulan, setSelectedBulan] = useState<string>("2026-08");
   const [laporanData, setLaporanData] = useState<RekapitulasiBulananResponse>(
-    MOCK_REKAPITULASI_DATA["2026-08"]
+    EMPTY_REKAPITULASI
   );
   const [isLoading, setIsLoading] = useState(false);
 

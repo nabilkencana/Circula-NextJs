@@ -11,6 +11,7 @@ import DropOffProtocolCard from "@/components/setor/DropOffProtocolCard";
 import StandarPemeriksaanGuide from "@/components/setor/StandarPemeriksaanGuide";
 import BottomReassuranceRibbon from "@/components/setor/BottomReassuranceRibbon";
 import SubmissionSuccessModal from "@/components/setor/SubmissionSuccessModal";
+import SetorConfirmModal from "@/components/setor/SetorConfirmModal";
 import { useAjukanSetor } from "@/hooks/useAjukanSetor";
 
 function SetorFormContent() {
@@ -43,7 +44,10 @@ function SetorFormContent() {
     isSubmitting,
     errorMessage,
     submissionResult,
+    isConfirmModalOpen,
     isSuccessModalOpen,
+    handleConfirmSubmit,
+    handleCloseConfirm,
     handleSubmit,
     closeSuccessModal,
   } = useAjukanSetor(initialParams);
@@ -103,14 +107,29 @@ function SetorFormContent() {
         <BottomReassuranceRibbon />
       </main>
 
-      {/* Submission Success Modal */}
-      <SubmissionSuccessModal
-        isOpen={isSuccessModalOpen}
-        result={submissionResult}
-        onClose={closeSuccessModal}
-      />
-    </>
-  );
+        {/* Pre-submission Confirmation Modal */}
+        <SetorConfirmModal
+          isOpen={isConfirmModalOpen}
+          items={items}
+          tanggal={tanggal}
+          metodePenyerahan={metodePenyerahan}
+          catatan={catatan}
+          totalEstimasiBerat={totalEstimasiBerat}
+          totalEstimasiPoin={totalEstimasiPoin}
+          totalEstimasiRupiah={totalEstimasiRupiah}
+          isSubmitting={isSubmitting}
+          onClose={handleCloseConfirm}
+          onConfirm={handleConfirmSubmit}
+        />
+
+        {/* Submission Success Modal */}
+        <SubmissionSuccessModal
+          isOpen={isSuccessModalOpen}
+          result={submissionResult}
+          onClose={closeSuccessModal}
+        />
+      </>
+    );
 }
 
 export default function AjukanSetorPage() {

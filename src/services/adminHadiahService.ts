@@ -1,5 +1,6 @@
 import {
   HadiahAdminRecord,
+  KategoriHadiah,
   CreateHadiahPayload,
   UpdateHadiahPayload,
   RiwayatStokRecord,
@@ -8,92 +9,6 @@ import { apiRequest } from "@/lib/api/client";
 import { HADIAH } from "@/lib/api/endpoints";
 
 const STORAGE_KEY = "circula_admin_hadiah_list_v1";
-
-export const INITIAL_MOCK_HADIAH: HadiahAdminRecord[] = [
-  {
-    id: "8bd74595-3b91",
-    namaHadiah: "Voucher Pulsa / E-Wallet Rp 25.000",
-    kategori: "voucher",
-    deskripsi:
-      "Voucher digital resmi untuk pulsa seluler (Telkomsel, Indosat, XL) atau saldo domisili e-wallet (GoPay, OVO, ShopeePay).",
-    poinDibutuhkan: 75,
-    stok: 50,
-    satuanStok: "Unit",
-    imageUrl:
-      "https://images.unsplash.com/photo-1556742049-0a67e55722c0?w=600&auto=format&fit=crop&q=80",
-  },
-  {
-    id: "c4129a08-11d2",
-    namaHadiah: "Minyak Goreng Bimoli 1 Liter",
-    kategori: "sembako",
-    deskripsi:
-      "Minyak goreng kelapa sawit higienis kemasan pouch 1 liter, kaya vitamin E & omega 9.",
-    poinDibutuhkan: 100,
-    stok: 25,
-    satuanStok: "Pcs",
-    imageUrl:
-      "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600&auto=format&fit=crop&q=80",
-  },
-  {
-    id: "f7819302-8a44",
-    namaHadiah: "Beras Super Pulen 2.5 Kg",
-    kategori: "sembako",
-    deskripsi:
-      "Beras kualitas premium tanpa pemutih dan pengawet, pulen dan wangi alami panen lokal.",
-    poinDibutuhkan: 180,
-    stok: 15,
-    satuanStok: "Sak",
-    imageUrl:
-      "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80",
-  },
-  {
-    id: "e5638210-99c7",
-    namaHadiah: "Gula Pasir 1 Kg",
-    kategori: "sembako",
-    deskripsi:
-      "Gula pasir murni kristal putih manis alami kemasan 1 kg berstandar SNI.",
-    poinDibutuhkan: 60,
-    stok: 0,
-    satuanStok: "Pcs",
-    imageUrl:
-      "https://images.unsplash.com/photo-1581441363689-1f3c3c414635?w=600&auto=format&fit=crop&q=80",
-  },
-];
-
-export const INITIAL_MOCK_RIWAYAT_STOK: RiwayatStokRecord[] = [
-  {
-    id: "LOG-001",
-    tanggal: "16 Sep 2026, 14:30 WIB",
-    namaHadiah: "Gula Pasir 1 Kg",
-    tipe: "keluar",
-    jumlah: 10,
-    keterangan: "Penukaran nasabah NSB-001 & NSB-002",
-  },
-  {
-    id: "LOG-002",
-    tanggal: "15 Sep 2026, 09:15 WIB",
-    namaHadiah: "Minyak Goreng Bimoli 1 Liter",
-    tipe: "masuk",
-    jumlah: 25,
-    keterangan: "Restok operasional gudang sembako",
-  },
-  {
-    id: "LOG-003",
-    tanggal: "14 Sep 2026, 11:20 WIB",
-    namaHadiah: "Voucher Pulsa / E-Wallet Rp 25.000",
-    tipe: "masuk",
-    jumlah: 50,
-    keterangan: "Top-up API kupon digital mitra fintech",
-  },
-  {
-    id: "LOG-004",
-    tanggal: "12 Sep 2026, 16:45 WIB",
-    namaHadiah: "Beras Super Pulen 2.5 Kg",
-    tipe: "keluar",
-    jumlah: 5,
-    keterangan: "Penukaran nasabah NSB-003",
-  },
-];
 
 function saveToLocalStorage(records: HadiahAdminRecord[]) {
   if (typeof window !== "undefined") {
@@ -105,41 +20,35 @@ function saveToLocalStorage(records: HadiahAdminRecord[]) {
   }
 }
 
-function readFromLocalStorage(): HadiahAdminRecord[] | null {
-  if (typeof window !== "undefined") {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        return JSON.parse(saved);
-      }
-    } catch (e) {
-      console.warn("[adminHadiahService] Failed to parse localStorage:", e);
-    }
+export async function getHadiahList(): Promise<HadiahAdminRecord[]> {
+  const data = await apiRequest<any[]>(HADIAH.LIST);
+  if (Array.isArray(data) && data.length > 0) {
+    const mapped = data.map(mapHadiahApi);
+    saveToLocalStorage(mapped);
+    return mapped;
   }
-  return null;
+  return [];
 }
 
-export async function getHadiahList(): Promise<HadiahAdminRecord[]> {
-  const cached = readFromLocalStorage();
-  if (cached && cached.length > 0) {
-    return cached;
-  }
+// Backend hadiah field: { id, namaHadiah, poinDibutuhkan, stok, foto, ... }
+// Frontend HadiahAdminRecord butuh kategori/deskripsi/satuanStok/imageUrl.
+// Infer kategori dari nama (backend tak kirim kategori/deskripsi/satuan).
+function mapHadiahApi(raw: any): HadiahAdminRecord {
+  const nama = (raw.namaHadiah || "").toLowerCase();
+  let kategori: KategoriHadiah = "merchandise";
+  if (/voucher|pulsa|wallet|e-wallet|ewallet|digital|token/i.test(nama)) kategori = "voucher";
+  else if (/minyak|beras|gula|sembako|tepung|telur|kopi|sabun|detergen|mie/i.test(nama)) kategori = "sembako";
 
-  try {
-    const data = await apiRequest<HadiahAdminRecord[]>(HADIAH.LIST);
-    if (Array.isArray(data) && data.length > 0) {
-      saveToLocalStorage(data);
-      return data;
-    }
-  } catch (err) {
-    console.warn(
-      "[adminHadiahService] Fetch fallback to mock data:",
-      err
-    );
-  }
-
-  saveToLocalStorage(INITIAL_MOCK_HADIAH);
-  return INITIAL_MOCK_HADIAH;
+  return {
+    id: raw.id,
+    namaHadiah: raw.namaHadiah,
+    kategori,
+    deskripsi: raw.deskripsi || `Hadiah: ${raw.namaHadiah}`,
+    poinDibutuhkan: Number(raw.poinDibutuhkan) || 0,
+    stok: Number(raw.stok) || 0,
+    satuanStok: raw.satuanStok || raw.satuan || "Unit",
+    imageUrl: raw.imageUrl || raw.foto || "",
+  };
 }
 
 export async function createHadiah(
@@ -234,5 +143,5 @@ export async function deleteHadiah(id: string): Promise<boolean> {
 }
 
 export async function getRiwayatStok(): Promise<RiwayatStokRecord[]> {
-  return INITIAL_MOCK_RIWAYAT_STOK;
+  return [];
 }

@@ -4,6 +4,7 @@ import "./globals.css";
 import { ToastProvider } from "@/components/ui/ToastProvider";
 import TenantKeyModal from "@/components/ui/TenantKeyModal";
 import AppSeedInitializer from "@/components/ui/AppSeedInitializer";
+import RouteGuard from "@/components/auth/RouteGuard";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -36,7 +37,9 @@ export default function RootLayout({
     <html lang="id" className={`${plusJakartaSans.variable} scroll-smooth`}>
       <body className="bg-surface-card text-text-primary min-h-screen flex flex-col font-sans selection:bg-brand-neon selection:text-text-primary">
         <ToastProvider>
-          {children}
+          <RouteGuard>
+            {children}
+          </RouteGuard>
           {/* Silent background seed — registers x-app-key UUID with backend on first visit */}
           <AppSeedInitializer />
           {/* Global x-app-key hydration modal — shown once on first visit */}

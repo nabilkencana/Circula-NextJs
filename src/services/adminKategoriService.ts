@@ -1,5 +1,6 @@
 import {
   KategoriSampahAdminRecord,
+  JenisSampah,
   CreateKategoriPayload,
   UpdateKategoriPayload,
 } from "@/types/adminKategori";
@@ -7,81 +8,6 @@ import { apiRequest } from "@/lib/api/client";
 import { KATEGORI } from "@/lib/api/endpoints";
 
 const STORAGE_KEY = "circula_admin_kategori_list_v1";
-
-export const INITIAL_MOCK_KATEGORI: KategoriSampahAdminRecord[] = [
-  {
-    id: "cat-pet-01",
-    materialCode: "ID: 6b17c2cf...",
-    jenisSampah: "plastik",
-    namaKategori: "Botol Plastik PET (Bersih)",
-    deskripsi: "Botol bening mineral, label & tutup dilepas, tanpa sisa residu cairan pewarna.",
-    hargaBeliPerKg: 3500,
-    poinRewardPerKg: 10,
-    satuan: "kg",
-    imageUrl:
-      "https://images.unsplash.com/photo-1527061011665-3652c757a4d4?w=600&auto=format&fit=crop&q=80",
-  },
-  {
-    id: "cat-krd-02",
-    materialCode: "ID: 5b2eff42...",
-    jenisSampah: "kertas",
-    namaKategori: "Kardus & Karton Bekas",
-    deskripsi: "Kardus cokelat tebal bergelombang, kering, lipat rapi tanpa lakban berlebih.",
-    hargaBeliPerKg: 2000,
-    poinRewardPerKg: 5,
-    satuan: "kg",
-    imageUrl:
-      "https://images.unsplash.com/photo-1534056070602-a2a913134263?w=600&auto=format&fit=crop&q=80",
-  },
-  {
-    id: "cat-klg-03",
-    materialCode: "ID: ae28e806...",
-    jenisSampah: "logam",
-    namaKategori: "Kaleng Aluminium / Minuman",
-    deskripsi: "Kaleng soda atau susu murni aluminium, dicuci bersih dan dipress/dipipihkan.",
-    hargaBeliPerKg: 12000,
-    poinRewardPerKg: 30,
-    satuan: "kg",
-    imageUrl:
-      "https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?w=600&auto=format&fit=crop&q=80",
-  },
-  {
-    id: "cat-kca-04",
-    materialCode: "ID: 440f0550...",
-    jenisSampah: "kaca",
-    namaKategori: "Botol Kaca Bening",
-    deskripsi: "Botol kaca utuh bebas retak, transparan, tanpa tutup logam atau cincin leher.",
-    hargaBeliPerKg: 1500,
-    poinRewardPerKg: 4,
-    satuan: "kg",
-    imageUrl:
-      "https://images.unsplash.com/photo-1621451537084-482c73073a0f?w=600&auto=format&fit=crop&q=80",
-  },
-  {
-    id: "cat-tmb-05",
-    materialCode: "ID: f1234567...",
-    jenisSampah: "logam",
-    namaKategori: "Tembaga Super (Kabel Kupas)",
-    deskripsi: "Kawat tembaga berkilau tebal >1mm, bebas kotoran oli, kupasan murni.",
-    hargaBeliPerKg: 75000,
-    poinRewardPerKg: 150,
-    satuan: "kg",
-    imageUrl:
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&auto=format&fit=crop&q=80",
-  },
-  {
-    id: "cat-hvs-06",
-    materialCode: "ID: c3456789...",
-    jenisSampah: "kertas",
-    namaKategori: "Kertas HVS & Arsip Dokumen",
-    deskripsi: "Kertas putih bekas print/tulis A4/F4, kering, bebas staples atau jilid plastik.",
-    hargaBeliPerKg: 2800,
-    poinRewardPerKg: 7,
-    satuan: "kg",
-    imageUrl:
-      "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&auto=format&fit=crop&q=80",
-  },
-];
 
 function saveToLocalStorage(records: KategoriSampahAdminRecord[]) {
   if (typeof window !== "undefined") {
@@ -93,41 +19,30 @@ function saveToLocalStorage(records: KategoriSampahAdminRecord[]) {
   }
 }
 
-function readFromLocalStorage(): KategoriSampahAdminRecord[] | null {
-  if (typeof window !== "undefined") {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        return JSON.parse(saved);
-      }
-    } catch (e) {
-      console.warn("[adminKategoriService] Failed to parse localStorage:", e);
-    }
+export async function getKategoriList(): Promise<KategoriSampahAdminRecord[]> {
+  const data = await apiRequest<any[]>(KATEGORI.LIST);
+  if (Array.isArray(data) && data.length > 0) {
+    const mapped = data.map(mapKategoriApi);
+    saveToLocalStorage(mapped);
+    return mapped;
   }
-  return null;
+  return [];
 }
 
-export async function getKategoriList(): Promise<KategoriSampahAdminRecord[]> {
-  const cached = readFromLocalStorage();
-  if (cached && cached.length > 0) {
-    return cached;
-  }
-
-  try {
-    const data = await apiRequest<KategoriSampahAdminRecord[]>(KATEGORI.LIST);
-    if (Array.isArray(data) && data.length > 0) {
-      saveToLocalStorage(data);
-      return data;
-    }
-  } catch (err) {
-    console.warn(
-      "[adminKategoriService] Fetch fallback to mock data:",
-      err
-    );
-  }
-
-  saveToLocalStorage(INITIAL_MOCK_KATEGORI);
-  return INITIAL_MOCK_KATEGORI;
+// Backend kategori field: { id, namaKategori, hargaPerKg, poinPerKg, jenis, foto, ... }
+// Frontend KategoriSampahAdminRecord butuh field nama beda + satuan/materialCode.
+function mapKategoriApi(raw: any): KategoriSampahAdminRecord {
+  return {
+    id: raw.id,
+    materialCode: `ID: ${String(raw.id).slice(0, 8)}...`,
+    namaKategori: raw.namaKategori,
+    jenisSampah: (raw.jenis as JenisSampah) || "plastik",
+    deskripsi: raw.deskripsi || `Kategori ${raw.namaKategori} — daur ulang.`,
+    hargaBeliPerKg: Number(raw.hargaPerKg) || 0,
+    poinRewardPerKg: Number(raw.poinPerKg) || 0,
+    imageUrl: raw.imageUrl || raw.foto || "",
+    satuan: raw.satuan || "kg",
+  };
 }
 
 export async function createKategori(
@@ -137,7 +52,10 @@ export async function createKategori(
 
   const randomHash = Math.random().toString(36).substring(2, 10);
   const newRecord: KategoriSampahAdminRecord = {
-    id: `cat-${payload.jenisSampah}-${String(currentList.length + 1).padStart(2, "0")}`,
+    id:
+      currentList.length > 0
+        ? `cat-${payload.jenisSampah}-${String(currentList.length + 1).padStart(2, "0")}`
+        : `cat-${String(Date.now())}`,
     materialCode: `ID: ${randomHash}...`,
     namaKategori: payload.namaKategori.trim(),
     jenisSampah: payload.jenisSampah,
