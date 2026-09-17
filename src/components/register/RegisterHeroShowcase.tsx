@@ -24,10 +24,6 @@ export default function RegisterHeroShowcase() {
 
       {/* Top Headline & Subtitle */}
       <div className="relative z-10">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-brand-neon text-xs font-bold mb-4">
-          <Sparkles className="w-3.5 h-3.5 text-brand-neon" />
-          <span>Pendaftaran Terbuka &amp; Gratis</span>
-        </div>
         <h2 className="text-3xl sm:text-4xl xl:text-[40px] font-extrabold text-white leading-[1.15] tracking-tight">
           Mulai Menabung Sampah,<br />
           Raih Saldo Rewards &amp;<br />
