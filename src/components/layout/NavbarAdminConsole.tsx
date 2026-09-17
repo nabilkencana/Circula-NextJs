@@ -16,7 +16,6 @@ export default function NavbarAdminConsole() {
     { name: "Kategori Sampah", href: "/admin/kategori-sampah", isActive: pathname === "/admin/kategori-sampah" },
     { name: "Katalog Hadiah", href: "/admin/hadiah", isActive: pathname === "/admin/hadiah" },
     { name: "Laporan", href: "/admin/laporan", isActive: pathname === "/admin/laporan" },
-    { name: "Profil Unit", href: "/admin/profil", isActive: pathname === "/admin/profil" },
   ];
 
   return (
@@ -26,22 +25,17 @@ export default function NavbarAdminConsole() {
         aria-label="Navigasi Konsol Admin Circula"
       >
         {/* Brand Console Logo matching Navbar appearance */}
-        <Link href="/admin/nasabah" className="flex items-center gap-3 group shrink-0">
-          <div className="w-9 h-9 rounded-full bg-brand-neon flex items-center justify-center transition-transform group-hover:scale-105 shadow-inner">
-            <Leaf className="w-5 h-5 text-dark-container fill-dark-container" />
+        <Link href="/admin/dashboard" className="flex items-center gap-2.5 group shrink-0">
+          <div className="w-8 h-8 rounded-full bg-brand-neon flex items-center justify-center transition-transform group-hover:scale-105 shadow-inner shrink-0">
+            <Leaf className="w-4 h-4 text-dark-container fill-dark-container" />
           </div>
-          <div className="flex flex-col">
-            <span className="font-extrabold text-sm sm:text-base tracking-[0.14em] text-text-primary leading-none">
-              CIRCULA
-            </span>
-            <span className="text-[9px] font-bold tracking-wider text-text-secondary uppercase mt-0.5">
-              Konsol Operasional Unit
-            </span>
-          </div>
+          <span className="font-extrabold text-xs sm:text-sm tracking-wider text-text-primary whitespace-nowrap">
+            CIRCULA ADMIN CONSOLE
+          </span>
         </Link>
 
         {/* Center Admin Navigation Links matching Navbar appearance */}
-        <div className="hidden lg:flex items-center gap-1 xl:gap-1.5">
+        <div className="hidden lg:flex items-center gap-1 xl:gap-2">
           {adminLinks.map((link) => (
             <Link
               key={link.name}
@@ -64,9 +58,9 @@ export default function NavbarAdminConsole() {
         <div className="hidden sm:flex items-center gap-2.5 shrink-0">
           {/* Unit Status Pill */}
           <div className="bg-inset-gray border border-gray-200 px-3.5 py-1.5 rounded-full flex items-center gap-2 text-xs font-bold text-text-primary shadow-2xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_#10B981]" />
             <Building2 className="w-3.5 h-3.5 text-gray-500" />
             <span>Bank Sampah Asri Jaya</span>
-            <span className="w-2 h-2 rounded-full bg-brand-neon-hover shadow-[0_0_6px_#D4E836]" />
           </div>
 
           {/* Logout Action */}
