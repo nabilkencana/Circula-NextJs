@@ -2,27 +2,12 @@ import {
   RegisterAdminBankPayload,
   RegisterAdminBankResponse,
 } from "@/types/adminAuth";
-import { apiRequest, buildAuthHeaders, BASE_URL } from "@/lib/api/client";
-
-function getHeaders(): HeadersInit {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-
-  const appKey = process.env.NEXT_PUBLIC_APP_KEY;
-  if (appKey) {
-    headers["x-app-key"] = appKey;
-  }
-
-  return headers;
-}
+import { fetchWithAuth } from "@/lib/api/client";
+import { AUTH } from "@/lib/api/endpoints";
 
 export async function registerAdminBank(
   payload: RegisterAdminBankPayload
 ): Promise<RegisterAdminBankResponse> {
-  const url = `${BASE_URL}/api/v1/auth/admin/register`;
-  const headers = getHeaders();
-
   // Normalize phone number to standard format
   let normalizedTelp = payload.telp.trim();
   if (normalizedTelp.startsWith("0")) {
@@ -40,68 +25,26 @@ export async function registerAdminBank(
     role: "ADMIN",
   };
 
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3500);
-
-    const res = await fetch(url, {
+  const result = await fetchWithAuth<RegisterAdminBankResponse["data"]>(
+    AUTH.REGISTER_ADMIN,
+    {
       method: "POST",
-      headers,
       body: JSON.stringify(requestBody),
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-
-    if (res.ok) {
-      const json = await res.json();
-      return {
-        success: true,
-        message:
-          json.message || "Registrasi unit bank sampah berhasil didaftarkan.",
-        data: json.data || {
-          id: `usr-adm-${Date.now()}`,
-          username: requestBody.username,
-          role: "ADMIN",
-          adminBank: {
-            id: `adm-bank-${Math.floor(100 + Math.random() * 900)}`,
-            namaUnit: requestBody.namaUnit,
-            namaPengelola: requestBody.namaPengelola,
-            telp: requestBody.telp,
-          },
-          createdAt: new Date().toISOString(),
-        },
-      };
+      timeoutMs: 8000,
     }
+  );
 
-    console.warn(
-      `[AdminAuthService] Endpoint returned status ${res.status}. Falling back to simulation mode.`
-    );
-  } catch (err) {
-    console.warn(
-      "[AdminAuthService] Network unreachable or dev mode. Simulating registration response:",
-      err
-    );
+  if (result.ok && result.data) {
+    return {
+      success: true,
+      message: "Registrasi unit bank sampah berhasil didaftarkan.",
+      data: result.data,
+    };
   }
 
-  // Artificial delay for smooth UX loading feedback
-  await new Promise((resolve) => setTimeout(resolve, 800));
-
-  const uniqueId = `adm-bank-${Math.floor(100 + Math.random() * 900)}`;
-
-  return {
-    success: true,
-    message: "Registrasi unit bank sampah berhasil didaftarkan (Simulasi UKK Circula).",
-    data: {
-      id: `usr-adm-202608-${Math.floor(1000 + Math.random() * 9000)}`,
-      username: requestBody.username,
-      role: "ADMIN",
-      adminBank: {
-        id: uniqueId,
-        namaUnit: requestBody.namaUnit,
-        namaPengelola: requestBody.namaPengelola,
-        telp: requestBody.telp,
-      },
-      createdAt: new Date().toISOString(),
-    },
-  };
+  throw new Error(
+    result.error ||
+      "Pendaftaran admin unit gagal. Periksa data kembali atau hubungi administrator."
+  );
 }
+

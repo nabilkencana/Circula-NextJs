@@ -3,7 +3,8 @@ import {
   UpdateUnitProfilPayload,
   UpdateUnitProfilResponse,
 } from "@/types/adminProfil";
-import { apiRequest, buildAuthHeaders, BASE_URL } from "@/lib/api/client";
+import { apiRequest } from "@/lib/api/client";
+import { AUTH } from "@/lib/api/endpoints";
 
 const STORAGE_KEY = "circula_admin_unit_profile_v1";
 
@@ -28,26 +29,6 @@ const INITIAL_MOCK_PROFILE: UnitBankSampahDetail = {
   terakhirDisimpan: "Hari ini, 09:12 WIB",
 };
 
-function getHeaders(): HeadersInit {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-
-  const appKey = process.env.NEXT_PUBLIC_APP_KEY || INITIAL_MOCK_PROFILE.appKey;
-  if (appKey) {
-    headers["x-app-key"] = appKey;
-  }
-
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem("circula_token");
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-  }
-
-  return headers;
-}
-
 export async function getUnitProfil(): Promise<UnitBankSampahDetail> {
   // Check local storage persistence first
   if (typeof window !== "undefined") {
@@ -61,32 +42,19 @@ export async function getUnitProfil(): Promise<UnitBankSampahDetail> {
     }
   }
 
-  const url = `${BASE_URL}/api/v1/auth/me`;
-  const headers = getHeaders();
-
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000);
-
-    const res = await fetch(url, {
-      method: "GET",
-      headers,
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-
-    if (res.ok) {
-      const json = await res.json();
-      if (json.data && json.data.adminBank) {
-        const adminBank = json.data.adminBank;
-        return {
-          ...INITIAL_MOCK_PROFILE,
-          namaUnit: adminBank.namaUnit || INITIAL_MOCK_PROFILE.namaUnit,
-          namaPengelola: adminBank.namaPengelola || INITIAL_MOCK_PROFILE.namaPengelola,
-          telp: adminBank.telp || INITIAL_MOCK_PROFILE.telp,
-          alamatLengkap: adminBank.alamatLengkap || INITIAL_MOCK_PROFILE.alamatLengkap,
-        };
-      }
+    const data = await apiRequest<{ adminBank?: Partial<UnitBankSampahDetail> }>(
+      AUTH.ME
+    );
+    if (data && data.adminBank) {
+      const adminBank = data.adminBank;
+      return {
+        ...INITIAL_MOCK_PROFILE,
+        namaUnit: adminBank.namaUnit || INITIAL_MOCK_PROFILE.namaUnit,
+        namaPengelola: adminBank.namaPengelola || INITIAL_MOCK_PROFILE.namaPengelola,
+        telp: adminBank.telp || INITIAL_MOCK_PROFILE.telp,
+        alamatLengkap: adminBank.alamatLengkap || INITIAL_MOCK_PROFILE.alamatLengkap,
+      };
     }
   } catch (err) {
     console.warn(

@@ -4,7 +4,8 @@ import {
   UpdateHadiahPayload,
   RiwayatStokRecord,
 } from "@/types/adminHadiah";
-import { apiRequest, buildAuthHeaders, BASE_URL } from "@/lib/api/client";
+import { apiRequest } from "@/lib/api/client";
+import { HADIAH } from "@/lib/api/endpoints";
 
 const STORAGE_KEY = "circula_admin_hadiah_list_v1";
 
@@ -94,27 +95,6 @@ export const INITIAL_MOCK_RIWAYAT_STOK: RiwayatStokRecord[] = [
   },
 ];
 
-function getHeaders(): HeadersInit {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-
-  const appKey =
-    process.env.NEXT_PUBLIC_APP_KEY || "97945213-34a7-48cf-baac-8740c1d18765";
-  if (appKey) {
-    headers["x-app-key"] = appKey;
-  }
-
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem("circula_token");
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-  }
-
-  return headers;
-}
-
 function saveToLocalStorage(records: HadiahAdminRecord[]) {
   if (typeof window !== "undefined") {
     try {
@@ -145,26 +125,11 @@ export async function getHadiahList(): Promise<HadiahAdminRecord[]> {
     return cached;
   }
 
-  const url = `${BASE_URL}/api/v1/hadiah`;
-  const headers = getHeaders();
-
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000);
-
-    const res = await fetch(url, {
-      method: "GET",
-      headers,
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-
-    if (res.ok) {
-      const json = await res.json();
-      if (Array.isArray(json.data) && json.data.length > 0) {
-        saveToLocalStorage(json.data);
-        return json.data;
-      }
+    const data = await apiRequest<HadiahAdminRecord[]>(HADIAH.LIST);
+    if (Array.isArray(data) && data.length > 0) {
+      saveToLocalStorage(data);
+      return data;
     }
   } catch (err) {
     console.warn(
@@ -198,11 +163,8 @@ export async function createHadiah(
   };
 
   try {
-    const url = `${BASE_URL}/api/v1/hadiah`;
-    const headers = getHeaders();
-    await fetch(url, {
+    await apiRequest(HADIAH.CREATE, {
       method: "POST",
-      headers,
       body: JSON.stringify(payload),
     });
   } catch (err) {
@@ -241,11 +203,8 @@ export async function updateHadiah(
   };
 
   try {
-    const url = `${BASE_URL}/api/v1/hadiah/${id}`;
-    const headers = getHeaders();
-    await fetch(url, {
+    await apiRequest(HADIAH.UPDATE(id), {
       method: "PUT",
-      headers,
       body: JSON.stringify(payload),
     });
   } catch (err) {
@@ -263,11 +222,8 @@ export async function deleteHadiah(id: string): Promise<boolean> {
   const filtered = currentList.filter((item) => item.id !== id);
 
   try {
-    const url = `${BASE_URL}/api/v1/hadiah/${id}`;
-    const headers = getHeaders();
-    await fetch(url, {
+    await apiRequest(HADIAH.DELETE(id), {
       method: "DELETE",
-      headers,
     });
   } catch (err) {
     console.warn("[adminHadiahService] API DELETE offline, local only:", err);

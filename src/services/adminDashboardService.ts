@@ -1,5 +1,6 @@
 import { DashboardTelemetryData } from "@/types/adminDashboard";
-import { apiRequest, buildAuthHeaders, BASE_URL } from "@/lib/api/client";
+import { apiRequest } from "@/lib/api/client";
+import { ADMIN_SETOR, LAPORAN } from "@/lib/api/endpoints";
 
 const STORAGE_CACHE_KEY = "circula_admin_dashboard_cache_v1";
 
@@ -74,27 +75,6 @@ export const INITIAL_DASHBOARD_DATA: DashboardTelemetryData = {
   scaleDeviceId: "#SCL-042-A",
 };
 
-function getAuthHeaders(): Record<string, string> {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-  if (typeof window !== "undefined") {
-    const token =
-      localStorage.getItem("token") ||
-      localStorage.getItem("circula_auth_token");
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-    const appKey =
-      localStorage.getItem("x_app_key") ||
-      localStorage.getItem("circula_app_key");
-    if (appKey) {
-      headers["x-app-key"] = appKey;
-    }
-  }
-  return headers;
-}
-
 export async function getDashboardTelemetry(): Promise<DashboardTelemetryData> {
   if (typeof window !== "undefined") {
     const cached = localStorage.getItem(STORAGE_CACHE_KEY);
@@ -111,36 +91,29 @@ export async function getDashboardTelemetry(): Promise<DashboardTelemetryData> {
   }
 
   try {
-    const [resQueue, resRekap] = await Promise.all([
-      fetch(
-        `${BASE_URL}/api/v1/setor-sampah/admin/list?status=menunggu_konfirmasi`,
-        { method: "GET", headers: getAuthHeaders(), cache: "no-store" }
-      ),
-      fetch(`${BASE_URL}/api/v1/rekapitulasi/bulanan?bulan=2026-08`, {
-        method: "GET",
-        headers: getAuthHeaders(),
-        cache: "no-store",
-      }),
+    const [queueData, rekapData] = await Promise.all([
+      apiRequest<any[]>(
+        ADMIN_SETOR.LIST({ status: "menunggu_konfirmasi" })
+      ).catch(() => null),
+      apiRequest<any>(
+        LAPORAN.REKAPITULASI_BULANAN("2026-08")
+      ).catch(() => null),
     ]);
 
-    if (resQueue.ok && resRekap.ok) {
-      const dataQueue = await resQueue.json();
-      const dataRekap = await resRekap.json();
-      if (dataRekap?.data?.totalVolume) {
-        const telemetry: DashboardTelemetryData = {
-          ...INITIAL_DASHBOARD_DATA,
-          antreanCount: Array.isArray(dataQueue?.data)
-            ? dataQueue.data.length
-            : INITIAL_DASHBOARD_DATA.antreanCount,
-          totalTonaseMasukKg:
-            dataRekap.data.totalVolume.totalKg ||
-            INITIAL_DASHBOARD_DATA.totalTonaseMasukKg,
-        };
-        if (typeof window !== "undefined") {
-          localStorage.setItem(STORAGE_CACHE_KEY, JSON.stringify(telemetry));
-        }
-        return telemetry;
+    if (rekapData && rekapData.totalVolume) {
+      const telemetry: DashboardTelemetryData = {
+        ...INITIAL_DASHBOARD_DATA,
+        antreanCount: Array.isArray(queueData)
+          ? queueData.length
+          : INITIAL_DASHBOARD_DATA.antreanCount,
+        totalTonaseMasukKg:
+          rekapData.totalVolume.totalKg ||
+          INITIAL_DASHBOARD_DATA.totalTonaseMasukKg,
+      };
+      if (typeof window !== "undefined") {
+        localStorage.setItem(STORAGE_CACHE_KEY, JSON.stringify(telemetry));
       }
+      return telemetry;
     }
   } catch (err) {
     console.warn("API dashboard telemetry offline/unreachable, using mock:", err);

@@ -220,23 +220,6 @@ export const MOCK_REKAPITULASI_DATA: Record<string, RekapitulasiBulananResponse>
   },
 };
 
-function getAuthHeaders(): Record<string, string> {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem("token") || localStorage.getItem("circula_auth_token");
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-    const appKey = localStorage.getItem("x_app_key") || localStorage.getItem("circula_app_key");
-    if (appKey) {
-      headers["x-app-key"] = appKey;
-    }
-  }
-  return headers;
-}
-
 export async function getRekapitulasiBulanan(bulan: string): Promise<RekapitulasiBulananResponse> {
   if (typeof window !== "undefined") {
     const cached = localStorage.getItem(`${STORAGE_CACHE_PREFIX}${bulan}`);
