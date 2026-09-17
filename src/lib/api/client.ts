@@ -71,11 +71,16 @@ export function clearAuth(): void {
 
 // ─── Core request function ────────────────────────────────────────────────────
 
+export interface ApiRequestOptions extends RequestInit {
+  timeoutMs?: number;
+  silent?: boolean;
+}
+
 export async function apiRequest<T>(
   endpoint: string,
-  options: RequestInit & { timeoutMs?: number } = {}
+  options: ApiRequestOptions = {}
 ): Promise<T> {
-  const { timeoutMs = 25000, ...fetchOptions } = options;
+  const { timeoutMs = 25000, silent = false, ...fetchOptions } = options;
 
   const token = getToken();
   const appKey = getAppKey();
@@ -116,6 +121,28 @@ export async function apiRequest<T>(
         (Array.isArray(resJson.errors) && resJson.errors.length > 0
           ? resJson.errors.join(", ")
           : resJson.message) || `HTTP Error ${response.status}`;
+
+      // Deteksi jika sesi login tidak valid / token kadaluarsa / user tidak ditemukan di backend
+      const isAuthEndpoint =
+        endpoint.includes("/auth/login") ||
+        endpoint.includes("/auth/nasabah/register") ||
+        endpoint.includes("/auth/admin/register");
+
+      const isSessionInvalid =
+        !isAuthEndpoint &&
+        (response.status === 401 ||
+          errorMsg.includes("User tidak ditemukan") ||
+          errorMsg.includes("Token autentikasi tidak valid") ||
+          errorMsg.includes("kadaluarsa") ||
+          errorMsg.includes("Bearer token) tidak ditemukan"));
+
+      if (isSessionInvalid) {
+        clearAuth();
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("circula_auth_invalidated"));
+        }
+      }
+
       throw new Error(errorMsg);
     }
 
@@ -129,9 +156,11 @@ export async function apiRequest<T>(
           : error.message
         : "Network error";
 
-    console.error(
-      `[API] ${fetchOptions.method ?? "GET"} ${endpoint}: ${msg}`
-    );
+    if (!silent) {
+      console.error(
+        `[API] ${fetchOptions.method ?? "GET"} ${endpoint}: ${msg}`
+      );
+    }
     throw new Error(msg);
   }
 }
@@ -155,7 +184,7 @@ export function buildAuthHeaders(
 // Legacy alias for backward compatibility
 export const fetchWithAuth = async <T>(
   url: string,
-  options: RequestInit & { timeoutMs?: number } = {}
+  options: ApiRequestOptions = {}
 ): Promise<{ data: T | null; error: string | null; status: number | null; ok: boolean }> => {
   // Strip BASE_URL prefix if present to get the endpoint
   const endpoint = url.startsWith(BASE_URL)
@@ -187,7 +216,7 @@ export const fetchWithAuth = async <T>(
       return { data, error: res.ok ? null : `HTTP ${res.status}`, status: res.status, ok: res.ok };
     }
 
-    const data = await apiRequest<T>(endpoint, options);
+    const data = await apiRequest<T>(endpoint, { silent: options.silent ?? true, ...options });
     return { data, error: null, status: 200, ok: true };
   } catch (err) {
     return { data: null, error: err instanceof Error ? err.message : "Error", status: null, ok: false };

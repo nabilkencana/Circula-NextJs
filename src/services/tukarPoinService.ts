@@ -4,7 +4,7 @@ import {
   TukarPoinResponse,
   SaldoNasabahSummary,
 } from "@/types/tukarPoin";
-import { apiRequest } from "@/lib/api/client";
+import { apiRequest, getToken } from "@/lib/api/client";
 import { HADIAH, PENUKARAN, DASHBOARD } from "@/lib/api/endpoints";
 
 // ─── Service Functions ────────────────────────────────────────────────────────
@@ -45,7 +45,10 @@ export async function getHadiahList(): Promise<HadiahItem[]> {
 
 export async function getSaldoNasabah(): Promise<SaldoNasabahSummary | null> {
   try {
-    const data = await apiRequest<any>(DASHBOARD.SUMMARY);
+    const token = getToken();
+    if (!token) return null;
+
+    const data = await apiRequest<any>(DASHBOARD.SUMMARY, { silent: true });
     if (!data) return null;
     const saldoPoin = Number(
       data.saldoPoin ?? data.saldoPoinSaatIni ?? data.saldoPoinAktif ?? 0

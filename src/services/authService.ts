@@ -5,7 +5,7 @@ import {
   LoginResponse,
   UserSessionData,
 } from "@/types/auth";
-import { fetchWithAuth, saveAppKey, clearAuth, TOKEN_STORAGE_KEY, USER_STORAGE_KEY, ROLE_STORAGE_KEY } from "@/lib/api/client";
+import { fetchWithAuth, saveAppKey, clearAuth, getToken, TOKEN_STORAGE_KEY, USER_STORAGE_KEY, ROLE_STORAGE_KEY } from "@/lib/api/client";
 import { ENDPOINTS } from "@/lib/api/endpoints";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -171,6 +171,8 @@ export function logoutUser(): void {
 
 export function getCurrentUser(): UserSessionData | null {
   if (typeof window !== "undefined") {
+    const token = getToken();
+    if (!token) return null;
     const raw = localStorage.getItem(USER_STORAGE_KEY);
     if (raw) {
       try {

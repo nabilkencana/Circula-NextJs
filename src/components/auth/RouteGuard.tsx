@@ -33,29 +33,47 @@ export default function RouteGuard({ children }: { children: React.ReactNode }) 
   const [authorized, setAuthorized] = useState(false);
 
   useEffect(() => {
-    const token = getToken();
-    const user = getCurrentUser();
+    const checkAuth = () => {
+      const token = getToken();
+      const user = getCurrentUser();
 
-    if (isPublic(pathname)) {
+      if (isPublic(pathname)) {
+        setAuthorized(true);
+        return;
+      }
+
+      // Tak login -> lempar ke halaman login, bawa next utk kembali.
+      if (!token || !user) {
+        router.replace(`/login?next=${encodeURIComponent(pathname)}`);
+        setAuthorized(false);
+        return;
+      }
+
+      // Admin page butiruh role ADMIN.
+      if (isAdminPath(pathname) && user.role !== "ADMIN") {
+        router.replace("/login?next=" + encodeURIComponent(pathname));
+        setAuthorized(false);
+        return;
+      }
+
       setAuthorized(true);
-      return;
+    };
+
+    checkAuth();
+
+    const handleAuthInvalid = () => {
+      checkAuth();
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("circula_auth_invalidated", handleAuthInvalid);
     }
 
-    // Tak login -> lempar ke halaman login, bawa next utk kembali.
-    if (!token || !user) {
-      router.replace(`/login?next=${encodeURIComponent(pathname)}`);
-      setAuthorized(false);
-      return;
-    }
-
-    // Admin page butiruh role ADMIN.
-    if (isAdminPath(pathname) && user.role !== "ADMIN") {
-      router.replace("/login?next=" + encodeURIComponent(pathname));
-      setAuthorized(false);
-      return;
-    }
-
-    setAuthorized(true);
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("circula_auth_invalidated", handleAuthInvalid);
+      }
+    };
   }, [pathname, router]);
 
   if (!authorized) {

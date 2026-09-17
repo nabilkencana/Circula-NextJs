@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Leaf, ArrowRight, Menu, X, Star, ChevronDown, LogOut } from "lucide-react";
 import { getCurrentUser, logout } from "@/services/authService";
 import { getSaldoNasabah } from "@/services/tukarPoinService";
+import { getToken } from "@/lib/api/client";
 import { UserSessionData } from "@/types/auth";
 
 export interface NavbarProps {
@@ -27,17 +28,38 @@ export default function Navbar({
   const pathname = usePathname();
 
   useEffect(() => {
+    const handleAuthInvalid = () => {
+      setSessionUser(null);
+      setLivePoints(null);
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("circula_auth_invalidated", handleAuthInvalid);
+    }
+
     const user = getCurrentUser();
-    if (user) {
+    if (user && getToken()) {
       setSessionUser(user);
       if (user.role === "NASABAH") {
         getSaldoNasabah().then((res) => {
           if (res && typeof res.saldoPoinAktif === "number") {
             setLivePoints(res.saldoPoinAktif);
+          } else if (!getToken()) {
+            setSessionUser(null);
+            setLivePoints(null);
           }
         });
       }
+    } else {
+      setSessionUser(null);
+      setLivePoints(null);
     }
+
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("circula_auth_invalidated", handleAuthInvalid);
+      }
+    };
   }, []);
 
   const isNasabah = userRole === "nasabah" || (sessionUser?.role === "NASABAH");
