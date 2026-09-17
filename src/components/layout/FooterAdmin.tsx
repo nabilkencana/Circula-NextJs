@@ -92,10 +92,6 @@ export default function FooterAdmin() {
                   BS Asri Jaya (ID #JKT-042)
                 </span>
               </p>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-inset-gray border border-gray-200 text-xs font-medium text-text-primary">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_#10B981]" />
-                <span>API v1 Online</span>
-              </div>
             </div>
           </div>
         </div>

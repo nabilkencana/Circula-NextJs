@@ -1,80 +1,81 @@
 import React from "react";
-import { ArrowDown, ArrowUp, Clock } from "lucide-react";
-import { TransaksiTelemetryStats } from "@/types/adminTransaksi";
+import { Scale, Coins, Award } from "lucide-react";
+import { RekapitulasiBulananResponse } from "@/types/adminLaporan";
 
-interface TransaksiHeroProps {
-  stats: TransaksiTelemetryStats;
+interface LaporanHeroProps {
+  data: RekapitulasiBulananResponse;
 }
 
-export default function TransaksiHero({ stats }: TransaksiHeroProps) {
+export default function LaporanHero({ data }: LaporanHeroProps) {
   return (
-    <section className="bg-dark-container rounded-3xl sm:rounded-[28px] p-6 sm:p-10 border border-white/10 shadow-xl relative overflow-hidden mb-8 text-white">
+    <section className="bg-dark-container rounded-3xl sm:rounded-[28px] p-6 sm:p-10 md:p-12 border border-white/10 shadow-xl relative overflow-hidden mb-6 text-white">
       {/* Subtle Glow Accents */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-brand-neon/5 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
       <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
 
+      {/* Main Headline & Description */}
       <div className="relative z-10 max-w-4xl mb-8">
         <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
-          Data Transaksi Penyetoran &amp; Penukaran
+          Laporan Tonase &amp; Valuasi Ekonomi Sampah
         </h1>
-        <p className="text-xs sm:text-sm text-gray-400 leading-relaxed max-w-3xl">
-          Monitor seluruh aktivitas masuk penyetoran sampah terpilah warga serta klaim voucher
-          reward poin secara real-time berdasarkan filter bulan dan status.
+        <p className="text-xs sm:text-sm text-gray-300 leading-relaxed max-w-3xl">
+          Rekapitulasi berkala volume limbah terpilah, konversi tonase metrik, perkiraan pembayaran
+          kas, dan peredaran poin reward pada unit operasional Bank Sampah Asri Jaya.
         </p>
       </div>
 
       {/* 3 Telemetry Docked Bento Widgets */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
-        {/* Widget 1: Setoran Bulan Ini */}
+        {/* Deck 1: Total Tonase Masuk */}
         <div className="bg-dark-widget border border-white/10 rounded-2xl p-5 flex items-start gap-4 transition-all hover:border-white/20">
           <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
-            <ArrowDown className="w-5 h-5 text-emerald-400" />
+            <Scale className="w-5 h-5 text-emerald-400" />
           </div>
           <div className="min-w-0">
             <span className="block text-[11px] font-bold tracking-wider text-gray-400 uppercase">
-              SETORAN BULAN INI
+              TOTAL TONASE MASUK
             </span>
-            <div className="text-lg sm:text-xl font-black text-white mt-1">
-              {stats.setoranBulanIniCount} Transaksi Tercatat
+            <div className="text-lg sm:text-xl font-bold text-white mt-1">
+              {data.totalVolume.totalKg.toLocaleString("id-ID")} kg ({data.totalVolume.totalTon} Ton)
             </div>
             <p className="text-xs text-gray-400 mt-1">
-              Total {stats.totalKgSampahBulanIni.toLocaleString("id-ID")} kg sampah terpilah warga
+              Limbah teralihkan dari TPA bulan ini.
             </p>
           </div>
         </div>
 
-        {/* Widget 2: Klaim Voucher Poin */}
+        {/* Deck 2: Estimasi Valuasi Kas */}
         <div className="bg-dark-widget border border-white/10 rounded-2xl p-5 flex items-start gap-4 transition-all hover:border-white/20">
           <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
-            <ArrowUp className="w-5 h-5 text-brand-neon" />
+            <Coins className="w-5 h-5 text-brand-neon" />
           </div>
           <div className="min-w-0">
             <span className="block text-[11px] font-bold tracking-wider text-gray-400 uppercase">
-              KLAIM VOUCHER POIN
+              ESTIMASI VALUASI KAS
             </span>
-            <div className="text-lg sm:text-xl font-black text-white mt-1">
-              {stats.klaimVoucherCount} Klaim Disalurkan
+            <div className="text-lg sm:text-xl font-bold text-brand-neon mt-1">
+              Rp {data.pembayaranKas.totalRupiah.toLocaleString("id-ID")}
             </div>
             <p className="text-xs text-gray-400 mt-1">
-              {stats.klaimPersentaseValid}% voucher tervalidasi
+              Perputaran nilai ekonomi sirkular warga.
             </p>
           </div>
         </div>
 
-        {/* Widget 3: Antrean Verifikasi */}
+        {/* Deck 3: Poin Terdistribusi */}
         <div className="bg-dark-widget border border-white/10 rounded-2xl p-5 flex items-start gap-4 transition-all hover:border-white/20">
           <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
-            <Clock className="w-5 h-5 text-amber-400" />
+            <Award className="w-5 h-5 text-emerald-400" />
           </div>
           <div className="min-w-0">
             <span className="block text-[11px] font-bold tracking-wider text-gray-400 uppercase">
-              ANTREAN VERIFIKASI
+              POIN TERDISTRIBUSI
             </span>
-            <div className="text-lg sm:text-xl font-black text-white mt-1">
-              {stats.antreanVerifikasiCount} Menunggu Konfirmasi
+            <div className="text-lg sm:text-xl font-bold text-white mt-1">
+              {data.sirkulasiReward.totalPoinDiterbitkan.toLocaleString("id-ID")} Poin
             </div>
             <p className="text-xs text-gray-400 mt-1">
-              Butuh timbangan aktual petugas
+              Diterbitkan sebagai insentif pemilahan 3R.
             </p>
           </div>
         </div>

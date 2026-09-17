@@ -20,37 +20,41 @@ export default function NavbarAdminConsole() {
   ];
 
   return (
-    <header className="sticky top-3 z-50 w-full px-4 sm:px-6 lg:px-8 mb-2">
-      {/* Floating Single Pill Navbar */}
+    <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-gray-200/80 transition-all mb-4 sm:mb-6">
       <nav
-        className="max-w-7xl mx-auto bg-white/95 backdrop-blur-md border border-gray-200/90 rounded-full px-4 sm:px-6 py-2.5 flex items-center justify-between shadow-xs transition-all"
-        aria-label="Navigasi Konsol Admin"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-3.5 flex items-center justify-between"
+        aria-label="Navigasi Konsol Admin Circula"
       >
-        {/* Brand Console Logo */}
-        <Link href="/admin/dashboard" className="flex items-center gap-2.5 group shrink-0">
-          <div className="w-8 h-8 rounded-xl bg-brand-neon flex items-center justify-center transition-transform group-hover:scale-105 shadow-inner">
-            <Leaf className="w-4 h-4 text-dark-container fill-dark-container" />
+        {/* Brand Console Logo matching Navbar appearance */}
+        <Link href="/admin/nasabah" className="flex items-center gap-3 group shrink-0">
+          <div className="w-9 h-9 rounded-full bg-brand-neon flex items-center justify-center transition-transform group-hover:scale-105 shadow-inner">
+            <Leaf className="w-5 h-5 text-dark-container fill-dark-container" />
           </div>
-          <span className="font-extrabold text-xs sm:text-sm tracking-wider text-text-primary uppercase leading-none">
-            CIRCULA ADMIN CONSOLE
-          </span>
+          <div className="flex flex-col">
+            <span className="font-extrabold text-sm sm:text-base tracking-[0.14em] text-text-primary leading-none">
+              CIRCULA
+            </span>
+            <span className="text-[9px] font-bold tracking-wider text-text-secondary uppercase mt-0.5">
+              Konsol Operasional Unit
+            </span>
+          </div>
         </Link>
 
-        {/* Center Admin Navigation Links (Desktop) */}
-        <div className="hidden lg:flex items-center gap-1 xl:gap-2">
+        {/* Center Admin Navigation Links matching Navbar appearance */}
+        <div className="hidden lg:flex items-center gap-1 xl:gap-1.5">
           {adminLinks.map((link) => (
             <Link
               key={link.name}
               href={link.href}
-              className={`px-3 py-1.5 text-xs rounded-full transition-colors relative whitespace-nowrap ${
+              className={`px-3.5 py-1.5 text-xs rounded-full transition-colors relative whitespace-nowrap ${
                 link.isActive
                   ? "text-text-primary font-bold"
-                  : "text-text-secondary hover:text-text-primary hover:bg-gray-50 font-medium"
+                  : "text-text-secondary hover:text-text-primary hover:bg-inset-gray font-medium"
               }`}
             >
               {link.name}
               {link.isActive && (
-                <span className="absolute -bottom-1 left-2 right-2 h-0.5 bg-brand-neon rounded-full" />
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-brand-neon rounded-full" />
               )}
             </Link>
           ))}
@@ -85,7 +89,7 @@ export default function NavbarAdminConsole() {
 
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-1.5 rounded-full hover:bg-gray-100 text-gray-700 focus:outline-none"
+            className="p-2 rounded-full hover:bg-gray-100 text-gray-700 focus:outline-none"
             aria-label="Toggle menu admin"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -93,36 +97,45 @@ export default function NavbarAdminConsole() {
         </div>
       </nav>
 
-      {/* Mobile Drawer Navigation */}
+      {/* Mobile Drawer Menu matching standard Navbar appearance */}
       {mobileMenuOpen && (
-        <div className="lg:hidden max-w-7xl mx-auto mt-2 bg-white/95 backdrop-blur-md border border-gray-200 rounded-3xl p-4 shadow-lg flex flex-col gap-1.5 animate-in fade-in slide-in-from-top-2 duration-150">
+        <div className="lg:hidden max-w-7xl mx-auto px-4 sm:px-6 pb-6 pt-2 border-t border-gray-200/80 flex flex-col gap-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
+          <div className="py-2 mb-1 flex items-center justify-between border-b border-gray-100">
+            <div className="flex items-center gap-2 text-xs font-bold text-text-primary">
+              <Building2 className="w-3.5 h-3.5 text-gray-500" />
+              <span>Unit Bank Sampah Asri Jaya</span>
+            </div>
+            <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">
+              Aktif
+            </span>
+          </div>
+
           {adminLinks.map((link) => (
             <Link
               key={link.name}
               href={link.href}
               onClick={() => setMobileMenuOpen(false)}
-              className={`text-sm font-semibold py-2 px-3 rounded-xl transition-colors ${
+              className={`text-sm font-semibold py-2 px-3 rounded-xl transition-colors flex items-center justify-between ${
                 link.isActive
                   ? "bg-inset-gray text-text-primary font-bold"
-                  : "text-text-secondary hover:text-text-primary hover:bg-gray-50"
+                  : "text-text-secondary hover:text-text-primary hover:bg-inset-gray"
               }`}
             >
-              {link.name}
+              <span>{link.name}</span>
+              {link.isActive && (
+                <span className="w-2 h-2 rounded-full bg-brand-neon" />
+              )}
             </Link>
           ))}
 
-          <div className="pt-3 mt-2 border-t border-gray-100 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-xs text-text-secondary font-medium">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span>Unit Bank Sampah Asri Jaya</span>
-            </div>
+          <div className="pt-3 mt-1 border-t border-gray-100">
             <Link
               href="/login"
               onClick={() => setMobileMenuOpen(false)}
-              className="text-xs font-bold text-red-600 hover:underline flex items-center gap-1"
+              className="text-xs font-bold text-red-600 hover:bg-red-50 py-2 px-3 rounded-xl flex items-center gap-2"
             >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Keluar</span>
+              <LogOut className="w-4 h-4" />
+              <span>Keluar Konsol Admin</span>
             </Link>
           </div>
         </div>
