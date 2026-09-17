@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Leaf, ArrowRight, Menu, X, Star, ChevronDown, LogOut } from "lucide-react";
+import { Leaf, ArrowRight, Menu, X, Star, ChevronDown, ChevronRight, LogOut } from "lucide-react";
 import { getCurrentUser, logout } from "@/services/authService";
 import { getSaldoNasabah } from "@/services/tukarPoinService";
 import { getToken } from "@/lib/api/client";
@@ -20,6 +20,7 @@ export default function Navbar({
   userRole,
   userPoints,
   userName,
+  variant = "default",
 }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
@@ -101,56 +102,45 @@ export default function Navbar({
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-gray-200/80 transition-all">
-      <nav
-        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-3.5 flex items-center justify-between"
-        aria-label="Navigasi Utama Circula"
-      >
-        {/* Brand Logo & Typography */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-9 h-9 rounded-full bg-brand-neon flex items-center justify-center transition-transform group-hover:scale-105 shadow-inner">
-            <Leaf className="w-5 h-5 text-dark-container fill-dark-container" />
+    <header className="sticky top-0 z-50 w-full bg-white/85 backdrop-blur-xl border-b border-gray-100/80 transition-all shadow-[0_2px_16px_-4px_rgba(0,0,0,0.03)]">
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        {/* Brand / Logo */}
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <div className="w-9 h-9 rounded-xl bg-dark-container flex items-center justify-center text-brand-neon shadow-sm group-hover:scale-105 group-hover:shadow-md transition-all duration-200">
+            <Leaf className="w-5 h-5 fill-brand-neon" />
           </div>
-          <div className="flex flex-col">
-            <span className="font-extrabold text-sm sm:text-base tracking-[0.14em] text-text-primary leading-none">
-              CIRCULA
-            </span>
-            <span className="text-[9px] font-bold tracking-wider text-text-secondary uppercase mt-0.5">
-              Bank Sampah Digital
-            </span>
-          </div>
+          <span className="font-extrabold text-lg tracking-tight text-text-primary">
+            Circula<span className="text-brand-neon">.</span>
+          </span>
         </Link>
 
-        {/* Desktop Navigation Links — 100% Consistent Across All Pages */}
-        <div className="hidden md:flex items-center gap-1 lg:gap-1.5">
+        {/* Desktop Navigation Links — Modern Floating Dock Pill */}
+        <div className="hidden md:flex items-center gap-1 bg-[#F4F5F4]/80 p-1.5 rounded-full border border-gray-200/60 backdrop-blur-xs">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`px-3.5 py-1.5 text-xs rounded-full transition-colors relative ${
+              className={`px-4 py-1.5 text-xs rounded-full transition-all duration-200 font-semibold ${
                 link.isActive
-                  ? "text-text-primary font-bold"
-                  : "text-text-secondary hover:text-text-primary hover:bg-inset-gray font-medium"
+                  ? "bg-white text-dark-container shadow-xs font-bold"
+                  : "text-text-secondary hover:text-dark-container hover:bg-white/60"
               }`}
             >
               {link.name}
-              {link.isActive && (
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-brand-neon rounded-full" />
-              )}
             </Link>
           ))}
         </div>
 
-        {/* Right Actions / Account Bar — 100% Consistent Across All Pages */}
+        {/* Right Actions / Account Bar */}
         <div className="hidden sm:flex items-center gap-2.5">
           {isNasabah || isAdmin ? (
             <div className="relative flex items-center gap-2">
               {isNasabah && (
                 <Link
                   href="/tukar-poin"
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-dark-container text-brand-neon text-xs font-bold shadow-sm hover:opacity-95 transition-opacity"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-dark-container text-brand-neon text-xs font-bold shadow-xs hover:opacity-95 transition-opacity"
                 >
-                  <Star className="w-3.5 h-3.5 fill-brand-neon" />
+                  <Star className="w-3.5 h-3.5 fill-brand-neon text-brand-neon" />
                   <span>{currentPoints} Poin</span>
                 </Link>
               )}
@@ -158,13 +148,13 @@ export default function Navbar({
                 <button
                   type="button"
                   onClick={() => setProfileDropdownOpen((prev) => !prev)}
-                  className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-full border border-gray-200 bg-inset-gray text-xs font-semibold text-text-primary hover:bg-gray-100 transition-colors cursor-pointer"
+                  className="flex items-center gap-2 pl-1.5 pr-3 py-1 rounded-full border border-gray-200/90 bg-white hover:bg-gray-50 shadow-xs text-xs font-semibold text-text-primary transition-all cursor-pointer"
                 >
-                  <div className="w-6 h-6 rounded-full bg-dark-container text-white flex items-center justify-center text-[10px] font-bold">
+                  <div className="w-6 h-6 rounded-full bg-brand-neon text-dark-container flex items-center justify-center text-[10px] font-black shadow-xs">
                     {currentName.substring(0, 2).toUpperCase()}
                   </div>
                   <span className="max-w-30 truncate">{currentName}</span>
-                  <ChevronDown className="w-3.5 h-3.5 text-gray-500" />
+                  <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
                 </button>
 
                 {profileDropdownOpen && (
@@ -197,13 +187,23 @@ export default function Navbar({
               </div>
             </div>
           ) : (
-            <Link
-              href="/login"
-              className="pill-button bg-dark-container text-white text-xs font-bold px-5 py-2.5 rounded-full hover:bg-black transition-all hover:shadow-md flex items-center gap-2 group"
-            >
-              <span>Daftar / Masuk</span>
-              <ArrowRight className="w-3.5 h-3.5 text-brand-neon group-hover:translate-x-0.5 transition-transform" />
-            </Link>
+            <div className="flex items-center gap-1.5">
+              <Link
+                href="/login"
+                className="px-3.5 py-2 text-xs font-bold text-text-primary hover:text-black hover:bg-gray-100/70 rounded-full transition-colors"
+              >
+                Masuk
+              </Link>
+              <Link
+                href="/register"
+                className="bg-dark-container text-white text-xs font-bold pl-4 pr-1.5 py-1.5 rounded-full hover:bg-black hover:shadow-md transition-all flex items-center gap-2 group"
+              >
+                <span>Daftar Baru</span>
+                <div className="w-6 h-6 rounded-full bg-brand-neon text-dark-container flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <ArrowRight className="w-3.5 h-3.5 text-dark-container" />
+                </div>
+              </Link>
+            </div>
           )}
         </div>
 
@@ -237,7 +237,7 @@ export default function Navbar({
 
       {/* Mobile Drawer Menu — 100% Consistent Across All Pages */}
       {mobileMenuOpen && (
-        <div className="md:hidden max-w-7xl mx-auto px-4 sm:px-6 pb-6 pt-2 border-t border-gray-200/80 flex flex-col gap-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
+        <div className="md:hidden max-w-7xl mx-auto px-4 sm:px-6 pb-6 pt-2 border-t border-gray-100 bg-white/95 backdrop-blur-xl flex flex-col gap-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
           {navLinks.map((link) => (
             <Link
               key={link.href}

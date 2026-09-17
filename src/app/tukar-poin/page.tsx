@@ -1,25 +1,15 @@
 "use client";
 
-import React, { Suspense } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import TukarPoinHero from "@/components/tukar-poin/TukarPoinHero";
-import ActiveBalanceStrip from "@/components/tukar-poin/ActiveBalanceStrip";
+import TukarPoinBanner from "@/components/tukar-poin/TukarPoinBanner";
 import RewardFilterToolbar from "@/components/tukar-poin/RewardFilterToolbar";
 import RewardGrid from "@/components/tukar-poin/RewardGrid";
-import AlurPenukaranGuideSection from "@/components/tukar-poin/AlurPenukaranGuideSection";
 import PreFooterTukarRibbon from "@/components/tukar-poin/PreFooterTukarRibbon";
 import TukarPoinConfirmModal from "@/components/tukar-poin/TukarPoinConfirmModal";
 import { useTukarPoin } from "@/hooks/useTukarPoin";
-import { SaldoNasabahSummary } from "@/types/tukarPoin";
-
-const ZERO_SALDO: SaldoNasabahSummary = {
-  saldoPoinSaatIni: 0,
-  saldoPoinAktif: 0,
-  nilaiKonversiRupiah: 0,
-  poinTerpakaiBulanIni: 0,
-  totalTransaksiSelesai: 0,
-};
+import { getCurrentUser } from "@/services/authService";
 
 function TukarPoinContent() {
   const {
@@ -43,34 +33,38 @@ function TukarPoinContent() {
     handleCloseSuccessModal,
   } = useTukarPoin();
 
-  const effectiveSaldo = saldoSummary ?? ZERO_SALDO;
+  const [currentUserName, setCurrentUserName] = useState<string>("Budi Santoso");
+
+  useEffect(() => {
+    const user = getCurrentUser();
+    if (user?.namaLengkap || user?.username) {
+      setCurrentUserName(user.namaLengkap || user.username);
+    }
+  }, []);
 
   return (
-    <div className="min-h-screen bg-white font-sans text-text-primary flex flex-col selection:bg-brand-neon selection:text-dark-container">
-      {/* Authenticated Navbar matching Blueprint */}
-      <Navbar
-        userRole="nasabah"
-        userPoints={effectiveSaldo.saldoPoinAktif}
-        userName="Budi Santoso"
-      />
+    <div className="min-h-screen bg-[#FBFBFB] font-sans text-text-primary flex flex-col selection:bg-brand-neon selection:text-dark-container">
+      {/* 100% Consistent Navigation Bar */}
+      <Navbar />
 
-      <main className="min-h-screen bg-white pb-6">
-        {/* Dark Hero Showcase */}
-        <TukarPoinHero />
+      {/* Main Container — Exact Layout Matching Blueprint Reference */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
+        {/* Top Section: Greeting & Dompet Poin Nasabah Card */}
+        <TukarPoinBanner
+          saldoSummary={saldoSummary}
+          userName={currentUserName}
+        />
 
-        {/* Active Point Balance Strip */}
-        <ActiveBalanceStrip saldoSummary={effectiveSaldo} />
-
-        {/* Category Segment Tabs & Search */}
+        {/* Filter Categories Segment Pills & Search Bar */}
         <RewardFilterToolbar
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
           searchQuery={searchQuery}
           onSearchQueryChange={setSearchQuery}
-          totalCount={items.length}
+          items={items}
         />
 
-        {/* 4-Column Product Reward Grid */}
+        {/* 3-Column Modern Product Rewards Grid */}
         <RewardGrid
           items={filteredItems}
           isPointSufficient={isPointSufficient}
@@ -79,19 +73,17 @@ function TukarPoinContent() {
           isLoading={isLoading}
         />
 
-        {/* 2-Column Split: Alur Mudah Penukaran & Mitra Photography */}
-        <AlurPenukaranGuideSection />
-
-        {/* Pre-Footer Action CTA Ribbon */}
+        {/* Bottom Call-to-Action Banner */}
         <PreFooterTukarRibbon />
       </main>
 
+      {/* 100% Consistent Global Footer */}
       <Footer />
 
-      {/* Confirmation & Success Dialog Modal */}
+      {/* Confirmation & Redemption Success Dialog Modal */}
       <TukarPoinConfirmModal
         item={activeItemToRedeem}
-        saldoSummary={effectiveSaldo}
+        saldoSummary={saldoSummary}
         isOpen={Boolean(activeItemToRedeem || redemptionSuccessData)}
         onClose={redemptionSuccessData ? handleCloseSuccessModal : handleCancelRedeem}
         onConfirm={handleConfirmRedeem}
@@ -107,7 +99,7 @@ export default function TukarPoinPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="min-h-screen flex items-center justify-center bg-[#FBFBFB]">
           <div className="w-8 h-8 border-3 border-dark-container border-t-transparent rounded-full animate-spin" />
         </div>
       }

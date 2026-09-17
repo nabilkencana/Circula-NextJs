@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, Loader2, AlertCircle, ExternalLink } from "lucide-react";
+import { ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import UnitFieldGroups from "./UnitFieldGroups";
 import UnitComplianceCheckbox from "./UnitComplianceCheckbox";
 import RegisterRoleSegmentSwitcher from "@/components/register/RegisterRoleSegmentSwitcher";
@@ -30,90 +30,108 @@ export default function AdminRegisterFormCard({
   } = controller;
 
   return (
-    <div className="bg-white rounded-3xl border border-gray-200 border-t-4 border-t-brand-neon p-6 sm:p-8 lg:p-10 shadow-xs">
-      {/* 1. Role Segment Switcher (Nasabah vs Admin Unit) */}
-      <RegisterRoleSegmentSwitcher activeRole="admin" />
+    <div className="w-full bg-white rounded-4xl border border-gray-200/80 p-6 sm:p-8 md:p-10 lg:p-12 shadow-xl shadow-gray-200/40 flex flex-col justify-between min-h-145 lg:min-h-160">
+      <div>
+        {/* 1. Role Segment Switcher (Capsule Pill) */}
+        <RegisterRoleSegmentSwitcher activeRole="admin" />
 
-      {/* Form Header */}
-      <div className="border-b border-gray-100 pb-6 mb-6">
-        <h2 className="text-xl sm:text-[22px] font-bold text-text-primary tracking-tight">
-          Formulir Pendaftaran Unit Operasional
-        </h2>
-        <p className="text-xs text-text-secondary mt-1.5 leading-relaxed">
-          Pastikan data penanggung jawab valid untuk proses otorisasi penerbitan poin nasabah.
-        </p>
-      </div>
-
-      {/* Form Element */}
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Field Groups */}
-        <UnitFieldGroups
-          formData={formData}
-          errors={errors}
-          showPassword={showPassword}
-          showConfirmPassword={showConfirmPassword}
-          onInputChange={handleInputChange}
-          onToggleShowPassword={toggleShowPassword}
-          onToggleShowConfirmPassword={toggleShowConfirmPassword}
-        />
-
-        {/* Compliance Checkbox */}
-        <UnitComplianceCheckbox
-          checked={formData.setujuKetentuan}
-          error={errors.setujuKetentuan}
-          onToggle={() =>
-            handleInputChange("setujuKetentuan", !formData.setujuKetentuan)
-          }
-        />
+        {/* 2. Welcome Headline */}
+        <div className="mb-6">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#111827] tracking-tight">
+            Pendaftaran Unit Bank Sampah
+          </h1>
+          <p className="mt-2 text-xs sm:text-sm text-gray-500 font-normal leading-relaxed">
+            Daftarkan operasional unit resmi untuk mengelola nasabah lingkungan, validasi penimbangan sampah, dan sinkronisasi laporan tonase.
+          </p>
+        </div>
 
         {/* Global Submit Error Banner */}
         {errors.submit && (
-          <div className="p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3">
+          <div className="p-4 rounded-2xl bg-red-50 border border-red-200 flex items-start gap-3 mb-5 animate-in fade-in duration-150">
             <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-            <p className="text-xs text-red-700 font-medium leading-relaxed">
+            <p className="text-xs sm:text-sm text-red-700 font-medium leading-relaxed">
               {errors.submit}
             </p>
           </div>
         )}
 
-        {/* Submit CTA Button */}
-        <div className="pt-2">
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full h-13 px-6 sm:px-8 rounded-full bg-brand-neon hover:bg-brand-neon-hover text-text-primary font-bold text-sm sm:text-base flex items-center justify-between transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed group"
-          >
-            <span className="flex items-center gap-2 font-bold">
+        {/* 3. Form Element */}
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+          {/* Field Groups */}
+          <UnitFieldGroups
+            formData={formData}
+            errors={errors}
+            showPassword={showPassword}
+            showConfirmPassword={showConfirmPassword}
+            onInputChange={handleInputChange}
+            onToggleShowPassword={toggleShowPassword}
+            onToggleShowConfirmPassword={toggleShowConfirmPassword}
+          />
+
+          {/* Compliance Checkbox */}
+          <UnitComplianceCheckbox
+            checked={formData.setujuKetentuan}
+            error={errors.setujuKetentuan}
+            onToggle={() =>
+              handleInputChange("setujuKetentuan", !formData.setujuKetentuan)
+            }
+          />
+
+          {/* 4. Primary Neon Submit CTA Button */}
+          <div className="pt-3">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full h-14 px-6 rounded-full bg-brand-neon hover:opacity-95 text-black font-extrabold text-sm sm:text-base flex items-center justify-between transition-all duration-150 shadow-sm hover:shadow-md cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed group"
+            >
               {isSubmitting ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Memproses Registrasi Unit...</span>
-                </>
+                <div className="flex items-center justify-center gap-2.5 w-full">
+                  <Loader2 className="w-5 h-5 animate-spin text-black" />
+                  <span className="font-bold">Memproses Registrasi Unit...</span>
+                </div>
               ) : (
-                <span>Daftarkan Unit Bank Sampah Sekarang</span>
+                <>
+                  <span className="font-extrabold text-sm sm:text-base text-gray-950 pl-2">
+                    Daftarkan Unit Bank Sampah Sekarang
+                  </span>
+                  <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <ArrowRight className="w-4 h-4 text-white" />
+                  </div>
+                </>
               )}
+            </button>
+          </div>
+
+          {/* 5. ATAU Divider */}
+          <div className="relative flex py-4 items-center">
+            <div className="grow border-t border-gray-200" />
+            <span className="shrink mx-4 text-xs font-bold text-gray-400 uppercase tracking-wider">
+              ATAU
             </span>
+            <div className="grow border-t border-gray-200" />
+          </div>
 
-            <div className="w-8 h-8 rounded-full bg-dark-container text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-              <ArrowRight className="w-4 h-4 text-white" />
+          {/* 6. Bottom Redirect Links */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs pt-1">
+            <div className="text-gray-600">
+              Sudah memiliki akun pengelola?{" "}
+              <Link
+                href="/login"
+                className="font-bold text-gray-950 underline hover:text-black transition-colors"
+              >
+                Masuk ke Akun
+              </Link>
             </div>
-          </button>
-        </div>
-
-        {/* Nasabah Redirection Footer */}
-        <div className="text-center pt-3 border-t border-gray-100">
-          <p className="text-xs text-text-secondary">
-            Nasabah perorangan yang ingin menabung sampah?{" "}
             <Link
               href="/register"
-              className="font-semibold text-xs text-text-primary hover:underline inline-flex items-center gap-1"
+              className="px-4 py-2.5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-900 font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
             >
-              <span>Registrasi Akun Nasabah di Sini</span>
-              <ExternalLink className="w-3 h-3 text-text-primary" />
+              <span>Daftar sebagai Nasabah</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
-          </p>
-        </div>
-      </form>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

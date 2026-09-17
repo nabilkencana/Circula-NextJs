@@ -11,11 +11,22 @@ import {
   getHadiahList,
   tukarPoinHadiah,
   getSaldoNasabah,
+  DEFAULT_HADIAH_ITEMS,
 } from "@/services/tukarPoinService";
 
+const DEFAULT_SALDO_STATE: SaldoNasabahSummary = {
+  saldoPoinSaatIni: 350,
+  saldoPoinAktif: 350,
+  nilaiKonversiRupiah: 122500,
+  poinTerpakaiBulanIni: 100,
+  totalTransaksiSelesai: 14,
+};
+
 export function useTukarPoin(initialItems: HadiahItem[] = []) {
-  const [items, setItems] = useState<HadiahItem[]>(initialItems);
-  const [saldoSummary, setSaldoSummary] = useState<SaldoNasabahSummary | null>(null);
+  const [items, setItems] = useState<HadiahItem[]>(
+    initialItems.length > 0 ? initialItems : DEFAULT_HADIAH_ITEMS
+  );
+  const [saldoSummary, setSaldoSummary] = useState<SaldoNasabahSummary>(DEFAULT_SALDO_STATE);
   const [selectedCategory, setSelectedCategory] = useState<KategoriHadiah>("semua");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -63,7 +74,22 @@ export function useTukarPoin(initialItems: HadiahItem[] = []) {
     let list = [...items];
 
     if (selectedCategory !== "semua") {
-      list = list.filter((item) => item.kategori === selectedCategory);
+      list = list.filter((item) => {
+        const nama = item.namaHadiah.toLowerCase();
+        if (selectedCategory === "sembako") {
+          return item.kategori === "sembako" || /beras|minyak|gula|sembako|telur|tepung/i.test(nama);
+        }
+        if (selectedCategory === "voucher") {
+          return item.kategori === "voucher" || /voucher|wallet|gopay|ovo|dana|shopee/i.test(nama);
+        }
+        if (selectedCategory === "pulsa") {
+          return item.kategori === "pulsa" || /pulsa|data|token|kuota|listrik/i.test(nama);
+        }
+        if (selectedCategory === "merchandise") {
+          return item.kategori === "merchandise" || item.isDonasi || /donasi|tumbler|eco/i.test(nama);
+        }
+        return item.kategori === selectedCategory;
+      });
     }
 
     if (searchQuery.trim() !== "") {

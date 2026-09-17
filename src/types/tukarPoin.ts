@@ -1,15 +1,20 @@
-export type KategoriHadiah = 'semua' | 'voucher' | 'sembako' | 'merchandise';
+export type KategoriHadiah = 'semua' | 'sembako' | 'voucher' | 'pulsa' | 'merchandise' | 'donasi';
 
 export interface HadiahItem {
   id: string;
   namaHadiah: string;
-  kategori: 'voucher' | 'sembako' | 'merchandise';
+  kategori: 'voucher' | 'sembako' | 'merchandise' | 'pulsa' | 'donasi';
   deskripsi: string;
   poinDibutuhkan: number;
   stok: number;
   imageUrl: string;
   mitraMerchant?: string;
   satuan: string;
+  badge?: string;
+  categoryLabel?: string;
+  nilaiRupiahText?: string;
+  lokasiInfo?: string;
+  isDonasi?: boolean;
 }
 
 export interface TukarPoinPayload {

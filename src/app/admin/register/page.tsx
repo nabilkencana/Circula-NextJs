@@ -2,11 +2,8 @@
 
 import React from "react";
 import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import AdminRegisterHero from "@/components/admin-register/AdminRegisterHero";
+import RegisterHeroShowcase from "@/components/register/RegisterHeroShowcase";
 import AdminRegisterFormCard from "@/components/admin-register/AdminRegisterFormCard";
-import AdminFeaturesBentoCard from "@/components/admin-register/AdminFeaturesBentoCard";
-import BottomAdminRegisterRibbon from "@/components/admin-register/BottomAdminRegisterRibbon";
 import AdminRegisterSuccessModal from "@/components/admin-register/AdminRegisterSuccessModal";
 import { useRegisterAdminUnit } from "@/hooks/useRegisterAdminUnit";
 
@@ -14,40 +11,28 @@ export default function AdminRegisterPage() {
   const controller = useRegisterAdminUnit();
 
   return (
-    <div className="min-h-screen bg-white flex flex-col font-sans text-text-primary antialiased selection:bg-brand-neon selection:text-text-primary">
-      {/* Standardized Full-Width Sticky Navigation Bar */}
+    <div className="min-h-screen bg-[#FBFBFB] flex flex-col font-sans text-text-primary antialiased selection:bg-brand-neon selection:text-text-primary">
+      {/* Standard Consistent Navigation Bar */}
       <Navbar />
 
-      {/* Main Page Content */}
-      <main className="flex-1">
-        {/* Dark Hero Showcase */}
-        <AdminRegisterHero />
+      {/* Main Split-Screen Container — Matching Login and Register Layout */}
+      <main className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="max-w-310 w-full mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch">
+            {/* Left Column (Hero Showcase Card) */}
+            <div className="lg:col-span-5 flex">
+              <RegisterHeroShowcase />
+            </div>
 
-        {/* Central Split Section */}
-        <section className="px-4 sm:px-6 py-8 sm:py-12">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-              {/* Left Column (62% width / 7 cols) - Form Card */}
-              <div className="lg:col-span-7 xl:col-span-7">
-                <AdminRegisterFormCard controller={controller} />
-              </div>
-
-              {/* Right Column (38% width / 5 cols) - Bento Features Guide */}
-              <div className="lg:col-span-5 xl:col-span-5">
-                <AdminFeaturesBentoCard />
-              </div>
+            {/* Right Column (Admin Registration Card with Role Segment Capsule Switcher) */}
+            <div className="lg:col-span-7 flex">
+              <AdminRegisterFormCard controller={controller} />
             </div>
           </div>
-        </section>
-
-        {/* Bottom Registration & Security Banner */}
-        <BottomAdminRegisterRibbon />
+        </div>
       </main>
 
-      {/* Enterprise Shared Footer */}
-      <Footer />
-
-      {/* Success Confirmation Modal */}
+      {/* Admin Registration Success Modal */}
       <AdminRegisterSuccessModal
         isOpen={controller.isSuccessModalOpen}
         data={controller.registeredData}
