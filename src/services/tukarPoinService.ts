@@ -4,10 +4,10 @@ import {
   TukarPoinResponse,
   SaldoNasabahSummary,
 } from "@/types/tukarPoin";
+import { apiRequest } from "@/lib/api/client";
+import { HADIAH, PENUKARAN, DASHBOARD } from "@/lib/api/endpoints";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://learn.smktelkom-mlg.sch.id/bank_sampah/";
+// ─── Mock fallback data ───────────────────────────────────────────────────────
 
 export const MOCK_HADIAH_LIST: HadiahItem[] = [
   {
@@ -62,65 +62,61 @@ export const MOCK_HADIAH_LIST: HadiahItem[] = [
 
 export const MOCK_SALDO_SUMMARY: SaldoNasabahSummary = {
   saldoPoinAktif: 150,
-  nilaiKonversiRupiah: 52500, // 150 * Rp 350
+  nilaiKonversiRupiah: 52500,
   poinTerpakaiBulanIni: 75,
   totalTransaksiSelesai: 1,
 };
 
+// ─── Service Functions ────────────────────────────────────────────────────────
+
 export async function getHadiahList(): Promise<HadiahItem[]> {
   try {
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    const response = await fetch(`${API_BASE_URL}api/v1/hadiah`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "x-app-key": "circula-ukk-2026",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-    });
-
-    if (!response.ok) {
-      return MOCK_HADIAH_LIST;
-    }
-
-    const json = await response.json();
-    if (json && json.data && Array.isArray(json.data) && json.data.length > 0) {
-      return json.data;
-    }
-
+    const data = await apiRequest<HadiahItem[]>(HADIAH.LIST);
+    if (Array.isArray(data) && data.length > 0) return data;
     return MOCK_HADIAH_LIST;
   } catch {
     return MOCK_HADIAH_LIST;
   }
 }
 
-export async function tukarPoinHadiah(payload: TukarPoinPayload): Promise<TukarPoinResponse> {
-  const matchingItem = MOCK_HADIAH_LIST.find((h) => h.id === payload.hadiahId) || MOCK_HADIAH_LIST[0];
+export async function getSaldoNasabah(): Promise<SaldoNasabahSummary> {
+  try {
+    const data = await apiRequest<SaldoNasabahSummary>(DASHBOARD.SUMMARY);
+    return data ?? MOCK_SALDO_SUMMARY;
+  } catch {
+    return MOCK_SALDO_SUMMARY;
+  }
+}
+
+export async function tukarPoinHadiah(
+  payload: TukarPoinPayload
+): Promise<TukarPoinResponse> {
+  const matchingItem =
+    MOCK_HADIAH_LIST.find((h) => h.id === payload.hadiahId) ||
+    MOCK_HADIAH_LIST[0];
 
   try {
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    const response = await fetch(`${API_BASE_URL}api/v1/penukaran-poin/tukar`, {
+    const data = await apiRequest<TukarPoinResponse["data"]>(PENUKARAN.TUKAR, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-app-key": "circula-ukk-2026",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
       body: JSON.stringify(payload),
     });
 
-    if (response.ok) {
-      const json = await response.json();
-      return json;
+    if (data) {
+      return {
+        success: true,
+        message: "Penukaran poin berhasil diproses!",
+        data,
+      };
     }
-  } catch {
-    // fallback simulation
+  } catch (err) {
+    // If API throws 4xx/5xx — re-throw so hook can show toast
+    const msg = err instanceof Error ? err.message : "Gagal memproses penukaran poin.";
+    throw new Error(msg);
   }
 
-  // Fallback transaction simulation
+  // Optimistic fallback simulation
   const randomSuffix = Math.floor(1000 + Math.random() * 9000);
   const kodeNota = `TKR-202608-${randomSuffix}`;
-  const now = new Date().toISOString();
 
   return {
     success: true,
@@ -128,7 +124,7 @@ export async function tukarPoinHadiah(payload: TukarPoinPayload): Promise<TukarP
     data: {
       id: `penukaran-${Date.now()}`,
       kodeNota,
-      tanggal: now,
+      tanggal: new Date().toISOString(),
       hadiahId: matchingItem.id,
       namaHadiah: matchingItem.namaHadiah,
       poinTerpakai: matchingItem.poinDibutuhkan,
@@ -137,4 +133,20 @@ export async function tukarPoinHadiah(payload: TukarPoinPayload): Promise<TukarP
       kodeKlaimMerchant: `CLM-${randomSuffix}`,
     },
   };
+}
+
+export async function getMyPenukaran() {
+  try {
+    return await apiRequest(PENUKARAN.MY_PENUKARAN);
+  } catch {
+    return [];
+  }
+}
+
+export async function getNotaPenukaran(id: string) {
+  try {
+    return await apiRequest(PENUKARAN.NOTA(id));
+  } catch {
+    return null;
+  }
 }

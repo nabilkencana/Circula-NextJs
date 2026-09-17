@@ -1,8 +1,8 @@
 import { TransaksiPenyetoran } from "@/types/historiSetor";
+import { apiRequest } from "@/lib/api/client";
+import { SETOR } from "@/lib/api/endpoints";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://learn.smktelkom-mlg.sch.id/bank_sampah/";
+// ─── Mock fallback data ───────────────────────────────────────────────────────
 
 export const MOCK_TRANSAKSI_HISTORI: TransaksiPenyetoran[] = [
   {
@@ -16,20 +16,8 @@ export const MOCK_TRANSAKSI_HISTORI: TransaksiPenyetoran[] = [
     totalBeratKg: 6.5,
     totalPoin: 55,
     items: [
-      {
-        kategoriNama: "Botol Plastik PET (Est. 4.5 Kg)",
-        beratKg: 4.5,
-        isRealWeight: false,
-        poinSubtotal: 45,
-        rupiahSubtotal: 15750,
-      },
-      {
-        kategoriNama: "Kardus & Karton (Est. 2.0 Kg)",
-        beratKg: 2.0,
-        isRealWeight: false,
-        poinSubtotal: 10,
-        rupiahSubtotal: 4000,
-      },
+      { kategoriNama: "Botol Plastik PET (Est. 4.5 Kg)", beratKg: 4.5, isRealWeight: false, poinSubtotal: 45, rupiahSubtotal: 15750 },
+      { kategoriNama: "Kardus & Karton (Est. 2.0 Kg)", beratKg: 2.0, isRealWeight: false, poinSubtotal: 10, rupiahSubtotal: 4000 },
     ],
   },
   {
@@ -45,20 +33,8 @@ export const MOCK_TRANSAKSI_HISTORI: TransaksiPenyetoran[] = [
     totalBeratKg: 15.0,
     totalPoin: 150,
     items: [
-      {
-        kategoriNama: "Botol Plastik PET: 10.0 Kg",
-        beratKg: 10.0,
-        isRealWeight: true,
-        poinSubtotal: 100,
-        rupiahSubtotal: 35000,
-      },
-      {
-        kategoriNama: "Kardus & Karton: 5.0 Kg",
-        beratKg: 5.0,
-        isRealWeight: true,
-        poinSubtotal: 25,
-        rupiahSubtotal: 10000,
-      },
+      { kategoriNama: "Botol Plastik PET: 10.0 Kg", beratKg: 10.0, isRealWeight: true, poinSubtotal: 100, rupiahSubtotal: 35000 },
+      { kategoriNama: "Kardus & Karton: 5.0 Kg", beratKg: 5.0, isRealWeight: true, poinSubtotal: 25, rupiahSubtotal: 10000 },
     ],
   },
   {
@@ -69,43 +45,26 @@ export const MOCK_TRANSAKSI_HISTORI: TransaksiPenyetoran[] = [
     status: "ditolak",
     metodePenyerahan: "drop-off",
     lokasiTujuan: "Unit Penimbangan Pusat",
-    catatanPetugas:
-      "Sampah botol plastik masih tercampur cairan residu oli dan tidak memenuhi standar kebersihan 3R.",
+    catatanPetugas: "Sampah botol plastik masih tercampur cairan residu oli dan tidak memenuhi standar kebersihan 3R.",
     totalBeratKg: 6.0,
     totalPoin: 0,
     items: [
-      {
-        kategoriNama: "Botol Plastik Bekas Oli (Tercemar)",
-        beratKg: 6.0,
-        isRealWeight: false,
-        poinSubtotal: 0,
-        rupiahSubtotal: 0,
-      },
+      { kategoriNama: "Botol Plastik Bekas Oli (Tercemar)", beratKg: 6.0, isRealWeight: false, poinSubtotal: 0, rupiahSubtotal: 0 },
     ],
   },
 ];
 
-function getAuthHeaders(): HeadersInit {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
+// ─── Response shape normalization ─────────────────────────────────────────────
 
-  const appKey = process.env.NEXT_PUBLIC_APP_KEY;
-  if (appKey) {
-    headers["x-app-key"] = appKey;
-  }
+type StatusMap = Record<string, TransaksiPenyetoran["status"]>;
+const STATUS_MAP: StatusMap = {
+  menunggu_konfirmasi: "menunggu_konfirmasi",
+  diverifikasi: "diverifikasi",
+  selesai: "selesai",
+  ditolak: "ditolak",
+};
 
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem("circula_token");
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-  }
-
-  return headers;
-}
-
-interface ApiTransactionItem {
+interface ApiHistoriItem {
   id?: string;
   kodeSetor?: string;
   tanggal?: string;
@@ -127,64 +86,52 @@ interface ApiTransactionItem {
   }>;
 }
 
+function normalizeHistori(item: ApiHistoriItem, index: number): TransaksiPenyetoran {
+  const rawStatus = (item.status ?? "").toLowerCase();
+  return {
+    id: item.id || `tx-${index}`,
+    kodeSetor: item.kodeSetor || `STR-202608-${1000 + index}`,
+    tanggalPengajuan: item.tanggal || new Date().toISOString(),
+    tanggalVerifikasi: item.tanggalVerifikasi,
+    status: STATUS_MAP[rawStatus] ?? "menunggu_konfirmasi",
+    metodePenyerahan: item.metode === "jemput" ? "jemput" : "drop-off",
+    lokasiTujuan: item.lokasi || "Drop-off Mandiri Unit Pusat",
+    catatanNasabah: item.catatan,
+    catatanPetugas: item.catatanPetugas,
+    petugasVerifikator: item.petugas,
+    totalBeratKg: Number(item.totalBerat) || 0,
+    totalPoin: Number(item.totalPoin) || 0,
+    items: (item.items || []).map((sub) => ({
+      kategoriNama: sub.namaKategori || "Kategori Sampah",
+      beratKg: Number(sub.berat) || 0,
+      isRealWeight: Boolean(sub.isReal),
+      poinSubtotal: Number(sub.poin) || 0,
+      rupiahSubtotal: Number(sub.rupiah) || 0,
+    })),
+  };
+}
+
+// ─── Service Functions ────────────────────────────────────────────────────────
+
 export async function getMySetorHistory(
   bulan?: string
 ): Promise<TransaksiPenyetoran[]> {
-  const query = bulan ? `?bulan=${encodeURIComponent(bulan)}` : "";
-  const url = `${API_BASE_URL}/api/v1/setor-sampah/my-setor${query}`;
-  const headers = getAuthHeaders();
-
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3500);
-
-    const res = await fetch(url, {
-      method: "GET",
-      headers,
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-
-    if (res.ok) {
-      const json = await res.json();
-      if (json?.data && Array.isArray(json.data) && json.data.length > 0) {
-        return json.data.map((item: ApiTransactionItem, index: number) => {
-          const statusMap: Record<string, TransaksiPenyetoran["status"]> = {
-            menunggu_konfirmasi: "menunggu_konfirmasi",
-            diverifikasi: "diverifikasi",
-            selesai: "selesai",
-            ditolak: "ditolak",
-          };
-          const rawStatus = item.status?.toLowerCase() || "menunggu_konfirmasi";
-          const status = statusMap[rawStatus] || "menunggu_konfirmasi";
-
-          return {
-            id: item.id || `tx-${index}`,
-            kodeSetor: item.kodeSetor || `STR-202608-${1000 + index}`,
-            tanggalPengajuan: item.tanggal || new Date().toISOString(),
-            tanggalVerifikasi: item.tanggalVerifikasi,
-            status,
-            metodePenyerahan: (item.metode === "jemput" ? "jemput" : "drop-off") as "drop-off" | "jemput",
-            lokasiTujuan: item.lokasi || "Drop-off Mandiri Unit Pusat",
-            catatanNasabah: item.catatan,
-            catatanPetugas: item.catatanPetugas,
-            petugasVerifikator: item.petugas,
-            totalBeratKg: Number(item.totalBerat) || 0,
-            totalPoin: Number(item.totalPoin) || 0,
-            items: (item.items || []).map((sub) => ({
-              kategoriNama: sub.namaKategori || "Kategori Sampah",
-              beratKg: Number(sub.berat) || 0,
-              isRealWeight: Boolean(sub.isReal),
-              poinSubtotal: Number(sub.poin) || 0,
-              rupiahSubtotal: Number(sub.rupiah) || 0,
-            })),
-          };
-        });
-      }
+    const data = await apiRequest<ApiHistoriItem[]>(SETOR.MY_SETOR(bulan));
+    if (Array.isArray(data) && data.length > 0) {
+      return data.map(normalizeHistori);
     }
-  } catch (err) {
-    console.warn("[HistoriService] Using simulated dataset:", err);
+    return MOCK_TRANSAKSI_HISTORI;
+  } catch {
+    return MOCK_TRANSAKSI_HISTORI;
   }
+}
 
-  return MOCK_TRANSAKSI_HISTORI;
+export async function getDetailSetor(id: string): Promise<TransaksiPenyetoran | null> {
+  try {
+    const data = await apiRequest<ApiHistoriItem>(SETOR.DETAIL(id));
+    return data ? normalizeHistori(data, 0) : null;
+  } catch {
+    return MOCK_TRANSAKSI_HISTORI.find((t) => t.id === id) ?? null;
+  }
 }

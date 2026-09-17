@@ -2,10 +2,7 @@ import {
   RegisterAdminBankPayload,
   RegisterAdminBankResponse,
 } from "@/types/adminAuth";
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://learn.smktelkom-mlg.sch.id/bank_sampah";
+import { apiRequest, buildAuthHeaders, BASE_URL } from "@/lib/api/client";
 
 function getHeaders(): HeadersInit {
   const headers: Record<string, string> = {
@@ -23,7 +20,7 @@ function getHeaders(): HeadersInit {
 export async function registerAdminBank(
   payload: RegisterAdminBankPayload
 ): Promise<RegisterAdminBankResponse> {
-  const url = `${API_BASE_URL}/api/v1/auth/admin/register`;
+  const url = `${BASE_URL}/api/v1/auth/admin/register`;
   const headers = getHeaders();
 
   // Normalize phone number to standard format

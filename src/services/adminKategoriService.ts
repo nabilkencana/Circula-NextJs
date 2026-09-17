@@ -3,10 +3,7 @@ import {
   CreateKategoriPayload,
   UpdateKategoriPayload,
 } from "@/types/adminKategori";
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://learn.smktelkom-mlg.sch.id/bank_sampah";
+import { apiRequest, buildAuthHeaders, BASE_URL } from "@/lib/api/client";
 
 const STORAGE_KEY = "circula_admin_kategori_list_v1";
 
@@ -136,7 +133,7 @@ export async function getKategoriList(): Promise<KategoriSampahAdminRecord[]> {
     return cached;
   }
 
-  const url = `${API_BASE_URL}/api/v1/kategori-sampah`;
+  const url = `${BASE_URL}/api/v1/kategori-sampah`;
   const headers = getHeaders();
 
   try {
@@ -189,7 +186,7 @@ export async function createKategori(
   };
 
   try {
-    const url = `${API_BASE_URL}/api/v1/kategori-sampah`;
+    const url = `${BASE_URL}/api/v1/kategori-sampah`;
     const headers = getHeaders();
     await fetch(url, {
       method: "POST",
@@ -235,7 +232,7 @@ export async function updateKategori(
   };
 
   try {
-    const url = `${API_BASE_URL}/api/v1/kategori-sampah/${id}`;
+    const url = `${BASE_URL}/api/v1/kategori-sampah/${id}`;
     const headers = getHeaders();
     await fetch(url, {
       method: "PUT",
@@ -257,7 +254,7 @@ export async function deleteKategori(id: string): Promise<boolean> {
   const filtered = currentList.filter((item) => item.id !== id);
 
   try {
-    const url = `${API_BASE_URL}/api/v1/kategori-sampah/${id}`;
+    const url = `${BASE_URL}/api/v1/kategori-sampah/${id}`;
     const headers = getHeaders();
     await fetch(url, {
       method: "DELETE",

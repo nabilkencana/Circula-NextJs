@@ -3,10 +3,7 @@ import {
   UpdateUnitProfilPayload,
   UpdateUnitProfilResponse,
 } from "@/types/adminProfil";
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://learn.smktelkom-mlg.sch.id/bank_sampah";
+import { apiRequest, buildAuthHeaders, BASE_URL } from "@/lib/api/client";
 
 const STORAGE_KEY = "circula_admin_unit_profile_v1";
 
@@ -64,7 +61,7 @@ export async function getUnitProfil(): Promise<UnitBankSampahDetail> {
     }
   }
 
-  const url = `${API_BASE_URL}/api/v1/auth/me`;
+  const url = `${BASE_URL}/api/v1/auth/me`;
   const headers = getHeaders();
 
   try {

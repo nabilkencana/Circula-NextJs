@@ -4,10 +4,8 @@ import {
   TransaksiTelemetryStats,
   SampahItemRincian,
 } from "@/types/adminTransaksi";
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://learn.smktelkom-mlg.sch.id/bank_sampah";
+import { fetchWithAuth } from "@/lib/api/client";
+import { ENDPOINTS } from "@/lib/api/endpoints";
 
 const STR_STORAGE_KEY = "circula_admin_transaksi_str_v2";
 const TKR_STORAGE_KEY = "circula_admin_transaksi_tkr_v1";
@@ -211,22 +209,7 @@ export const INITIAL_TKR_TRANSAKSI: TransaksiTkrAdminRecord[] = [
   },
 ];
 
-function getAuthHeaders(): Record<string, string> {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem("token") || localStorage.getItem("circula_auth_token");
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-    const appKey = localStorage.getItem("x_app_key") || localStorage.getItem("circula_app_key");
-    if (appKey) {
-      headers["x-app-key"] = appKey;
-    }
-  }
-  return headers;
-}
+
 
 export async function getTransaksiSetorList(): Promise<TransaksiSetorAdminRecord[]> {
   if (typeof window !== "undefined") {
@@ -253,22 +236,15 @@ export async function getTransaksiSetorList(): Promise<TransaksiSetorAdminRecord
     }
   }
 
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/setor-sampah/admin/list`, {
-      method: "GET",
-      headers: getAuthHeaders(),
-      cache: "no-store",
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data?.data)) {
-        saveTransaksiSetorList(data.data);
-        return data.data;
-      }
-    }
-  } catch (err) {
-    console.warn("Backend API not reachable, using mock STR data:", err);
+  const strResult = await fetchWithAuth<TransaksiSetorAdminRecord[]>(
+    ENDPOINTS.ADMIN_SETOR.LIST(),
+    { cache: "no-store" } as RequestInit
+  );
+  if (strResult.ok && Array.isArray(strResult.data)) {
+    saveTransaksiSetorList(strResult.data);
+    return strResult.data;
   }
+  console.warn("[AdminTransaksiService] STR list API not reachable, using mock data.");
 
   saveTransaksiSetorList(INITIAL_STR_TRANSAKSI);
   return INITIAL_STR_TRANSAKSI;
@@ -286,14 +262,12 @@ export async function verifyTimbanganSetor(
   totalBerat: number,
   totalPoin: number
 ): Promise<TransaksiSetorAdminRecord> {
-  try {
-    await fetch(`${API_BASE_URL}/api/v1/setor-sampah/admin/verify/${id}`, {
-      method: "PUT",
-      headers: getAuthHeaders(),
-      body: JSON.stringify({ rincian: updatedItems, totalBerat, totalPoin }),
-    });
-  } catch (err) {
-    console.warn("API verify failed or offline, persisting locally:", err);
+  const verifyResult = await fetchWithAuth(
+    ENDPOINTS.ADMIN_SETOR.VERIFIKASI(id),
+    { method: "PUT", body: JSON.stringify({ rincian: updatedItems, totalBerat, totalPoin }) }
+  );
+  if (!verifyResult.ok) {
+    console.warn(`[AdminTransaksiService] Verify API failed (${verifyResult.error}), persisting locally.`);
   }
 
   const currentList = await getTransaksiSetorList();
@@ -318,13 +292,12 @@ export async function verifyTimbanganSetor(
 }
 
 export async function finalizeTransaksiSetor(id: string): Promise<TransaksiSetorAdminRecord> {
-  try {
-    await fetch(`${API_BASE_URL}/api/v1/setor-sampah/admin/finalize/${id}`, {
-      method: "PUT",
-      headers: getAuthHeaders(),
-    });
-  } catch (err) {
-    console.warn("API finalize failed or offline, persisting locally:", err);
+  const result = await fetchWithAuth(
+    ENDPOINTS.ADMIN_SETOR.VERIFIKASI(id),
+    { method: "PUT", body: JSON.stringify({ status: "selesai" }) }
+  );
+  if (!result.ok) {
+    console.warn(`[AdminTransaksiService] Finalize API call failed (${result.error}), persisting locally.`);
   }
 
   const currentList = await getTransaksiSetorList();
@@ -358,22 +331,15 @@ export async function getTransaksiTkrList(): Promise<TransaksiTkrAdminRecord[]> 
     }
   }
 
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/penukaran-poin/admin/list`, {
-      method: "GET",
-      headers: getAuthHeaders(),
-      cache: "no-store",
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data?.data)) {
-        saveTransaksiTkrList(data.data);
-        return data.data;
-      }
-    }
-  } catch (err) {
-    console.warn("Backend API not reachable, using mock TKR data:", err);
+  const result = await fetchWithAuth<TransaksiTkrAdminRecord[]>(
+    `${ENDPOINTS.TUKAR_POIN.LIST}/admin/list`,
+    { cache: "no-store" } as RequestInit
+  );
+  if (result.ok && Array.isArray(result.data)) {
+    saveTransaksiTkrList(result.data);
+    return result.data;
   }
+  console.warn("[AdminTransaksiService] TKR list API not reachable, using mock data.");
 
   saveTransaksiTkrList(INITIAL_TKR_TRANSAKSI);
   return INITIAL_TKR_TRANSAKSI;
@@ -386,14 +352,12 @@ export function saveTransaksiTkrList(list: TransaksiTkrAdminRecord[]): void {
 }
 
 export async function completeTkrPenukaran(id: string): Promise<TransaksiTkrAdminRecord> {
-  try {
-    await fetch(`${API_BASE_URL}/api/v1/penukaran-poin/admin/status/${id}`, {
-      method: "PUT",
-      headers: getAuthHeaders(),
-      body: JSON.stringify({ status: "selesai" }),
-    });
-  } catch (err) {
-    console.warn("API status update failed or offline, persisting locally:", err);
+  const result = await fetchWithAuth(
+    `${ENDPOINTS.TUKAR_POIN.LIST}/admin/status/${id}`,
+    { method: "PUT", body: JSON.stringify({ status: "selesai" }) }
+  );
+  if (!result.ok) {
+    console.warn(`[AdminTransaksiService] TKR complete API failed (${result.error}), persisting locally.`);
   }
 
   const currentList = await getTransaksiTkrList();

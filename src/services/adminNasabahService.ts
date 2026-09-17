@@ -3,10 +3,8 @@ import {
   CreateNasabahPayload,
   UpdateNasabahPayload,
 } from "@/types/adminNasabah";
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://learn.smktelkom-mlg.sch.id/bank_sampah";
+import { apiRequest } from "@/lib/api/client";
+import { NASABAH } from "@/lib/api/endpoints";
 
 const STORAGE_KEY = "circula_admin_nasabah_list_v1";
 
@@ -50,26 +48,7 @@ export const INITIAL_MOCK_NASABAH: NasabahRecord[] = [
   },
 ];
 
-function getHeaders(): HeadersInit {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-
-  const appKey =
-    process.env.NEXT_PUBLIC_APP_KEY || "97945213-34a7-48cf-baac-8740c1d18765";
-  if (appKey) {
-    headers["x-app-key"] = appKey;
-  }
-
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem("circula_token");
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-  }
-
-  return headers;
-}
+// ─── localStorage helpers ─────────────────────────────────────────────────────
 
 function saveToLocalStorage(records: NasabahRecord[]) {
   if (typeof window !== "undefined") {
@@ -85,9 +64,7 @@ function readFromLocalStorage(): NasabahRecord[] | null {
   if (typeof window !== "undefined") {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        return JSON.parse(saved);
-      }
+      if (saved) return JSON.parse(saved);
     } catch (e) {
       console.warn("[adminNasabahService] Failed to parse localStorage:", e);
     }
@@ -95,38 +72,20 @@ function readFromLocalStorage(): NasabahRecord[] | null {
   return null;
 }
 
+// ─── Service Functions ────────────────────────────────────────────────────────
+
 export async function getNasabahList(): Promise<NasabahRecord[]> {
   const cached = readFromLocalStorage();
-  if (cached && cached.length > 0) {
-    return cached;
-  }
-
-  const url = `${API_BASE_URL}/api/v1/admin/nasabah`;
-  const headers = getHeaders();
+  if (cached && cached.length > 0) return cached;
 
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000);
-
-    const res = await fetch(url, {
-      method: "GET",
-      headers,
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-
-    if (res.ok) {
-      const json = await res.json();
-      if (Array.isArray(json.data) && json.data.length > 0) {
-        saveToLocalStorage(json.data);
-        return json.data;
-      }
+    const data = await apiRequest<NasabahRecord[]>(NASABAH.LIST);
+    if (Array.isArray(data) && data.length > 0) {
+      saveToLocalStorage(data);
+      return data;
     }
   } catch (err) {
-    console.warn(
-      "[adminNasabahService] Fetch fallback to mock data:",
-      err
-    );
+    console.warn("[adminNasabahService] Fetch fallback to mock data:", err);
   }
 
   saveToLocalStorage(INITIAL_MOCK_NASABAH);
@@ -137,16 +96,11 @@ export async function createNasabah(
   payload: CreateNasabahPayload
 ): Promise<NasabahRecord> {
   const currentList = await getNasabahList();
-
-  // Generate next ID
   const nextNumber = currentList.length + 1;
   const newId = `NSB-${String(nextNumber).padStart(3, "0")}`;
 
   const today = new Date();
-  const months = [
-    "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
-    "Jul", "Agu", "Sep", "Okt", "Nov", "Des"
-  ];
+  const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
   const formattedDate = `${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()}`;
 
   const newRecord: NasabahRecord = {
@@ -164,13 +118,9 @@ export async function createNasabah(
       `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80`,
   };
 
-  // Try API call
   try {
-    const url = `${API_BASE_URL}/api/v1/admin/nasabah`;
-    const headers = getHeaders();
-    await fetch(url, {
+    await apiRequest(NASABAH.LIST, {
       method: "POST",
-      headers,
       body: JSON.stringify(payload),
     });
   } catch (err) {
@@ -205,11 +155,8 @@ export async function updateNasabah(
   };
 
   try {
-    const url = `${API_BASE_URL}/api/v1/admin/nasabah/${id}`;
-    const headers = getHeaders();
-    await fetch(url, {
+    await apiRequest(NASABAH.DETAIL(id), {
       method: "PUT",
-      headers,
       body: JSON.stringify(payload),
     });
   } catch (err) {
@@ -227,12 +174,7 @@ export async function deleteNasabah(id: string): Promise<boolean> {
   const filtered = currentList.filter((item) => item.id !== id);
 
   try {
-    const url = `${API_BASE_URL}/api/v1/admin/nasabah/${id}`;
-    const headers = getHeaders();
-    await fetch(url, {
-      method: "DELETE",
-      headers,
-    });
+    await apiRequest(NASABAH.DETAIL(id), { method: "DELETE" });
   } catch (err) {
     console.warn("[adminNasabahService] API DELETE offline, local only:", err);
   }
@@ -242,16 +184,7 @@ export async function deleteNasabah(id: string): Promise<boolean> {
 }
 
 export function exportNasabahCsv(records: NasabahRecord[]) {
-  const headers = [
-    "ID Nasabah",
-    "Nama Lengkap",
-    "Username",
-    "No Telepon",
-    "Alamat",
-    "Saldo Poin",
-    "Status",
-    "Tanggal Daftar",
-  ];
+  const headerRow = ["ID Nasabah", "Nama Lengkap", "Username", "No Telepon", "Alamat", "Saldo Poin", "Status", "Tanggal Daftar"];
 
   const rows = records.map((r) => [
     `"${r.id}"`,
@@ -264,10 +197,7 @@ export function exportNasabahCsv(records: NasabahRecord[]) {
     `"${r.tanggalDaftar}"`,
   ]);
 
-  const csvContent = [headers.join(","), ...rows.map((row) => row.join(","))].join(
-    "\r\n"
-  );
-
+  const csvContent = [headerRow.join(","), ...rows.map((row) => row.join(","))].join("\r\n");
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");

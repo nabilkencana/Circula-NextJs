@@ -4,10 +4,7 @@ import {
   UpdateHadiahPayload,
   RiwayatStokRecord,
 } from "@/types/adminHadiah";
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://learn.smktelkom-mlg.sch.id/bank_sampah";
+import { apiRequest, buildAuthHeaders, BASE_URL } from "@/lib/api/client";
 
 const STORAGE_KEY = "circula_admin_hadiah_list_v1";
 
@@ -148,7 +145,7 @@ export async function getHadiahList(): Promise<HadiahAdminRecord[]> {
     return cached;
   }
 
-  const url = `${API_BASE_URL}/api/v1/hadiah`;
+  const url = `${BASE_URL}/api/v1/hadiah`;
   const headers = getHeaders();
 
   try {
@@ -201,7 +198,7 @@ export async function createHadiah(
   };
 
   try {
-    const url = `${API_BASE_URL}/api/v1/hadiah`;
+    const url = `${BASE_URL}/api/v1/hadiah`;
     const headers = getHeaders();
     await fetch(url, {
       method: "POST",
@@ -244,7 +241,7 @@ export async function updateHadiah(
   };
 
   try {
-    const url = `${API_BASE_URL}/api/v1/hadiah/${id}`;
+    const url = `${BASE_URL}/api/v1/hadiah/${id}`;
     const headers = getHeaders();
     await fetch(url, {
       method: "PUT",
@@ -266,7 +263,7 @@ export async function deleteHadiah(id: string): Promise<boolean> {
   const filtered = currentList.filter((item) => item.id !== id);
 
   try {
-    const url = `${API_BASE_URL}/api/v1/hadiah/${id}`;
+    const url = `${BASE_URL}/api/v1/hadiah/${id}`;
     const headers = getHeaders();
     await fetch(url, {
       method: "DELETE",

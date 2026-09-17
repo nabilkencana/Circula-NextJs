@@ -1,8 +1,6 @@
 import { NotaSetorDetail, NotaTukarDetail } from "@/types/nota";
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://learn.smktelkom-mlg.sch.id/bank_sampah/";
+import { fetchWithAuth } from "@/lib/api/client";
+import { ENDPOINTS } from "@/lib/api/endpoints";
 
 export const MOCK_NOTA_SETOR: NotaSetorDetail = {
   tipe: "setor",
@@ -55,73 +53,31 @@ export const MOCK_NOTA_TUKAR: NotaTukarDetail = {
 };
 
 export async function getNotaSetorById(id: string): Promise<NotaSetorDetail> {
-  try {
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    const response = await fetch(`${API_BASE_URL}api/v1/setor-sampah/${id}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "x-app-key": "circula-ukk-2026",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-    });
+  const result = await fetchWithAuth<NotaSetorDetail>(
+    ENDPOINTS.SETOR.NOTA(id)
+  );
 
-    if (!response.ok) {
-      return {
-        ...MOCK_NOTA_SETOR,
-        kodeTransaksi: id || MOCK_NOTA_SETOR.kodeTransaksi,
-      };
-    }
-
-    const json = await response.json();
-    if (json && json.data) {
-      return json.data;
-    }
-
-    return {
-      ...MOCK_NOTA_SETOR,
-      kodeTransaksi: id || MOCK_NOTA_SETOR.kodeTransaksi,
-    };
-  } catch {
-    return {
-      ...MOCK_NOTA_SETOR,
-      kodeTransaksi: id || MOCK_NOTA_SETOR.kodeTransaksi,
-    };
+  if (result.ok && result.data) {
+    return result.data;
   }
+
+  return {
+    ...MOCK_NOTA_SETOR,
+    kodeTransaksi: id || MOCK_NOTA_SETOR.kodeTransaksi,
+  };
 }
 
 export async function getNotaTukarById(id: string): Promise<NotaTukarDetail> {
-  try {
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    const response = await fetch(`${API_BASE_URL}api/v1/penukaran-poin/nota/${id}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "x-app-key": "circula-ukk-2026",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-    });
+  const result = await fetchWithAuth<NotaTukarDetail>(
+    ENDPOINTS.TUKAR_POIN.NOTA(id)
+  );
 
-    if (!response.ok) {
-      return {
-        ...MOCK_NOTA_TUKAR,
-        kodeTransaksi: id || MOCK_NOTA_TUKAR.kodeTransaksi,
-      };
-    }
-
-    const json = await response.json();
-    if (json && json.data) {
-      return json.data;
-    }
-
-    return {
-      ...MOCK_NOTA_TUKAR,
-      kodeTransaksi: id || MOCK_NOTA_TUKAR.kodeTransaksi,
-    };
-  } catch {
-    return {
-      ...MOCK_NOTA_TUKAR,
-      kodeTransaksi: id || MOCK_NOTA_TUKAR.kodeTransaksi,
-    };
+  if (result.ok && result.data) {
+    return result.data;
   }
+
+  return {
+    ...MOCK_NOTA_TUKAR,
+    kodeTransaksi: id || MOCK_NOTA_TUKAR.kodeTransaksi,
+  };
 }

@@ -1,8 +1,5 @@
 import { DashboardTelemetryData } from "@/types/adminDashboard";
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://learn.smktelkom-mlg.sch.id/bank_sampah";
+import { apiRequest, buildAuthHeaders, BASE_URL } from "@/lib/api/client";
 
 const STORAGE_CACHE_KEY = "circula_admin_dashboard_cache_v1";
 
@@ -116,10 +113,10 @@ export async function getDashboardTelemetry(): Promise<DashboardTelemetryData> {
   try {
     const [resQueue, resRekap] = await Promise.all([
       fetch(
-        `${API_BASE_URL}/api/v1/setor-sampah/admin/list?status=menunggu_konfirmasi`,
+        `${BASE_URL}/api/v1/setor-sampah/admin/list?status=menunggu_konfirmasi`,
         { method: "GET", headers: getAuthHeaders(), cache: "no-store" }
       ),
-      fetch(`${API_BASE_URL}/api/v1/rekapitulasi/bulanan?bulan=2026-08`, {
+      fetch(`${BASE_URL}/api/v1/rekapitulasi/bulanan?bulan=2026-08`, {
         method: "GET",
         headers: getAuthHeaders(),
         cache: "no-store",

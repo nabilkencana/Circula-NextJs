@@ -4,30 +4,8 @@ import {
 } from "@/types/setorSampah";
 import { getKategoriSampah, MOCK_KATEGORI_SAMPAH } from "./kategoriSampahService";
 import { KategoriSampah } from "@/types/kategoriSampah";
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://learn.smktelkom-mlg.sch.id/bank_sampah/";
-
-function getAuthHeaders(): HeadersInit {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-
-  const appKey = process.env.NEXT_PUBLIC_APP_KEY;
-  if (appKey) {
-    headers["x-app-key"] = appKey;
-  }
-
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem("circula_token");
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-  }
-
-  return headers;
-}
+import { fetchWithAuth } from "@/lib/api/client";
+import { ENDPOINTS } from "@/lib/api/endpoints";
 
 // Generate random transaction ticket code e.g. "STR-202608-1042"
 function generateKodeSetor(): string {
@@ -38,13 +16,11 @@ function generateKodeSetor(): string {
   return `STR-${year}${month}-${randomSuffix}`;
 }
 
-export async function submitPengajuanSetor(
-  payload: CreateSetorSampahPayload
-): Promise<SetorSampahSubmissionResponse> {
-  const url = `${API_BASE_URL}/api/v1/setor-sampah/pengajuan`;
-  const headers = getAuthHeaders();
-
-  // Compute fallback totals
+async function computeTotals(payload: CreateSetorSampahPayload): Promise<{
+  totalBerat: number;
+  totalPoin: number;
+  totalRupiah: number;
+}> {
   const categories = await getKategoriSampah();
   let totalBerat = 0;
   let totalPoin = 0;
@@ -52,54 +28,46 @@ export async function submitPengajuanSetor(
 
   for (const item of payload.items) {
     totalBerat += item.beratKg;
-    const cat =
-      categories.find((c) => c.id === item.kategoriSampahId) || categories[0];
+    const cat = categories.find((c) => c.id === item.kategoriSampahId) || categories[0];
     totalPoin += Math.round(item.beratKg * (cat?.poinPerKg || 10));
     totalRupiah += Math.round(item.beratKg * (cat?.hargaPerKg || 3500));
   }
 
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3500);
+  return { totalBerat, totalPoin, totalRupiah };
+}
 
-    const res = await fetch(url, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(payload),
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
+export async function submitPengajuanSetor(
+  payload: CreateSetorSampahPayload
+): Promise<SetorSampahSubmissionResponse> {
+  const { totalBerat, totalPoin, totalRupiah } = await computeTotals(payload);
 
-    if (res.ok) {
-      const json = await res.json();
-      if (json?.data) {
-        return {
-          success: true,
-          message: json.message || "Pengajuan penyetoran sampah berhasil dibuat.",
-          data: {
-            id: json.data.id || String(Date.now()),
-            kodeSetor: json.data.kodeSetor || generateKodeSetor(),
-            tanggal: json.data.tanggal || payload.tanggal,
-            totalEstimasiBeratKg: Number(totalBerat.toFixed(1)),
-            totalEstimasiPoin: totalPoin,
-            totalEstimasiRupiah: totalRupiah,
-            status: "menunggu_konfirmasi",
-          },
-        };
-      }
-    }
+  const result = await fetchWithAuth<{
+    id: string;
+    kodeSetor: string;
+    tanggal: string;
+    status: "menunggu_konfirmasi";
+  }>(ENDPOINTS.SETOR.PENGAJUAN, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
 
-    console.warn(
-      `[SetorService] Backend returned status ${res.status}. Returning simulated UKK submission receipt.`
-    );
-  } catch (err) {
-    console.warn(
-      "[SetorService] Network unreachable or dev mode. Generating simulated submission ticket:",
-      err
-    );
+  if (result.ok && result.data) {
+    return {
+      success: true,
+      message: "Pengajuan penyetoran sampah berhasil dibuat.",
+      data: {
+        id: result.data.id || String(Date.now()),
+        kodeSetor: result.data.kodeSetor || generateKodeSetor(),
+        tanggal: result.data.tanggal || payload.tanggal,
+        totalEstimasiBeratKg: Number(totalBerat.toFixed(1)),
+        totalEstimasiPoin: totalPoin,
+        totalEstimasiRupiah: totalRupiah,
+        status: "menunggu_konfirmasi",
+      },
+    };
   }
 
-  // Fallback simulated response
+  // Optimistic fallback — simulated receipt so UX never blocks
   return {
     success: true,
     message: "Pengajuan penyetoran sampah berhasil dibuat (Mode Simulasi UKK).",

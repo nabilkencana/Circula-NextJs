@@ -12,13 +12,15 @@ import {
   submitPengajuanSetor,
 } from "@/services/setorSampahService";
 import { MOCK_KATEGORI_SAMPAH } from "@/services/kategoriSampahService";
+import { useToast } from "@/components/ui/ToastProvider";
 
-const USER_INITIAL_BALANCE = 150; // User current point balance as seen in mock design
+const USER_INITIAL_BALANCE = 150;
 
 export function useAjukanSetor(initialParams?: {
   kategoriId?: string | null;
   berat?: string | null;
 }) {
+  const { toast } = useToast();
   const [categories, setCategories] =
     useState<KategoriSampah[]>(MOCK_KATEGORI_SAMPAH);
   const [tanggal, setTanggal] = useState<string>("2026-08-26");
@@ -263,16 +265,21 @@ export function useAjukanSetor(initialParams?: {
       if (response.success && response.data) {
         setSubmissionResult(response.data);
         setIsSuccessModalOpen(true);
+        toast({
+          variant: "success",
+          title: "Pengajuan Berhasil!",
+          message: `Kode setor ${response.data.kodeSetor} sedang menunggu verifikasi petugas.`,
+        });
       } else {
-        setErrorMessage(
-          response.message || "Gagal membuat pengajuan setor sampah."
-        );
+        const msg = response.message || "Gagal membuat pengajuan setor sampah.";
+        setErrorMessage(msg);
+        toast({ variant: "error", title: "Pengajuan Gagal", message: msg });
       }
     } catch (err) {
       console.error("[useAjukanSetor] Submit error:", err);
-      setErrorMessage(
-        "Terjadi kesalahan saat menghubungi server. Silakan coba lagi."
-      );
+      const msg = "Terjadi kesalahan saat menghubungi server. Silakan coba lagi.";
+      setErrorMessage(msg);
+      toast({ variant: "error", title: "Kesalahan Koneksi", message: msg });
     } finally {
       setIsSubmitting(false);
     }

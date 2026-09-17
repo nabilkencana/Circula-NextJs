@@ -1,8 +1,6 @@
 import { RekapitulasiBulananResponse } from "@/types/adminLaporan";
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://learn.smktelkom-mlg.sch.id/bank_sampah";
+import { apiRequest } from "@/lib/api/client";
+import { LAPORAN } from "@/lib/api/endpoints";
 
 const STORAGE_CACHE_PREFIX = "circula_admin_laporan_cache_";
 
@@ -245,9 +243,7 @@ export async function getRekapitulasiBulanan(bulan: string): Promise<Rekapitulas
     if (cached) {
       try {
         const parsed = JSON.parse(cached);
-        if (parsed && parsed.totalVolume) {
-          return parsed;
-        }
+        if (parsed && parsed.totalVolume) return parsed;
       } catch (e) {
         console.error("Failed to parse cached laporan:", e);
       }
@@ -255,22 +251,17 @@ export async function getRekapitulasiBulanan(bulan: string): Promise<Rekapitulas
   }
 
   try {
-    const res = await fetch(`${API_BASE_URL}/api/v1/rekapitulasi/bulanan?bulan=${bulan}`, {
-      method: "GET",
-      headers: getAuthHeaders(),
-      cache: "no-store",
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data?.data && data.data.totalVolume) {
-        if (typeof window !== "undefined") {
-          localStorage.setItem(`${STORAGE_CACHE_PREFIX}${bulan}`, JSON.stringify(data.data));
-        }
-        return data.data;
+    const data = await apiRequest<RekapitulasiBulananResponse>(
+      LAPORAN.REKAPITULASI_BULANAN(bulan)
+    );
+    if (data && data.totalVolume) {
+      if (typeof window !== "undefined") {
+        localStorage.setItem(`${STORAGE_CACHE_PREFIX}${bulan}`, JSON.stringify(data));
       }
+      return data;
     }
   } catch (err) {
-    console.warn(`API rekapitulasi offline/unreachable for ${bulan}, using mock blueprint:`, err);
+    console.warn(`[LaporanService] API offline for ${bulan}, using mock data:`, err);
   }
 
   const fallback = MOCK_REKAPITULASI_DATA[bulan] || MOCK_REKAPITULASI_DATA["2026-08"];

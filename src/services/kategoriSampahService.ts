@@ -1,6 +1,9 @@
 import { KategoriSampah } from "@/types/kategoriSampah";
+import { apiRequest } from "@/lib/api/client";
+import { KATEGORI } from "@/lib/api/endpoints";
 
-// Fallback data standard UKK RPL Paket A matching the master catalog and realistic market rates
+// ─── Mock fallback data ───────────────────────────────────────────────────────
+
 export const MOCK_KATEGORI_SAMPAH: KategoriSampah[] = [
   {
     id: "eacfc2cf-2dc6-40c3-96fe-d55806f96b50",
@@ -76,85 +79,76 @@ export const MOCK_KATEGORI_SAMPAH: KategoriSampah[] = [
   },
 ];
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://learn.smktelkom-mlg.sch.id/bank_sampah/";
+// ─── API Shape normalization ──────────────────────────────────────────────────
 
 interface ApiKategoriItem {
   id?: string;
   namaKategori?: string;
   jenis?: string;
+  jenisSampah?: string;
   deskripsi?: string;
   hargaPerKg?: number | string;
   poinPerKg?: number | string;
   foto?: string;
+  imageUrl?: string;
   syaratKondisi?: string;
+  isActive?: boolean;
 }
 
+function normalizeKategori(item: ApiKategoriItem): KategoriSampah {
+  const jenis = ((item.jenisSampah ?? item.jenis ?? "plastik") as string).toLowerCase();
+  const validJenis = ["plastik", "kertas", "logam", "kaca"].includes(jenis)
+    ? (jenis as KategoriSampah["jenisSampah"])
+    : "plastik";
+
+  return {
+    id: item.id || String(Math.random()),
+    namaKategori: item.namaKategori || "Kategori Sampah",
+    jenisSampah: validJenis,
+    deskripsi: item.deskripsi || `Kategori sampah ${validJenis} siap tampung loket timbang unit.`,
+    hargaPerKg: Number(item.hargaPerKg) || 0,
+    poinPerKg: Number(item.poinPerKg) || 0,
+    imageUrl: item.imageUrl ?? item.foto ?? MOCK_KATEGORI_SAMPAH[0].imageUrl,
+    syaratKondisi: item.syaratKondisi || "Kondisi: Bersih, kering, bebas kotoran dan residu.",
+    isActive: item.isActive !== false,
+  };
+}
+
+// ─── Service Functions ────────────────────────────────────────────────────────
+
 export async function getKategoriSampah(): Promise<KategoriSampah[]> {
-  const appKey = process.env.NEXT_PUBLIC_APP_KEY;
-
   try {
-    const url = new URL("api/v1/kategori-sampah", BASE_URL).toString();
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-
-    if (appKey) {
-      headers["x-app-key"] = appKey;
+    const data = await apiRequest<ApiKategoriItem[]>(KATEGORI.LIST);
+    if (Array.isArray(data) && data.length > 0) {
+      return data.map(normalizeKategori);
     }
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2500);
-
-    const res = await fetch(url, {
-      method: "GET",
-      headers,
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-
-    if (!res.ok) {
-      console.warn(
-        `[KategoriService] Backend returned status ${res.status}. Using fallback UKK dataset.`
-      );
-      return MOCK_KATEGORI_SAMPAH;
-    }
-
-    const json = await res.json();
-
-    if (json?.data && Array.isArray(json.data) && json.data.length > 0) {
-      return json.data.map((item: ApiKategoriItem) => {
-        // Map backend API DTO to client model
-        const jenisLower = (item.jenis || "plastik").toLowerCase();
-        const validJenis = ["plastik", "kertas", "logam", "kaca"].includes(jenisLower)
-          ? jenisLower
-          : "plastik";
-
-        return {
-          id: item.id || String(Math.random()),
-          namaKategori: item.namaKategori || "Kategori Sampah",
-          jenisSampah: validJenis,
-          deskripsi:
-            item.deskripsi ||
-            `Kategori sampah ${validJenis} siap tampung loket timbang unit.`,
-          hargaPerKg: Number(item.hargaPerKg) || 0,
-          poinPerKg: Number(item.poinPerKg) || 0,
-          imageUrl: item.foto || MOCK_KATEGORI_SAMPAH[0].imageUrl,
-          syaratKondisi:
-            item.syaratKondisi ||
-            `Kondisi: Bersih, kering, bebas kotoran dan residu.`,
-          isActive: true,
-        };
-      });
-    }
-
     return MOCK_KATEGORI_SAMPAH;
-  } catch (error) {
-    console.warn(
-      "[KategoriService] Network fetch failed, gracefully falling back to mock dataset:",
-      error
-    );
+  } catch {
     return MOCK_KATEGORI_SAMPAH;
   }
+}
+
+export async function createKategori(
+  payload: Omit<KategoriSampah, "id" | "isActive">
+): Promise<KategoriSampah> {
+  const data = await apiRequest<ApiKategoriItem>(KATEGORI.CREATE, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  return normalizeKategori(data);
+}
+
+export async function updateKategori(
+  id: string,
+  payload: Partial<Omit<KategoriSampah, "id">>
+): Promise<KategoriSampah> {
+  const data = await apiRequest<ApiKategoriItem>(KATEGORI.UPDATE(id), {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+  return normalizeKategori(data);
+}
+
+export async function deleteKategori(id: string): Promise<void> {
+  await apiRequest<void>(KATEGORI.DELETE(id), { method: "DELETE" });
 }

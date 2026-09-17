@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { ToastProvider } from "@/components/ui/ToastProvider";
+import TenantKeyModal from "@/components/ui/TenantKeyModal";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -32,7 +34,11 @@ export default function RootLayout({
   return (
     <html lang="id" className={`${plusJakartaSans.variable} scroll-smooth`}>
       <body className="bg-surface-card text-text-primary min-h-screen flex flex-col font-sans selection:bg-brand-neon selection:text-text-primary">
-        {children}
+        <ToastProvider>
+          {children}
+          {/* Global x-app-key hydration modal — shown once on first visit */}
+          <TenantKeyModal />
+        </ToastProvider>
       </body>
     </html>
   );
