@@ -1,9 +1,23 @@
 import React from "react";
 
+/**
+ * Komponen Kotak Pratinjau Variasi Nota Penukaran Hadiah (VariantTkrPreviewBox)
+ *
+ * Komponen edukatif informasional untuk penguji UKK atau pengguna:
+ * 1. Menampilkan format struktur nota penukaran poin (TKR) sebagai komparasi terhadap nota penyetoran (STR).
+ * 2. Menyajikan 4 metrik spesifik:
+ *    - Item Ditukar: Nama produk/voucher.
+ *    - Poin Terpakai: Angka minus pemotongan poin.
+ *    - Sisa Saldo: Saldo poin akhir setelah klaim.
+ *    - Merchant Claim Code: Kode voucher alfanumerik untuk kasir merchant.
+ * 3. Diberi kelas `print:hidden` agar tidak ikut tertera pada lembar cetak fisik struk.
+ *
+ * @returns JSX Element panel pratinjau nota penukaran
+ */
 export default function VariantTkrPreviewBox() {
   return (
     <div className="max-w-4xl mx-auto my-6 bg-inset-gray border border-dashed border-gray-300 rounded-2xl p-5 print:hidden">
-      {/* Box Header */}
+      {/* Header Kotak Pratinjau */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
         <div className="flex items-center gap-2.5">
           <span className="bg-dark-container text-white text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full">
@@ -19,7 +33,7 @@ export default function VariantTkrPreviewBox() {
         </div>
       </div>
 
-      {/* 4-Column Grid Preview */}
+      {/* Grid 4 Kolom Rincian Item Penukaran */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 pt-3 border-t border-gray-200/80 text-xs">
         <div>
           <span className="text-[10px] font-extrabold uppercase tracking-wider text-text-secondary block mb-0.5">
@@ -60,3 +74,4 @@ export default function VariantTkrPreviewBox() {
     </div>
   );
 }
+

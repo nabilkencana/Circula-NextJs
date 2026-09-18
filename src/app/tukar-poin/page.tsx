@@ -11,7 +11,26 @@ import TukarPoinConfirmModal from "@/components/tukar-poin/TukarPoinConfirmModal
 import { useTukarPoin } from "@/hooks/useTukarPoin";
 import { getCurrentUser } from "@/services/authService";
 
+/**
+ * Komponen Internal Konten Halaman Penukaran Poin (TukarPoinContent)
+ *
+ * Mengonsolidasikan seluruh logika bisnis dan interaksi katalog penukaran poin:
+ * 1. State orkestrasi dari custom hook `useTukarPoin`: daftar hadiah, filter kategori, pencarian teks,
+ *    kalkulasi sisa saldo, status request API, dan data keberhasilan penukaran.
+ * 2. Sinkronisasi identitas nasabah dari session storage / token via `getCurrentUser()`.
+ * 3. Tata letak responsif tersusun rapi:
+ *    - Header Navbar universal dengan badge poin nasabah.
+ *    - Banner salam & ringkasan widget dompet poin.
+ *    - Toolbar filter kategori (Pills) & input pencarian nama produk/voucher.
+ *    - Grid kartu reward interaktif dengan 3 status (Loading skeleton, Empty, Populated).
+ *    - Call-to-Action ribbon edukasi penyetoran sampah berkelanjutan.
+ *    - Global Footer.
+ *    - Dialog modal konfirmasi transaksi dan penerbitan nota digital.
+ *
+ * @returns JSX Element struktur konten tukar poin
+ */
 function TukarPoinContent() {
+  // Ambil state dan action handlers dari custom hook orkestrator
   const {
     items,
     filteredItems,
@@ -33,8 +52,10 @@ function TukarPoinContent() {
     handleCloseSuccessModal,
   } = useTukarPoin();
 
+  // State identitas nasabah aktif untuk personalisasi salam di banner dan navbar
   const [currentUserName, setCurrentUserName] = useState<string>("Budi Santoso");
 
+  // Inisialisasi data nasabah saat komponen dimuat di sisi klien (hydration safe)
   useEffect(() => {
     const user = getCurrentUser();
     if (user?.namaLengkap || user?.username) {
@@ -44,22 +65,22 @@ function TukarPoinContent() {
 
   return (
     <div className="min-h-screen bg-[#FBFBFB] font-sans text-text-primary flex flex-col selection:bg-brand-neon selection:text-dark-container">
-      {/* 100% Consistent Navigation Bar */}
+      {/* ================= GLOBAL NAVBAR ================= */}
       <Navbar
         userRole="nasabah"
         userPoints={saldoSummary.saldoPoinAktif ?? 150}
         userName={currentUserName}
       />
 
-      {/* Main Container — Exact Layout Matching Blueprint Reference */}
+      {/* ================= KONTEN UTAMA HALAMAN ================= */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
-        {/* Top Section: Greeting & Dompet Poin Nasabah Card */}
+        {/* Banner Utama: Salam Nasabah & Widget Dompet Poin Gelap */}
         <TukarPoinBanner
           saldoSummary={saldoSummary}
           userName={currentUserName}
         />
 
-        {/* Filter Categories Segment Pills & Search Bar */}
+        {/* Toolbar Interaktif: Filter Kategori & Pencarian Kata Kunci */}
         <RewardFilterToolbar
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
@@ -68,7 +89,7 @@ function TukarPoinContent() {
           items={items}
         />
 
-        {/* 3-Column Modern Product Rewards Grid */}
+        {/* Grid Katalog Produk & Voucher Hadiah */}
         <RewardGrid
           items={filteredItems}
           isPointSufficient={isPointSufficient}
@@ -77,14 +98,14 @@ function TukarPoinContent() {
           isLoading={isLoading}
         />
 
-        {/* Bottom Call-to-Action Banner */}
+        {/* Banner Ribbon Ajakan Penyetoran Sampah Sirkular */}
         <PreFooterTukarRibbon />
       </main>
 
-      {/* 100% Consistent Global Footer */}
+      {/* ================= GLOBAL FOOTER ================= */}
       <Footer />
 
-      {/* Confirmation & Redemption Success Dialog Modal */}
+      {/* ================= MODAL KONFIRMASI & NOTA DIGITAL ================= */}
       <TukarPoinConfirmModal
         item={activeItemToRedeem}
         saldoSummary={saldoSummary}
@@ -99,6 +120,14 @@ function TukarPoinContent() {
   );
 }
 
+/**
+ * Halaman Utama Rute `/tukar-poin` (Next.js App Router Page)
+ *
+ * Membungkus `TukarPoinContent` dalam boundary `<Suspense>` Next.js
+ * guna memastikan kelancaran rendering streaming dan penanganan parameter URL/hydration.
+ *
+ * @returns JSX Element halaman tukar poin
+ */
 export default function TukarPoinPage() {
   return (
     <Suspense

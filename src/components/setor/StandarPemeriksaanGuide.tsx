@@ -1,8 +1,28 @@
+/**
+ * ============================================================================
+ * Komponen: StandarPemeriksaanGuide
+ * Direktori: src/components/setor/StandarPemeriksaanGuide.tsx
+ *
+ * Fungsi Utama:
+ * Bagian edukatif (Educational Section) yang menjelaskan standar mutu penerimaan
+ * material sampah daur ulang di unit Circula:
+ * 1. Kriteria 1: Kering & Bebas Minyak (tidak terkontaminasi cairan organik busuk).
+ * 2. Kriteria 2: Terpilah Menurut Kategori (memisahkan tutup, perekat, dan kawat).
+ * 3. Kriteria 3: Timbangan Digital Realtime (sensor terkalibrasi metrologi resmi).
+ * 4. Kolom visual: Menampilkan foto fasilitas pemilahan material (MRF) bersertifikasi ISO 14001.
+ *
+ * Karakteristik Teknis:
+ * - Server Component / Static: Komponen tanpa hooks/state, teroptimasi untuk performa rendering awal.
+ * - Next.js Image Optimization: Menggunakan Next.js `<Image fill />` dengan responsive sizing.
+ * ============================================================================
+ */
+
 import React from "react";
 import Image from "next/image";
 import { CheckCircle2 } from "lucide-react";
 
 export default function StandarPemeriksaanGuide() {
+  // Master data 3 kriteria utama penerimaan limbah
   const criteria = [
     {
       num: "1",
@@ -24,7 +44,9 @@ export default function StandarPemeriksaanGuide() {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 my-10">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        {/* Left Column: Dark Criteria Card */}
+        {/* ===================================================================== */}
+        {/* KOLOM KIRI: Kartu Gelap Kriteria Standar Penerimaan Sampah            */}
+        {/* ===================================================================== */}
         <div className="lg:col-span-6 bg-dark-container rounded-3xl p-6 sm:p-8 md:p-10 text-white border border-white/10 flex flex-col justify-between shadow-xl">
           <div>
             <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight leading-snug">
@@ -35,7 +57,7 @@ export default function StandarPemeriksaanGuide() {
               guna menjamin akurasi nilai timbangan serta higienitas penampungan.
             </p>
 
-            {/* Criteria List */}
+            {/* Daftar Kriteria Utama */}
             <div className="mt-8 space-y-4">
               {criteria.map((item) => (
                 <div
@@ -59,7 +81,9 @@ export default function StandarPemeriksaanGuide() {
           </div>
         </div>
 
-        {/* Right Column: High-Definition Facility Photo */}
+        {/* ===================================================================== */}
+        {/* KOLOM KANAN: Visual Foto Fasilitas MRF Modern Bersertifikasi ISO      */}
+        {/* ===================================================================== */}
         <div className="lg:col-span-6 relative rounded-3xl overflow-hidden border border-gray-200 shadow-xl min-h-95">
           <Image
             src="https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=1200&q=80"
@@ -68,9 +92,10 @@ export default function StandarPemeriksaanGuide() {
             sizes="(max-width: 1024px) 100vw, 50vw"
             className="object-cover"
           />
+          {/* Overlay gradasi gelap */}
           <div className="absolute inset-0 bg-linear-to-t from-dark-container/90 via-dark-container/30 to-transparent" />
 
-          {/* Bottom Floating Badge Tag */}
+          {/* Badge Mengambang di Bawah Foto */}
           <div className="absolute bottom-5 left-5 right-5 p-4 rounded-2xl bg-dark-container/90 border border-white/15 backdrop-blur-md text-white">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-xl bg-brand-neon/20 text-brand-neon flex items-center justify-center shrink-0">

@@ -1,3 +1,15 @@
+/**
+ * @file page.tsx
+ * @description Halaman utama Manajemen Buku Transaksi Administrator Bank Sampah Circula (Rute: `/admin/transaksi`).
+ * Mengintegrasikan seluruh komponen pengelolaan operasional penyetoran sampah (STR) dan penukaran voucher reward (TKR)
+ * dengan custom hook `useAdminTransaksi`.
+ * Menyediakan pemantauan metrik telemetri, pergantian tab STR/TKR, filter status transaksi dan bulan operasional,
+ * pencarian real-time, buku besar tabel responsif dengan pagination, modal penimbangan tera cepat (`QuickVerifyModal`),
+ * pratinjau penukaran poin, serta notifikasi toast umpan balik instan.
+ * 
+ * @module App/AdminTransaksiPage
+ */
+
 "use client";
 
 import React from "react";
@@ -13,7 +25,14 @@ import BottomAdminTransaksiRibbon from "@/components/admin-transaksi/BottomAdmin
 import { useAdminTransaksi } from "@/hooks/useAdminTransaksi";
 import { CheckCircle2, AlertCircle, X } from "lucide-react";
 
+/**
+ * Komponen Halaman AdminTransaksiPage
+ * 
+ * @component
+ * @returns {JSX.Element} Halaman manajemen transaksi lengkap untuk petugas dan administrator unit.
+ */
 export default function AdminTransaksiPage() {
+  // Destrukturisasi state dan handler operasional dari custom hook
   const {
     loading,
     viewType,
@@ -45,12 +64,13 @@ export default function AdminTransaksiPage() {
     handleExportRekap,
   } = useAdminTransaksi();
 
+  // Jumlah hitungan data tersaring dan terpaginasi
   const totalFilteredCount =
     viewType === "STR" ? filteredStrList.length : filteredTkrList.length;
   const displayedCount =
     viewType === "STR" ? paginatedStrList.length : paginatedTkrList.length;
 
-  // Sample TKR record for the preview section
+  // Sampel data catatan TKR untuk seksi pratinjau cepat di bawah tab STR
   const sampleTkrRecord = filteredTkrList[0] || {
     id: "TKR-202608-5001",
     kodePenukaran: "TKR-202608-5001",
@@ -63,10 +83,10 @@ export default function AdminTransaksiPage() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans selection:bg-brand-neon selection:text-text-primary">
-      {/* 1. SINGLE TOP FLOATING PILL NAVBAR */}
+      {/* 1. Header Navigasi Konsol Administrator */}
       <NavbarAdminConsole />
 
-      {/* 2. TOAST NOTIFICATION BANNER */}
+      {/* 2. Banner Pop-up Notifikasi Umpan Balik (Toast Alert) */}
       {toastMessage && (
         <div className="fixed top-20 right-4 sm:right-8 z-50 max-w-md w-full animate-in slide-in-from-top-4 fade-in duration-200">
           <div
@@ -77,9 +97,9 @@ export default function AdminTransaksiPage() {
             }`}
           >
             {toastMessage.type === "success" ? (
-              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" aria-hidden="true" />
             ) : (
-              <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+              <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" aria-hidden="true" />
             )}
             <div className="text-xs sm:text-sm font-medium flex-1">
               {toastMessage.message}
@@ -87,26 +107,27 @@ export default function AdminTransaksiPage() {
             <button
               type="button"
               onClick={() => setToastMessage(null)}
-              className="text-gray-400 hover:text-gray-600 p-1"
+              className="text-gray-400 hover:text-gray-600 p-1 cursor-pointer"
+              aria-label="Tutup notifikasi"
             >
-              <X className="w-4 h-4" />
+              <X className="w-4 h-4" aria-hidden="true" />
             </button>
           </div>
         </div>
       )}
 
-      {/* 3. MAIN WORKSPACE CONTAINER */}
+      {/* 3. Area Ruang Kerja Utama Modul Transaksi */}
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-        {/* Dark Hero Showcase with 3 docked widgets */}
+        {/* Spanduk Hero Gelap dengan 3 Bento Telemetri Tersemat */}
         <TransaksiHero stats={telemetryStats} />
 
-        {/* Type Switcher: STR vs TKR */}
+        {/* Tombol Tab Pengalih Buku Besar: STR vs TKR */}
         <TransaksiTypeSwitcher
           activeType={viewType}
           onSwitch={handleSwitchType}
         />
 
-        {/* Filter Toolbar: Status Pills, Month Dropdown, Search Input */}
+        {/* Bilah Filter: Pil Status, Dropdown Bulan, dan Input Pencarian */}
         <TransaksiFilterToolbar
           viewType={viewType}
           statusFilter={statusFilter}
@@ -117,10 +138,10 @@ export default function AdminTransaksiPage() {
           onSearchChange={handleSearchChange}
         />
 
-        {/* Main Table Ledger Card */}
+        {/* Kartu Tabel Buku Transaksi dengan Status Pemuatan & Paginasi */}
         {loading ? (
           <div className="bg-white border border-gray-200 rounded-3xl p-12 text-center text-xs text-gray-400 shadow-xs mb-8">
-            Memuat buku transaksi...
+            Memuat buku transaksi operasional...
           </div>
         ) : (
           <TransaksiTableCard
@@ -140,7 +161,7 @@ export default function AdminTransaksiPage() {
           />
         )}
 
-        {/* TKR Preview Section (displayed when on STR view to match visual blueprint) */}
+        {/* Seksi Pratinjau Format Tab TKR (Muncul saat Admin di Tab STR) */}
         {viewType === "STR" && (
           <TkrPreviewSection
             sampleRecord={sampleTkrRecord}
@@ -149,11 +170,11 @@ export default function AdminTransaksiPage() {
           />
         )}
 
-        {/* Bottom Reassurance Ribbon */}
+        {/* Pita Konfirmasi Sinkronisasi Real-Time Basis Data */}
         <BottomAdminTransaksiRibbon />
       </main>
 
-      {/* 4. MODALS */}
+      {/* 4. Modal Dialog Verifikasi Cepat Timbangan Loket */}
       <QuickVerifyModal
         isOpen={verifyModalOpen}
         record={selectedRecordForVerify}
@@ -162,7 +183,7 @@ export default function AdminTransaksiPage() {
         onConfirm={handleConfirmVerify}
       />
 
-      {/* 5. 4-COLUMN ENTERPRISE FOOTER */}
+      {/* 5. Footer Khusus Konsol Administrator */}
       <FooterAdmin />
     </div>
   );

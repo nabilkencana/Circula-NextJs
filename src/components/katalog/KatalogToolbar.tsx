@@ -4,14 +4,25 @@ import React from "react";
 import { Search } from "lucide-react";
 import { JenisSampah } from "@/types/kategoriSampah";
 
+/**
+ * Interface properties untuk komponen bilah alat pencarian dan filter katalog (KatalogToolbar).
+ */
 interface KatalogToolbarProps {
+  /** Nilai string query pencarian teks */
   searchQuery: string;
+  /** Callback saat nilai query pencarian berubah */
   onSearchChange: (query: string) => void;
+  /** Filter kategori jenis sampah yang sedang aktif */
   selectedJenis: "semua" | JenisSampah;
+  /** Callback saat pengguna memilih pil filter jenis sampah */
   onSelectJenis: (jenis: "semua" | JenisSampah) => void;
+  /** Jumlah total item kategori sampah yang cocok dengan filter */
   totalResults: number;
 }
 
+/**
+ * Pilihan tab segment kategori sampah beserta label tampilannya
+ */
 const CATEGORY_TABS: Array<{ label: string; value: "semua" | JenisSampah }> = [
   { label: "Semua Jenis", value: "semua" },
   { label: "Plastik", value: "plastik" },
@@ -20,6 +31,17 @@ const CATEGORY_TABS: Array<{ label: string; value: "semua" | JenisSampah }> = [
   { label: "Kaca", value: "kaca" },
 ];
 
+/**
+ * Komponen Bilah Alat Filter & Pencarian Katalog (KatalogToolbar)
+ *
+ * Mengelola interaksi filter katalog:
+ * 1. Input Pencarian Real-time: Mencari nama material (misal: "Botol PET", "Kardus", "Tembaga").
+ * 2. Segmented Pill Tabs: Pemilihan instan jenis material ('Semua', 'Plastik', 'Kertas', 'Logam', 'Kaca').
+ * 3. Indikator Jumlah Hasil: Menampilkan hitungan kategori aktif yang cocok.
+ *
+ * @param props Properti bilah alat pencarian
+ * @returns JSX Element bilah alat katalog
+ */
 export default function KatalogToolbar({
   searchQuery,
   onSearchChange,
@@ -30,7 +52,7 @@ export default function KatalogToolbar({
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 my-6">
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-        {/* Search Bar */}
+        {/* ================= BILAH PENCARIAN TEKS ================= */}
         <div className="relative flex-1 max-w-lg">
           <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
             <Search className="w-4 h-4" />
@@ -44,7 +66,7 @@ export default function KatalogToolbar({
           />
         </div>
 
-        {/* Segmented Category Filter Pills */}
+        {/* ================= PILL FILTER KATEGORI JENIS SAMPAH ================= */}
         <div className="flex items-center gap-1 overflow-x-auto pb-1 md:pb-0 scrollbar-none bg-inset-gray p-1 rounded-full border border-gray-200/60">
           {CATEGORY_TABS.map((tab) => {
             const isActive = selectedJenis === tab.value;
@@ -65,7 +87,7 @@ export default function KatalogToolbar({
         </div>
       </div>
 
-      {/* Result Counter (Subtle & clean) */}
+      {/* ================= PENGHITUNG HASIL AKTIF ================= */}
       <div className="mt-3 flex items-center justify-between text-xs text-text-secondary">
         <span>
           Menampilkan <strong className="text-text-primary">{totalResults}</strong> jenis sampah daur ulang
@@ -74,3 +96,4 @@ export default function KatalogToolbar({
     </div>
   );
 }
+

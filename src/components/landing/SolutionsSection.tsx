@@ -3,18 +3,31 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, ShieldCheck } from "lucide-react";
 
+/**
+ * Komponen Seksi Solusi Operasional Unit & Mitra (SolutionsSection)
+ *
+ * Menjelaskan kapabilitas manajemen bank sampah modern untuk pengurus loket operasional (Admin Unit):
+ * 1. Menampilkan 3 metrik efisiensi operasional dengan indikator progress bar:
+ *    - Efisiensi Pemilahan Plastik & Kertas: 84% terkelola.
+ *    - Kecepatan Timbang Lapangan: < 2 Menit per antrean nasabah.
+ *    - Akurasi Rekapitulasi Tonase Bulanan: 100% digital tanpa pembukuan manual rawan selisih.
+ * 2. Tombol registrasi unit bank sampah baru (`/admin/register`).
+ * 3. Kartu visual industrial bento yang menekankan arsitektur multi-tenant dengan isolasi data terjamin.
+ *
+ * @returns JSX Element seksi solusi pengelola unit
+ */
 export default function SolutionsSection() {
   return (
     <section id="unit-resmi" className="px-4 sm:px-6 my-10 max-w-7xl mx-auto">
       <div className="rounded-[28px] bg-dark-container p-6 sm:p-10 md:p-14 text-white border border-white/10 relative overflow-hidden shadow-2xl">
-        {/* Ambient glow accent */}
+        {/* Efek pendaran latar belakang ambient neon */}
         <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-brand-neon/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
-          {/* Left Box */}
+          {/* ================= KOLOM KIRI: DESKRIPSI & METRIK EFISIENSI ================= */}
           <div className="lg:col-span-6 flex flex-col">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-tight leading-tight">
-              Solusi Cerdas untuk Unit & Pengelola Sampah
+              Solusi Cerdas untuk Unit &amp; Pengelola Sampah
             </h2>
 
             <p className="mt-4 text-gray-300 text-sm sm:text-base leading-relaxed">
@@ -23,11 +36,12 @@ export default function SolutionsSection() {
               nasional dan perlindungan privasi data yang aman.
             </p>
 
-            {/* Feature Progress Metrics */}
+            {/* Deretan Progress Bar Metrik Efisiensi */}
             <div className="mt-8 space-y-4">
+              {/* Metrik 1: Efisiensi Pemilahan */}
               <div>
                 <div className="flex justify-between text-xs sm:text-sm font-semibold mb-1.5">
-                  <span className="text-gray-200">Efisiensi Pemilahan Plastik & Kertas</span>
+                  <span className="text-gray-200">Efisiensi Pemilahan Plastik &amp; Kertas</span>
                   <span className="text-brand-neon">84% Terkelola</span>
                 </div>
                 <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
@@ -35,6 +49,7 @@ export default function SolutionsSection() {
                 </div>
               </div>
 
+              {/* Metrik 2: Kecepatan Timbang */}
               <div>
                 <div className="flex justify-between text-xs sm:text-sm font-semibold mb-1.5">
                   <span className="text-gray-200">Kecepatan Timbang Lapangan</span>
@@ -45,6 +60,7 @@ export default function SolutionsSection() {
                 </div>
               </div>
 
+              {/* Metrik 3: Rekapitulasi Tonase */}
               <div>
                 <div className="flex justify-between text-xs sm:text-sm font-semibold mb-1.5">
                   <span className="text-gray-200">Akurasi Rekapitulasi Tonase Bulanan</span>
@@ -56,7 +72,7 @@ export default function SolutionsSection() {
               </div>
             </div>
 
-            {/* CTA Admin */}
+            {/* Tombol Registrasi Admin Unit */}
             <div className="mt-8">
               <Link
                 href="/admin/register"
@@ -68,7 +84,7 @@ export default function SolutionsSection() {
             </div>
           </div>
 
-          {/* Right Box: Industrial Bento Visual Card */}
+          {/* ================= KOLOM KANAN: KARTU BENTO PENGOLAHAN INDUSTRI ================= */}
           <div className="lg:col-span-6">
             <div className="bg-dark-widget rounded-2xl p-4 sm:p-5 border border-white/15">
               <div className="relative h-60 sm:h-72 w-full rounded-xl overflow-hidden mb-4">

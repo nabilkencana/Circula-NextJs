@@ -4,13 +4,32 @@ import React from "react";
 import { Download, Printer } from "lucide-react";
 import { TipeNota } from "@/types/nota";
 
+/**
+ * Interface properties untuk komponen bilah aksi nota (NotaActionToolbar).
+ */
 interface NotaActionToolbarProps {
+  /** Tab tipe nota yang sedang aktif ('setor' atau 'tukar') */
   activeTab: TipeNota;
+  /** Callback untuk mengubah tab tipe nota aktif */
   onTabChange: (tab: TipeNota) => void;
+  /** Callback untuk memicu dialog cetak struk browser */
   onPrint: () => void;
+  /** Callback untuk memicu unduhan nota dalam format PDF */
   onDownloadPdf: () => void;
 }
 
+/**
+ * Komponen Bilah Alat Aksi Cetak & Pilihan Nota (NotaActionToolbar)
+ *
+ * Menyediakan kontrol interaktif di atas lembar struk:
+ * 1. Segmented Button Switcher: Beralih pratinjau antara Nota Penyetoran (STR) dan Nota Penukaran (TKR).
+ * 2. Tombol Unduh PDF: Membuka dialog simpan berkas PDF.
+ * 3. Tombol Cetak Nota Transaksi: Tombol beraksen hijau neon untuk mencetak ke printer thermal / kertas.
+ * 4. Komponen disembunyikan otomatis saat mode cetak (`print:hidden`).
+ *
+ * @param props Properti tab aktif dan callback cetak
+ * @returns JSX Element bilah aksi nota
+ */
 export default function NotaActionToolbar({
   activeTab,
   onTabChange,
@@ -19,7 +38,7 @@ export default function NotaActionToolbar({
 }: NotaActionToolbarProps) {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 md:px-0 pt-8 pb-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 print:hidden">
-      {/* Left Side: Segmented Receipt Type Switcher */}
+      {/* Sisi Kiri: Segmented Switcher Jenis Nota */}
       <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-full border border-gray-200 self-start sm:self-auto">
         <button
           type="button"
@@ -30,7 +49,7 @@ export default function NotaActionToolbar({
               : "text-text-secondary hover:text-text-primary font-semibold hover:bg-white/50"
           }`}
         >
-          • Nota Penyetoran Sampah (STR)
+          Nota Penyetoran Sampah (STR)
         </button>
 
         <button
@@ -46,7 +65,7 @@ export default function NotaActionToolbar({
         </button>
       </div>
 
-      {/* Right Side: Print & Download Action Buttons */}
+      {/* Sisi Kanan: Tombol Aksi Unduh PDF & Cetak Struk Fisik */}
       <div className="flex items-center gap-2.5">
         <button
           type="button"
@@ -69,3 +88,4 @@ export default function NotaActionToolbar({
     </div>
   );
 }
+

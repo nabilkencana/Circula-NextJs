@@ -1,11 +1,34 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Hero Header & Ringkasan Telemetri Hadiah Admin
+ *
+ * File: src/components/admin-hadiah/HadiahHero.tsx
+ * Deskripsi:
+ * Menampilkan kartu banner header visual berpenampilan dark container modern
+ * dengan 3 kartu metrik telemetri (Total Item Aktif, Poin Beredar, dan Kontrol Stok).
+ * Berfungsi memberikan gambaran cepat status inventaris hadiah unit kepada admin.
+ *
+ * Standar Teknis UKK RPL:
+ * - Komponen presentasional React dengan TypeScript interface strict.
+ * - Format angka lokal Indonesia (`toLocaleString("id-ID")`).
+ * - Styling Tailwind CSS bertema dark aesthetic dengan micro-animations.
+ */
+
 import React from "react";
 import { Gift, RefreshCw, ShieldCheck } from "lucide-react";
 import { HadiahTelemetryStats } from "@/types/adminHadiah";
 
+/**
+ * Properti komponen HadiahHero.
+ */
 interface HadiahHeroProps {
+  /** Objek ringkasan statistik telemetri katalog hadiah */
   stats: HadiahTelemetryStats;
 }
 
+/**
+ * Komponen banner hero master katalog hadiah penukaran poin.
+ */
 export default function HadiahHero({ stats }: HadiahHeroProps) {
   return (
     <section

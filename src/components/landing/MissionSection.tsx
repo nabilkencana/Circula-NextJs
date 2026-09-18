@@ -3,11 +3,24 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, CheckCircle2, Coins, FileText } from "lucide-react";
 
+/**
+ * Komponen Seksi Misi & Transparansi Insentif Lingkungan (MissionSection)
+ *
+ * Menjelaskan visi sirkular Bank Sampah Circula dalam mengonversi limbah anorganik
+ * menjadi instrumen ekonomi nyata melalui 3 pilar keunggulan operasional:
+ * 1. Valuasi Harga Beli Riil: Transparansi indeks rupiah per kg (Rp/kg) tanpa potongan liar.
+ * 2. Reward Poin Fleksibel: Kemudahan konversi poin ke sembako, pulsa, dan voucher belanja.
+ * 3. Pencatatan Nota Digital Terverifikasi: Dokumentasi tanda terima penimbangan resmi (STR-XXXX).
+ *
+ * Di sisi kanan, terdapat kartu media visual fasilitas logistik berskala industri (250+ Ton/Bulan).
+ *
+ * @returns JSX Element seksi misi sirkular
+ */
 export default function MissionSection() {
   return (
     <section className="py-20 px-4 sm:px-6 max-w-7xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
-        {/* Left Column */}
+        {/* ================= KOLOM KIRI: NARASI MISI & 3 PILAR UTAMA ================= */}
         <div className="lg:col-span-6 flex flex-col">
           <h2 className="text-3xl sm:text-4xl font-bold text-text-primary tracking-tight leading-tight">
             Mendorong Kesadaran Lingkungan Melalui Insentif Daur Ulang Transparan
@@ -18,9 +31,9 @@ export default function MissionSection() {
             lingkungan lokal.
           </p>
 
-          {/* Feature Stack (3 items with checkmarks) */}
+          {/* Deretan 3 Pilar Keunggulan Transparansi */}
           <div className="mt-8 space-y-5">
-            {/* Pilar 1 */}
+            {/* Pilar 1: Harga Beli Transparan */}
             <div className="flex items-start gap-4 p-4 rounded-2xl bg-inset-gray border border-gray-200 transition-all hover:border-gray-400">
               <div className="w-8 h-8 rounded-full bg-brand-neon text-text-primary flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
                 <CheckCircle2 className="w-5 h-5 fill-text-primary text-brand-neon" />
@@ -36,7 +49,7 @@ export default function MissionSection() {
               </div>
             </div>
 
-            {/* Pilar 2 */}
+            {/* Pilar 2: Reward Poin Fleksibel */}
             <div className="flex items-start gap-4 p-4 rounded-2xl bg-inset-gray border border-gray-200 transition-all hover:border-gray-400">
               <div className="w-8 h-8 rounded-full bg-brand-neon text-text-primary flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
                 <Coins className="w-4 h-4 text-text-primary" />
@@ -52,7 +65,7 @@ export default function MissionSection() {
               </div>
             </div>
 
-            {/* Pilar 3 */}
+            {/* Pilar 3: Nota Digital Terverifikasi */}
             <div className="flex items-start gap-4 p-4 rounded-2xl bg-inset-gray border border-gray-200 transition-all hover:border-gray-400">
               <div className="w-8 h-8 rounded-full bg-brand-neon text-text-primary flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
                 <FileText className="w-4 h-4 text-text-primary" />
@@ -69,7 +82,7 @@ export default function MissionSection() {
             </div>
           </div>
 
-          {/* Action Button */}
+          {/* Tombol Ajakan Registrasi Nasabah */}
           <div className="mt-8">
             <Link
               href="/register"
@@ -83,7 +96,7 @@ export default function MissionSection() {
           </div>
         </div>
 
-        {/* Right Column: High-Res Aerial Media Container */}
+        {/* ================= KOLOM KANAN: MEDIA FASILITAS PEMILAHAN ================= */}
         <div className="lg:col-span-6">
           <div className="relative rounded-3xl overflow-hidden border border-gray-200 shadow-xl aspect-4/3 sm:aspect-16/11">
             <Image
@@ -95,7 +108,7 @@ export default function MissionSection() {
             />
             <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent" />
 
-            {/* Bottom Overlay Card */}
+            {/* Kartu Overlay Keterangan Kapasitas Operasional */}
             <div className="absolute bottom-5 left-5 right-5 p-4 rounded-2xl bg-dark-container/90 border border-white/15 backdrop-blur-md text-white">
               <div className="flex items-center justify-between">
                 <div>

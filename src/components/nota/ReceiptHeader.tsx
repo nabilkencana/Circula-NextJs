@@ -1,10 +1,24 @@
 import React from "react";
 import { Leaf, CheckCircle2 } from "lucide-react";
 
+/**
+ * Interface properties untuk komponen kop kepala nota (ReceiptHeader).
+ */
 interface ReceiptHeaderProps {
+  /** Nama unit bank sampah pelaksana transaksi */
   unitName: string;
 }
 
+/**
+ * Komponen Kop Kepala Nota Digital (ReceiptHeader)
+ *
+ * Menampilkan identitas resmi penerbit struk:
+ * 1. Logo Circula Bank Sampah Digital dan nama cabang unit operasional.
+ * 2. Lencana verifikasi ("TRANSAKSI SELESAI") dengan aksen hijau emerald dan border neon.
+ *
+ * @param props Properti nama unit
+ * @returns JSX Element kop nota
+ */
 export default function ReceiptHeader({ unitName }: ReceiptHeaderProps) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-200">
@@ -31,3 +45,4 @@ export default function ReceiptHeader({ unitName }: ReceiptHeaderProps) {
     </div>
   );
 }
+

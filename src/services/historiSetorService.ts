@@ -1,9 +1,24 @@
-import { TransaksiPenyetoran } from "@/types/historiSetor";
-import { apiRequest } from "@/lib/api/client";
-import { SETOR } from "@/lib/api/endpoints";
+/**
+ * @file historiSetorService.ts
+ * @description Service layer untuk modul Riwayat Penyetoran Sampah (Histori Setor).
+ * Mengatur komunikasi HTTP ke backend API Circula, normalisasi data (Adapter Pattern),
+ * serta penyediaan mock data fallback jika API backend offline saat simulasi/pengujian.
+ * 
+ * Peran dalam UKK:
+ * - Menunjukkan arsitektur Service-Repository / Data Access Layer yang rapi.
+ * - Menerapkan Data Normalization (Adapter Pattern) agar frontend tidak crash saat backend mengirim format data berbeda atau null.
+ * - Menjamin ketersediaan data fallback (High Resilience) saat pengujian lokal tanpa internet/backend.
+ */
+
+import { TransaksiPenyetoran } from "@/types/historiSetor"; // Tipe data kontrak transaksi
+import { apiRequest } from "@/lib/api/client"; // Klien HTTP tersentralisasi (Axios/Fetch wrapper)
+import { SETOR } from "@/lib/api/endpoints"; // Konstanta URL endpoint REST API
 
 // ─── Response shape normalization ─────────────────────────────────────────────
 
+/**
+ * Mapping status mentah (raw status) dari backend ke union type status resmi frontend.
+ */
 type StatusMap = Record<string, TransaksiPenyetoran["status"]>;
 const STATUS_MAP: StatusMap = {
   menunggu_konfirmasi: "menunggu_konfirmasi",
@@ -12,6 +27,9 @@ const STATUS_MAP: StatusMap = {
   ditolak: "ditolak",
 };
 
+/**
+ * Interface bentuk data mentah (raw payload) yang diterima dari respon REST API backend.
+ */
 interface ApiHistoriItem {
   id?: string;
   kodeSetor?: string;
@@ -34,6 +52,15 @@ interface ApiHistoriItem {
   }>;
 }
 
+/**
+ * Fungsi Normalisasi (Adapter Function)
+ * Mengonversi data mentah dari API menjadi objek TransaksiPenyetoran yang aman dan terstandarisasi.
+ * Menjamin nilai default (fallback) jika ada field yang bernilai undefined atau null dari server.
+ * 
+ * @param item - Objek mentah dari respon server
+ * @param index - Nomor indeks array untuk pembuatan fallback ID
+ * @returns Objek TransaksiPenyetoran siap konsumsi komponen UI
+ */
 function normalizeHistori(item: ApiHistoriItem, index: number): TransaksiPenyetoran {
   const rawStatus = (item.status ?? "").toLowerCase();
   return {
@@ -133,6 +160,14 @@ export const DEFAULT_HISTORI_TRANSACTIONS: TransaksiPenyetoran[] = [
 
 // ─── Service Functions ────────────────────────────────────────────────────────
 
+/**
+ * Mengambil daftar seluruh riwayat transaksi penyetoran sampah milik nasabah yang sedang login.
+ * Mendukung filter berdasarkan parameter bulan (misal: '2026-08').
+ * Jika pemanggilan API gagal atau data kosong, otomatis mengembalikan data mock default untuk demo.
+ * 
+ * @param bulan - String filter bulan (opsional)
+ * @returns Promise array TransaksiPenyetoran
+ */
 export async function getMySetorHistory(
   bulan?: string
 ): Promise<TransaksiPenyetoran[]> {
@@ -147,6 +182,13 @@ export async function getMySetorHistory(
   }
 }
 
+/**
+ * Mengambil detail lengkap 1 transaksi penyetoran sampah berdasarkan ID transaksi atau kode setor.
+ * Digunakan untuk halaman nota transaksi dan detail penimbangan.
+ * 
+ * @param id - ID transaksi (misal: 'str-1001') atau Kode Setor ('STR-202508-1001')
+ * @returns Promise TransaksiPenyetoran atau null jika tidak ditemukan
+ */
 export async function getDetailSetor(id: string): Promise<TransaksiPenyetoran | null> {
   try {
     const data = await apiRequest<ApiHistoriItem>(SETOR.DETAIL(id));

@@ -1,11 +1,26 @@
+/**
+ * @file KonsolOperasionalBentoCard.tsx
+ * @description Komponen kartu edukasi berformat Bento Card pada sisi login.
+ * Menjelaskan hak akses dan kapabilitas operasional masing-masing peran:
+ * 1. Nasabah: Penyetoran sampah, cek verifikasi timbangan real, cetak nota.
+ * 2. Admin Unit: Penimbangan fisik lapangan, update status tiket, kelola katalog hadiah, rekapitulasi.
+ * Serta menonjolkan fitur unggulan: Integrasi timbangan digital tera resmi & tombol Helpdesk.
+ * 
+ * Peran dalam UKK:
+ * - Menjelaskan pemisahan wewenang (Role-Based Access Control / RBAC) kepada penguji.
+ * - Menerapkan Bento UI layout dengan kontras warna gelap (dark container) dan aksen brand neon.
+ */
+
 import React from "react";
-import Link from "next/link";
-import { Leaf, Building2, Scale, HelpCircle, ArrowUpRight } from "lucide-react";
+import Link from "next/link"; // Komponen tautan Next.js
+import { Leaf, Building2, Scale, HelpCircle, ArrowUpRight } from "lucide-react"; // Ikon Lucide React
 
 export default function KonsolOperasionalBentoCard() {
   return (
+    /* Kontainer Utama Bento Card */
     <div className="bg-dark-container rounded-3xl p-6 sm:p-8 text-white border border-white/10 shadow-xl">
-      {/* Header Tag & Title */}
+      
+      {/* ─── Header: Eyebrow Tag & Judul ─── */}
       <div className="mb-6">
         <span className="text-[10px] font-bold tracking-widest text-brand-neon uppercase">
           KONSOL OPERASIONAL
@@ -15,9 +30,9 @@ export default function KonsolOperasionalBentoCard() {
         </h3>
       </div>
 
-      {/* Role Explanations */}
+      {/* ─── Komparasi Hak Akses Peran (Nasabah vs Admin) ─── */}
       <div className="space-y-3 mb-4">
-        {/* Nasabah Block */}
+        {/* Blok Deskripsi Wewenang: Nasabah */}
         <div className="bg-[#121611] rounded-2xl p-4 border border-white/5 hover:border-brand-neon/30 transition-all">
           <div className="flex items-center gap-2 mb-1.5">
             <div className="w-5 h-5 rounded-md bg-brand-neon/15 text-brand-neon flex items-center justify-center shrink-0">
@@ -31,7 +46,7 @@ export default function KonsolOperasionalBentoCard() {
           </p>
         </div>
 
-        {/* Admin Unit Block */}
+        {/* Blok Deskripsi Wewenang: Admin Unit */}
         <div className="bg-[#121611] rounded-2xl p-4 border border-white/5 hover:border-brand-neon/30 transition-all">
           <div className="flex items-center gap-2 mb-1.5">
             <div className="w-5 h-5 rounded-md bg-brand-neon/15 text-brand-neon flex items-center justify-center shrink-0">
@@ -46,7 +61,7 @@ export default function KonsolOperasionalBentoCard() {
         </div>
       </div>
 
-      {/* Weighing Scale Integration Inset */}
+      {/* ─── Fitur Unggulan: Integrasi Timbangan Digital Presisi ─── */}
       <div className="bg-dark-widget rounded-2xl p-4 border border-white/10 flex items-center gap-3.5">
         <div className="w-9 h-9 rounded-xl bg-brand-neon/15 text-brand-neon flex items-center justify-center shrink-0">
           <Scale className="w-5 h-5 text-brand-neon" />
@@ -57,7 +72,7 @@ export default function KonsolOperasionalBentoCard() {
         </p>
       </div>
 
-      {/* Helpdesk Link Card */}
+      {/* ─── Kartu Bantuan / Helpdesk Tautan Cepat ─── */}
       <Link
         href="/#bantuan"
         className="mt-4 bg-white rounded-2xl p-4 flex items-center justify-between text-text-primary hover:bg-gray-50 transition-colors shadow-xs group"
@@ -76,8 +91,10 @@ export default function KonsolOperasionalBentoCard() {
           </div>
         </div>
 
+        {/* Ikon panah miring ke atas kanan dengan animasi geser saat hover */}
         <ArrowUpRight className="w-4 h-4 text-text-secondary group-hover:text-text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
       </Link>
+
     </div>
   );
 }

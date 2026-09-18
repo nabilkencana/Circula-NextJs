@@ -1,11 +1,28 @@
 import React from "react";
 
+/**
+ * Interface properties untuk komponen tanda tangan digital & verifikasi nota.
+ */
 interface ReceiptSignatureFooterProps {
+  /** Nama petugas penimbang yang mengesahkan transaksi */
   petugasPenimbang: string;
+  /** Catatan inspeksi kondisi fisik barang dari petugas loket */
   catatanPetugas: string;
+  /** Kode hash alfanumerik tanda tangan digital */
   digitalSignatureHash: string;
 }
 
+/**
+ * Komponen Kaki Lembar Nota Resmi & Tera Metrologi (ReceiptSignatureFooter)
+ *
+ * Menyediakan bukti otentikasi legal pada struk digital:
+ * 1. Visualisasi QR-Code Tera Metrologi Digital untuk pemindaian validasi keaslian.
+ * 2. Identitas Petugas Penimbang dan catatan kondisi fisik sampah.
+ * 3. Kode Digital Signature Hash yang menjamin integritas data (anti-tamper).
+ *
+ * @param props Properti tanda tangan dan hash digital
+ * @returns JSX Element footer pengesahan nota
+ */
 export default function ReceiptSignatureFooter({
   petugasPenimbang,
   catatanPetugas,
@@ -13,31 +30,31 @@ export default function ReceiptSignatureFooter({
 }: ReceiptSignatureFooterProps) {
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pt-5 border-t border-gray-200">
-      {/* Left Side: Official QR Code & Tera Metrologi */}
+      {/* Sisi Kiri: Simulasi QR-Code Tera Metrologi Digital */}
       <div className="flex items-center gap-3.5">
-        {/* Crisp Vector QR Code Simulation */}
+        {/* Kontainer Vektor QR Code Presisi */}
         <div className="w-20 h-20 bg-white p-1.5 rounded-xl border border-gray-200 shadow-2xs shrink-0 relative flex items-center justify-center">
           <svg
             className="w-full h-full text-dark-container"
             viewBox="0 0 100 100"
             fill="currentColor"
           >
-            {/* Corner Marker 1 (Top Left) */}
+            {/* Sudut Penanda 1 (Atas Kiri) */}
             <rect x="5" y="5" width="28" height="28" rx="4" fill="#0D110C" />
             <rect x="11" y="11" width="16" height="16" rx="2" fill="#FFFFFF" />
             <rect x="15" y="15" width="8" height="8" rx="1" fill="#0D110C" />
 
-            {/* Corner Marker 2 (Top Right) */}
+            {/* Sudut Penanda 2 (Atas Kanan) */}
             <rect x="67" y="5" width="28" height="28" rx="4" fill="#0D110C" />
             <rect x="73" y="11" width="16" height="16" rx="2" fill="#FFFFFF" />
             <rect x="77" y="15" width="8" height="8" rx="1" fill="#0D110C" />
 
-            {/* Corner Marker 3 (Bottom Left) */}
+            {/* Sudut Penanda 3 (Bawah Kiri) */}
             <rect x="5" y="67" width="28" height="28" rx="4" fill="#0D110C" />
             <rect x="11" y="73" width="16" height="16" rx="2" fill="#FFFFFF" />
             <rect x="15" y="77" width="8" height="8" rx="1" fill="#0D110C" />
 
-            {/* Simulated Data Matrix Dots */}
+            {/* Titik Matriks Data QR */}
             <rect x="38" y="10" width="6" height="6" rx="1" />
             <rect x="48" y="10" width="6" height="6" rx="1" />
             <rect x="38" y="22" width="6" height="6" rx="1" />
@@ -61,7 +78,7 @@ export default function ReceiptSignatureFooter({
             <rect x="62" y="80" width="6" height="6" rx="1" />
             <rect x="76" y="80" width="6" height="6" rx="1" />
           </svg>
-          {/* Neon Verification Accent */}
+          {/* Titik Aksen Verifikasi Neon */}
           <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-brand-neon border-2 border-white shadow-2xs" />
         </div>
 
@@ -75,7 +92,7 @@ export default function ReceiptSignatureFooter({
         </div>
       </div>
 
-      {/* Right Side: Officer Sign-off & Digital Signature Hash */}
+      {/* Sisi Kanan: Pengesahan Petugas & Hash Tanda Tangan */}
       <div className="text-left sm:text-right">
         <span className="font-bold text-xs sm:text-sm text-text-primary block">
           Petugas Penimbang: {petugasPenimbang}
@@ -98,3 +115,4 @@ export default function ReceiptSignatureFooter({
     </div>
   );
 }
+

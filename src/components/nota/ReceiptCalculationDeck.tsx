@@ -1,14 +1,35 @@
 import React from "react";
 import { CheckCircle2 } from "lucide-react";
 
+/**
+ * Interface properties untuk komponen rekapitulasi kalkulasi nota penyetoran.
+ */
 interface ReceiptCalculationDeckProps {
+  /** Total tonase berat hasil timbangan digital aktual (kg) */
   totalBeratKg: number;
+  /** Nilai estimasi konversi uang tunai rupiah (Rp) */
   estimasiNilaiRupiah: number;
+  /** Saldo poin nasabah sebelum penambahan poin transaksi */
   saldoSebelumTransaksi: number;
+  /** Total poin reward baru yang diterbitkan pada nota ini */
   totalPoinDiterbitkan: number;
+  /** Saldo total poin nasabah terkini setelah transaksi sukses */
   totalSaldoAkhir: number;
 }
 
+/**
+ * Komponen Rekapitulasi Buku Besar Nota Penyetoran (ReceiptCalculationDeck)
+ *
+ * Menampilkan ringkasan finansial dan poin dalam widget gelap kontras tinggi:
+ * 1. Total Berat Aktual (kg) presisi 1 desimal.
+ * 2. Estimasi Nilai Rupiah yang berhak diterima nasabah.
+ * 3. Rekonsiliasi Saldo Poin: saldo awal + poin baru = saldo akhir.
+ * 4. Poin Diterbitkan: Tipografi besar mencolok dengan aksen hijau neon (`+XXX POIN CIRCULA`).
+ * 5. Catatan kaki ketersediaan poin untuk penukaran hadiah di katalog.
+ *
+ * @param props Properti rincian angka kalkulasi nota
+ * @returns JSX Element deck rekapitulasi nota
+ */
 export default function ReceiptCalculationDeck({
   totalBeratKg,
   estimasiNilaiRupiah,
@@ -18,7 +39,7 @@ export default function ReceiptCalculationDeck({
 }: ReceiptCalculationDeckProps) {
   return (
     <div className="bg-dark-container rounded-2xl p-6 text-white my-6 border border-white/10 shadow-lg">
-      {/* Upper Metrics Rows */}
+      {/* Baris Rincian Metrik Atas */}
       <div className="space-y-2.5 text-xs sm:text-sm">
         <div className="flex items-center justify-between">
           <span className="text-gray-300">Total Berat Timbangan Aktual</span>
@@ -42,10 +63,10 @@ export default function ReceiptCalculationDeck({
         </div>
       </div>
 
-      {/* Hairline Divider */}
+      {/* Garis Pembatas Halus */}
       <div className="border-t border-white/10 my-4" />
 
-      {/* Highlight Metric Row */}
+      {/* Baris Highlight Poin Baru Diterbitkan */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
           <span className="text-xs sm:text-sm font-bold tracking-wider text-gray-300 uppercase block">
@@ -63,7 +84,7 @@ export default function ReceiptCalculationDeck({
         </div>
       </div>
 
-      {/* Footnote Active Balance Update */}
+      {/* Catatan Kaki Saldo Terkini */}
       <div className="mt-4 pt-3 border-t border-white/10 flex items-center gap-2 text-xs text-lime-400/90 font-medium">
         <CheckCircle2 className="w-3.5 h-3.5 text-brand-neon shrink-0" />
         <span>
@@ -75,3 +96,4 @@ export default function ReceiptCalculationDeck({
     </div>
   );
 }
+

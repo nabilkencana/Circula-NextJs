@@ -1,28 +1,48 @@
 /**
- * Centralized API Client — UKK RPL Paket A
- * Implements the full apiRequest<T> pattern with:
- * - Automatic x-app-key injection (env → localStorage → default)
- * - Automatic Authorization Bearer injection
- * - Structured error throwing with backend message
- * - Offline-safe fallback helpers
+ * @file client.ts
+ * @description Klien API Terpusat (Centralized API Client) Circula untuk UKK RPL Paket A.
+ * Mengimplementasikan pola pemanggilan `apiRequest<T>` dengan fitur unggulan:
+ * - Injeksi otomatis header `x-app-key` multi-tenant (environment -> localStorage -> default).
+ * - Injeksi otomatis header otorisasi `Authorization: Bearer <token>`.
+ * - Penanganan galat terstruktur dari pesan backend dan batas waktu request (timeout).
+ * - Pemantauan invalidasi sesi otomatis (401 / Token kedaluwarsa) dengan pembersihan memori
+ *   serta penyiaran custom event `circula_auth_invalidated`.
+ * 
+ * @module Lib/API/Client
  */
 
+/**
+ * URL dasar server backend API Circula.
+ */
 export const BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
   "https://learn.smktelkom-mlg.sch.id/bank_sampah";
 
+/**
+ * Nilai kunci default tenant aplikasi untuk lingkungan pengujian UKK.
+ */
 export const DEFAULT_APP_KEY =
   process.env.NEXT_PUBLIC_DEFAULT_APP_KEY ||
   "1d99c078-9a3f-45e0-978e-8e0806338593";
 
-// Storage keys (single source of truth)
+// =============================================================================
+// KUNCI PENYIMPANAN LOCALSTORAGE (SINGLE SOURCE OF TRUTH)
+// =============================================================================
 export const APP_KEY_STORAGE_KEY = "circula_app_key";
 export const TOKEN_STORAGE_KEY = "circula_token";
 export const USER_STORAGE_KEY = "circula_user";
 export const ROLE_STORAGE_KEY = "circula_role";
 
-// ─── Typed API response envelope ─────────────────────────────────────────────
+// =============================================================================
+// STRUKTUR DATA RESPON ENVELOPE RESMI BACKEND
+// =============================================================================
 
+/**
+ * Tipe amplop respons baku API Circula
+ * 
+ * @interface ApiResponse
+ * @template T - Tipe data muatan (payload) yang dikembalikan.
+ */
 export interface ApiResponse<T> {
   statusCode: number;
   success: boolean;
@@ -31,8 +51,15 @@ export interface ApiResponse<T> {
   timestamp?: string;
 }
 
-// ─── Key helpers ──────────────────────────────────────────────────────────────
+// =============================================================================
+// FUNGSI BANTU PENGELOLAAN KUNCI & SESI AUTENTIKASI
+// =============================================================================
 
+/**
+ * Mengambil nilai `x-app-key` aktif dari environment, localStorage, atau fallback default.
+ * 
+ * @returns {string} String kunci aplikasi aktif.
+ */
 export function getAppKey(): string {
   if (process.env.NEXT_PUBLIC_DEFAULT_APP_KEY) {
     return process.env.NEXT_PUBLIC_DEFAULT_APP_KEY;
@@ -44,6 +71,11 @@ export function getAppKey(): string {
   return DEFAULT_APP_KEY;
 }
 
+/**
+ * Mengambil token otentikasi JWT yang tersimpan di localStorage.
+ * 
+ * @returns {string | null} String token JWT atau null jika belum login.
+ */
 export function getToken(): string | null {
   if (typeof window !== "undefined") {
     return localStorage.getItem(TOKEN_STORAGE_KEY);
@@ -51,16 +83,29 @@ export function getToken(): string | null {
   return null;
 }
 
+/**
+ * Menyimpan App Key baru ke penyimpanan lokal browser.
+ * 
+ * @param {string} key - String kunci aplikasi baru.
+ */
 export function saveAppKey(key: string): void {
   if (typeof window !== "undefined") {
     localStorage.setItem(APP_KEY_STORAGE_KEY, key);
   }
 }
 
+/**
+ * Memeriksa ketersediaan App Key yang valid.
+ * 
+ * @returns {boolean} True jika kunci terdefinisi.
+ */
 export function hasAppKey(): boolean {
   return !!getAppKey();
 }
 
+/**
+ * Menghapus seluruh data sesi autentikasi dari localStorage (Logout / Token Invalid).
+ */
 export function clearAuth(): void {
   if (typeof window !== "undefined") {
     localStorage.removeItem(TOKEN_STORAGE_KEY);
@@ -69,13 +114,33 @@ export function clearAuth(): void {
   }
 }
 
-// ─── Core request function ────────────────────────────────────────────────────
+// =============================================================================
+// FUNGSI INTI PERMINTAAN API (CORE REQUEST FUNCTION)
+// =============================================================================
 
+/**
+ * Opsi tambahan untuk pemanggilan API
+ * 
+ * @interface ApiRequestOptions
+ * @extends RequestInit
+ * @property {number} [timeoutMs] - Batas waktu dalam milidetik sebelum dibatalkan (default: 25000ms).
+ * @property {boolean} [silent] - Jika true, galat tidak dicetak ke console browser.
+ */
 export interface ApiRequestOptions extends RequestInit {
   timeoutMs?: number;
   silent?: boolean;
 }
 
+/**
+ * Menjalankan request HTTP terautentikasi ke backend Circula dengan injeksi otomatis.
+ * 
+ * @async
+ * @template T
+ * @param {string} endpoint - Path endpoint API (misal: `/api/v1/auth/me`).
+ * @param {ApiRequestOptions} [options={}] - Opsi konfigurasi fetch tambahan.
+ * @returns {Promise<T>} Data payload yang diekstrak dari properti `data` pada respons JSON.
+ * @throws {Error} Pesan kesalahan jika request gagal atau server merespons kode galat.
+ */
 export async function apiRequest<T>(
   endpoint: string,
   options: ApiRequestOptions = {}
@@ -87,18 +152,22 @@ export async function apiRequest<T>(
 
   const headers = new Headers(fetchOptions.headers || {});
 
+  // Injeksi header wajib x-app-key multi-tenant
   if (appKey) {
     headers.set("x-app-key", appKey);
   }
 
+  // Injeksi header Authorization Bearer jika token tersedia
   if (token && !headers.has("Authorization")) {
     headers.set("Authorization", `Bearer ${token}`);
   }
 
+  // Set default Content-Type JSON jika bukan muatan FormData
   if (!(fetchOptions.body instanceof FormData) && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
 
+  // Kontrol pembatalan permintaan berdasarkan batas waktu (timeout)
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -116,6 +185,7 @@ export async function apiRequest<T>(
       resJson = await response.json().catch(() => ({}));
     }
 
+    // Evaluasi status respons HTTP dan indikator sukses backend
     if (!response.ok || !resJson.success) {
       const errorMsg =
         (Array.isArray(resJson.errors) && resJson.errors.length > 0
@@ -136,6 +206,7 @@ export async function apiRequest<T>(
           errorMsg.includes("kadaluarsa") ||
           errorMsg.includes("Bearer token) tidak ditemukan"));
 
+      // Jika sesi rusak/kedaluwarsa, bersihkan sesi dan siarkan event ke UI
       if (isSessionInvalid) {
         clearAuth();
         if (typeof window !== "undefined") {
@@ -165,8 +236,16 @@ export async function apiRequest<T>(
   }
 }
 
-// ─── Auth header builder (for services that still need raw headers) ───────────
+// =============================================================================
+// PEMBUAT HEADER OTENTIKASI MANUAL (AUTH HEADER BUILDER)
+// =============================================================================
 
+/**
+ * Membangun objek header mentah yang menyertakan token dan app key.
+ * 
+ * @param {Record<string, string>} [extra={}] - Header tambahan opsional.
+ * @returns {Record<string, string>} Header lengkap dengan otentikasi.
+ */
 export function buildAuthHeaders(
   extra: Record<string, string> = {}
 ): Record<string, string> {
@@ -181,21 +260,31 @@ export function buildAuthHeaders(
   return headers;
 }
 
-// Legacy alias for backward compatibility
+// =============================================================================
+// ALIAS KOMPATIBILITAS RETROAKTIF (FETCH WITH AUTH)
+// =============================================================================
+
+/**
+ * Pembungkus fetch legacy untuk kompatibilitas fungsi lama yang mengembalikan tuple status.
+ * 
+ * @template T
+ * @param {string} url - URL lengkap atau endpoint.
+ * @param {ApiRequestOptions} [options={}] - Opsi pemanggilan.
+ * @returns {Promise<{ data: T | null; error: string | null; status: number | null; ok: boolean }>}
+ */
 export const fetchWithAuth = async <T>(
   url: string,
   options: ApiRequestOptions = {}
 ): Promise<{ data: T | null; error: string | null; status: number | null; ok: boolean }> => {
-  // Strip BASE_URL prefix if present to get the endpoint
+  // Buang prefix BASE_URL jika disertakan agar menjadi endpoint relatif
   const endpoint = url.startsWith(BASE_URL)
     ? url.slice(BASE_URL.length)
     : url.startsWith("http")
-    ? url // full external URL — call directly
+    ? url // Panggilan URL absolut eksternal
     : url;
 
   try {
     if (endpoint.startsWith("http")) {
-      // External absolute URL: call directly without BASE_URL prefix
       const { timeoutMs = 25000, ...fetchOptions } = options;
       const controller = new AbortController();
       const t = setTimeout(() => controller.abort(), timeoutMs);

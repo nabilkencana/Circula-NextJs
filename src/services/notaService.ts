@@ -2,6 +2,13 @@ import { NotaSetorDetail, NotaTukarDetail, ItemNotaSetor } from "@/types/nota";
 import { fetchWithAuth } from "@/lib/api/client";
 import { ENDPOINTS } from "@/lib/api/endpoints";
 
+/**
+ * Memformat tanggal dari format ISO string menjadi representasi ramah pengguna Indonesia.
+ * Contoh hasil: "26 Agu 2026, 09:35 WIB"
+ *
+ * @param iso Tanggal dalam format ISO string atau tanggal raw
+ * @returns String tanggal terformat berbahasa Indonesia
+ */
 function formatTgl(iso?: string): string {
   if (!iso) return "-";
   try {
@@ -19,9 +26,19 @@ function formatTgl(iso?: string): string {
   }
 }
 
+/**
+ * Mengadaptasi payload respons mentah dari backend menjadi entitas `NotaSetorDetail` yang aman tipe.
+ * Melakukan kalkulasi subtotal poin per baris, total akumulasi berat, estimasi nilai rupiah,
+ * dan rekonsiliasi saldo sebelum/setelah transaksi.
+ *
+ * @param raw Objek mentah transaksi setor sampah dari API backend
+ * @returns Objek terstruktur `NotaSetorDetail`
+ */
 export function adaptNotaSetor(raw: any): NotaSetorDetail {
   const nasabah = raw.nasabah || {};
   const detail = Array.isArray(raw.detailSetors) ? raw.detailSetors : [];
+
+  // Transformasi daftar detail penimbangan sampah
   const items: ItemNotaSetor[] = detail.map((d: any, idx: number) => {
     const kat = d.kategoriSampah || {};
     return {
@@ -38,6 +55,8 @@ export function adaptNotaSetor(raw: any): NotaSetorDetail {
   const totalPoinDiterbitkan = Number(raw.totalPoin) || 0;
   const saldoAkhir = Number(nasabah.saldoPoin) || totalPoinDiterbitkan;
   const saldoSebelum = Math.max(0, saldoAkhir - totalPoinDiterbitkan);
+
+  // Estimasi akumulasi nilai rupiah berdasarkan harga beli per kg
   const estimasiRupiah = detail.reduce((acc: number, curr: any) => {
     const harga = Number(curr.kategoriSampah?.hargaPerKg) || 2000;
     return acc + Math.round((Number(curr.beratKg) || 0) * harga);
@@ -65,6 +84,12 @@ export function adaptNotaSetor(raw: any): NotaSetorDetail {
   };
 }
 
+/**
+ * Mengadaptasi payload respons mentah dari backend menjadi entitas `NotaTukarDetail`.
+ *
+ * @param raw Objek mentah transaksi penukaran hadiah dari API backend
+ * @returns Objek terstruktur `NotaTukarDetail`
+ */
 export function adaptNotaTukar(raw: any): NotaTukarDetail {
   const nasabah = raw.nasabah || {};
   const hadiah = raw.hadiah || {};
@@ -81,6 +106,13 @@ export function adaptNotaTukar(raw: any): NotaTukarDetail {
   };
 }
 
+/**
+ * Mengambil data rincian nota penyetoran sampah (STR) berdasarkan ID transaksi atau kode setor.
+ * Dilengkapi dengan mekanisme fallback jika ID yang dicari berupa kode transaksi.
+ *
+ * @param id UUID transaksi atau kode unik penyetoran (STR-XXXX)
+ * @returns Objek `NotaSetorDetail` jika ditemukan, atau null jika gagal
+ */
 export async function getNotaSetorById(id: string): Promise<NotaSetorDetail | null> {
   const result = await fetchWithAuth<any>(
     ENDPOINTS.SETOR.NOTA(id)
@@ -90,7 +122,7 @@ export async function getNotaSetorById(id: string): Promise<NotaSetorDetail | nu
     return adaptNotaSetor(result.data);
   }
 
-  // Resilient fallback: search user's setor transactions if id is a kodeSetor or UUID lookup failed
+  // Fallback tangguh: cari transaksi di daftar riwayat pengguna jika lookup ID langsung gagal
   try {
     const fallbackList = await fetchWithAuth<any[]>(ENDPOINTS.SETOR.MY_SETOR());
     if (fallbackList.ok && Array.isArray(fallbackList.data)) {
@@ -102,12 +134,18 @@ export async function getNotaSetorById(id: string): Promise<NotaSetorDetail | nu
       }
     }
   } catch {
-    // Ignore fallback errors
+    // Abaikan error pada percobaan fallback
   }
 
   return null;
 }
 
+/**
+ * Mengambil data rincian nota penukaran hadiah (TKR) berdasarkan ID transaksi atau kode klaim.
+ *
+ * @param id UUID transaksi penukaran atau kode nota voucher (TKR-XXXX)
+ * @returns Objek `NotaTukarDetail` jika ditemukan, atau null jika tidak valid
+ */
 export async function getNotaTukarById(id: string): Promise<NotaTukarDetail | null> {
   const result = await fetchWithAuth<any>(
     ENDPOINTS.TUKAR_POIN.NOTA(id)

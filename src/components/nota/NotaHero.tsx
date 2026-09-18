@@ -2,11 +2,25 @@ import React from "react";
 import Image from "next/image";
 import { CheckCircle2, Printer, Database } from "lucide-react";
 
+/**
+ * Komponen Banner Hero Halaman Struk & Nota Transaksi (NotaHero)
+ *
+ * Menghadirkan konteks visual keabsahan dokumen nota digital:
+ * 1. Background fotografi verifikasi timbangan dengan overlay gradient gelap.
+ * 2. Judul utama penjelas bukti transaksi resmi.
+ * 3. Tiga kartu status nilai keunggulan (bento dock):
+ *    - Keabsahan Digital: Dilengkapi kode verifikasi unik & QR-Code tera metrologi resmi.
+ *    - Siap Cetak & PDF: Kompatibel dengan printer kasir thermal 80mm dan lembar dokumen A4.
+ *    - Arsip Tersinkronisasi: Tersimpan permanen pada basis data cloud multi-tenant Circula.
+ * 4. Disembunyikan saat mencetak dokumen (`print:hidden`).
+ *
+ * @returns JSX Element hero nota digital
+ */
 export default function NotaHero() {
   return (
     <section className="px-4 sm:px-6 pt-4 sm:pt-6 print:hidden">
       <div className="max-w-7xl mx-auto rounded-3xl bg-dark-container overflow-hidden text-white relative border border-white/10 shadow-2xl p-6 sm:p-10 md:p-12">
-        {/* Background sorting & verification line photography overlay */}
+        {/* ================= LAPISAN FOTOGRAFI LATAR BELAKANG ================= */}
         <div className="absolute inset-0 z-0">
           <Image
             src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=2000&q=80"
@@ -20,7 +34,7 @@ export default function NotaHero() {
           <div className="absolute inset-0 bg-linear-to-t from-dark-container via-transparent to-dark-container/60" />
         </div>
 
-        {/* Content - Clean Headline without eyebrow */}
+        {/* ================= KONTEN TEKS UTAMA HERO ================= */}
         <div className="relative z-10 max-w-3xl">
           <h1 className="text-3xl sm:text-4xl lg:text-[40px] font-bold text-white tracking-tight leading-tight">
             Bukti Transaksi &amp; Struk Nota Digital
@@ -32,9 +46,9 @@ export default function NotaHero() {
           </p>
         </div>
 
-        {/* Floating Hero Deck (3 docked status cards) */}
+        {/* ================= DOK STATUS (3 KARTU NILAI BUKTI RESMI) ================= */}
         <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 pt-6 border-t border-white/10">
-          {/* Deck 1 */}
+          {/* Kartu 1: Keabsahan Digital */}
           <div className="bg-dark-widget rounded-2xl p-4 sm:p-5 border border-white/10 backdrop-blur-sm flex items-start gap-3.5 hover:border-brand-neon/40 transition-all group">
             <div className="w-10 h-10 rounded-xl bg-brand-neon/15 text-brand-neon flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-105 transition-transform">
               <CheckCircle2 className="w-5 h-5" />
@@ -49,7 +63,7 @@ export default function NotaHero() {
             </div>
           </div>
 
-          {/* Deck 2 */}
+          {/* Kartu 2: Fleksibilitas Cetak */}
           <div className="bg-dark-widget rounded-2xl p-4 sm:p-5 border border-white/10 backdrop-blur-sm flex items-start gap-3.5 hover:border-brand-neon/40 transition-all group">
             <div className="w-10 h-10 rounded-xl bg-brand-neon/15 text-brand-neon flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-105 transition-transform">
               <Printer className="w-5 h-5" />
@@ -64,7 +78,7 @@ export default function NotaHero() {
             </div>
           </div>
 
-          {/* Deck 3 */}
+          {/* Kartu 3: Arsip Cloud */}
           <div className="bg-dark-widget rounded-2xl p-4 sm:p-5 border border-white/10 backdrop-blur-sm flex items-start gap-3.5 hover:border-brand-neon/40 transition-all group">
             <div className="w-10 h-10 rounded-xl bg-brand-neon/15 text-brand-neon flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-105 transition-transform">
               <Database className="w-5 h-5" />
@@ -83,3 +97,4 @@ export default function NotaHero() {
     </section>
   );
 }
+

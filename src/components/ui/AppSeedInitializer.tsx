@@ -1,10 +1,21 @@
+/**
+ * @file AppSeedInitializer.tsx
+ * @description Komponen penginisialisasi seed data aplikasi.
+ * Dipertahankan sebagai komponen no-op (mengembalikan `null`) untuk mencegah
+ * penghapusan (wipe) atau re-seed basis data yang tidak disengaja selama sesi penjelajahan
+ * aktif pengguna maupun eksekusi pengujian otomatis.
+ * 
+ * @module Components/UI/AppSeedInitializer
+ */
+
 "use client";
 
 /**
- * AppSeedInitializer
- * Retained as a no-op component to avoid unsolicited database wipe/re-seed
- * during active browser sessions and automated test execution.
+ * Komponen AppSeedInitializer
+ * 
+ * @component
+ * @returns {null} Tidak merender markup visual apa pun.
  */
-export default function AppSeedInitializer() {
+export default function AppSeedInitializer(): null {
   return null;
 }

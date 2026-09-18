@@ -1,28 +1,44 @@
-"use client";
+/**
+ * @file LoginHeroShowcase.tsx
+ * @description Komponen showcase visual hero di sisi kiri halaman masuk (Login Page).
+ * Menampilkan citra visual fasilitas logistik daur ulang, headline proposisi nilai (Value Proposition),
+ * badge jaringan 140+ unit bank sampah, serta metrik sosial rating dan kepuasan nasabah.
+ * 
+ * Peran dalam UKK:
+ * - Menjaga konsistensi estetika split-screen dengan halaman register.
+ * - Menggunakan teknik layering Next.js Image teroptimasi dengan multi-directional gradient overlay.
+ * - Menampilkan komponen glassmorphism dengan styling modern Tailwind CSS.
+ */
+
+"use client"; // Komponen interaktif di sisi klien
 
 import React from "react";
-import Image from "next/image";
-import { Building2, Star } from "lucide-react";
+import Image from "next/image"; // Komponen optimasi gambar Next.js
+import { Building2, Star } from "lucide-react"; // Ikon: Gedung Kantor Unit & Bintang Rating
 
 export default function LoginHeroShowcase() {
   return (
+    /* Kontainer Utama Hero Card Sisi Kiri */
     <div className="w-full rounded-4xl overflow-hidden relative p-8 sm:p-10 lg:p-12 flex flex-col justify-between min-h-145 lg:min-h-160 bg-dark-container shadow-2xl border border-white/10">
-      {/* Background with Dark Atmosphere & Recycling Facility Imagery */}
+      
+      {/* ─── 1. Background Visual & Multi-Directional Gradient ─── */}
       <div className="absolute inset-0 z-0">
+        {/* Foto fasilitas logistik dan timbangan daur ulang modern */}
         <Image
           src="https://images.unsplash.com/photo-1530587191325-3db32d826c18?auto=format&fit=crop&w=2000&q=80"
           alt="Fasilitas Penimbangan dan Logistik Daur Ulang Modern"
-          fill
-          priority
+          fill // Memenuhi seluruh kontainer
+          priority // Diunduh prioritas tinggi (LCP)
           sizes="(max-width: 1024px) 100vw, 45vw"
           className="object-cover object-center opacity-30 mix-blend-luminosity scale-105"
         />
-        {/* Gradients for high legibility */}
+        {/* Lapisan Gradient Vertikal: Menjamin kontras keterbacaan teks putih */}
         <div className="absolute inset-0 bg-linear-to-t from-dark-container via-dark-container/85 to-dark-container/50" />
+        {/* Lapisan Gradient Horisontal: Menggelapkan tepi kiri dan kanan */}
         <div className="absolute inset-0 bg-linear-to-r from-dark-container/90 via-transparent to-dark-container/90" />
       </div>
 
-      {/* Top Headline & Subtitle */}
+      {/* ─── 2. Headline & Subjudul Nilai Platform ─── */}
       <div className="relative z-10">
         <h2 className="text-3xl sm:text-4xl xl:text-[40px] font-extrabold text-white leading-[1.15] tracking-tight">
           Ubah Pilahan Sampah<br />
@@ -35,7 +51,7 @@ export default function LoginHeroShowcase() {
         </p>
       </div>
 
-      {/* Middle Glassmorphism Badge */}
+      {/* ─── 3. Badge Jaringan Bank Sampah (Glassmorphism Effect) ─── */}
       <div className="relative z-10 my-8 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 p-4 sm:p-5 flex items-center gap-3.5 shadow-lg">
         <div className="w-10 h-10 rounded-xl bg-brand-neon/20 border border-brand-neon/30 flex items-center justify-center shrink-0 text-brand-neon">
           <Building2 className="w-5 h-5" />
@@ -50,18 +66,18 @@ export default function LoginHeroShowcase() {
         </div>
       </div>
 
-      {/* Bottom Metrics Bar */}
+      {/* ─── 4. Metrik Sosial / Social Proof Nasabah & Rating ─── */}
       <div className="relative z-10 pt-4 border-t border-white/10 flex items-center justify-between gap-3">
+        {/* Avatar Stack & Jumlah Nasabah */}
         <div className="flex items-center gap-3">
-          {/* Overlapping circular avatars */}
           <div className="flex -space-x-2.5 overflow-hidden">
-            <div className="inline-flex items-center justify-center h-8 w-8 rounded-full ring-2 ring-dark-container bg-emerald-700 text-[11px] font-bold text-white shadow-inner">
+            <div className="inline-flex items-center justify-center h-8 w-8 rounded-full ring-2 ring-dark-container bg-emerald-700 text-[11px] font-bold text-white shadow-inner" title="Nasabah Organik">
               🌿
             </div>
-            <div className="inline-flex items-center justify-center h-8 w-8 rounded-full ring-2 ring-dark-container bg-teal-600 text-[11px] font-bold text-white shadow-inner">
+            <div className="inline-flex items-center justify-center h-8 w-8 rounded-full ring-2 ring-dark-container bg-teal-600 text-[11px] font-bold text-white shadow-inner" title="Nasabah Daur Ulang">
               ♻️
             </div>
-            <div className="inline-flex items-center justify-center h-8 w-8 rounded-full ring-2 ring-dark-container bg-cyan-700 text-[11px] font-bold text-white shadow-inner">
+            <div className="inline-flex items-center justify-center h-8 w-8 rounded-full ring-2 ring-dark-container bg-cyan-700 text-[11px] font-bold text-white shadow-inner" title="Mitra Lingkungan">
               🌱
             </div>
           </div>
@@ -75,12 +91,13 @@ export default function LoginHeroShowcase() {
           </div>
         </div>
 
-        {/* Rating badge */}
+        {/* Badge Rating */}
         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs font-bold text-brand-neon shrink-0">
           <Star className="w-3.5 h-3.5 fill-brand-neon text-brand-neon" />
           <span>4.9/5.0</span>
         </div>
       </div>
+
     </div>
   );
 }

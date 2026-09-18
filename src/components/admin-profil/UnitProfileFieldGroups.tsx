@@ -76,7 +76,7 @@ export default function UnitProfileFieldGroups({
             htmlFor="telp"
             className="block text-xs font-bold text-text-primary uppercase tracking-wider mb-1.5"
           >
-            Nomor Kontak / WhatsApp Unit <span className="text-red-500">*</span>
+            Nomor Kontak<span className="text-red-500">*</span>
           </label>
           <div className="relative flex items-center">
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-text-secondary">

@@ -1,13 +1,42 @@
 "use client";
 
+/**
+ * ============================================================================
+ * Komponen: SubmissionSuccessModal
+ * Direktori: src/components/setor/SubmissionSuccessModal.tsx
+ *
+ * Fungsi Utama:
+ * Dialog modal sukses penerbitan tiket penyetoran sampah (Success Receipt Dialog).
+ * Ditampilkan seketika setelah backend berhasil mencatat transaksi setor baru:
+ * 1. Menampilkan ikon checklist sukses besar dengan bayangan glow neon.
+ * 2. Menampilkan tiket digital berisi Kode Transaksi resmi (STR-YYYYMM-XXXX).
+ * 3. Fitur Salin Kode (Copy to Clipboard) menggunakan Web API `navigator.clipboard.writeText`
+ *    disertai umpan balik visual ikon berubah menjadi hijau selama 2 detik.
+ * 4. Grid ringkasan total estimasi bobot sampah dan potensi perolehan poin reward.
+ * 5. Tombol aksi cepat: "Lihat Status / Tiket Saya" (menuju `/histori`) dan
+ *    "Tutup & Buat Pengajuan Baru" (membersihkan form untuk pengajuan berikutnya).
+ *
+ * Konsep Teknis & Aksesibilitas:
+ * - WAI-ARIA: Menggunakan atribut `role="dialog"` dan `aria-modal="true"`.
+ * - State Management: Mengelola state `copied` untuk transisi ikon tombol copy.
+ * ============================================================================
+ */
+
 import React, { useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, Copy, Check, X, ArrowRight, Sparkles } from "lucide-react";
 import { SetorSampahSubmissionResponse } from "@/types/setorSampah";
 
+/**
+ * Interface SubmissionSuccessModalProps:
+ * Kontrak properti yang diterima oleh modal sukses transaksi setor.
+ */
 interface SubmissionSuccessModalProps {
+  /** Penanda apakah dialog modal sedang ditampilkan */
   isOpen: boolean;
+  /** Objek data tiket hasil respons server (id, kodeSetor, tanggal, estimasi berat, poin) */
   result: SetorSampahSubmissionResponse["data"] | null;
+  /** Callback untuk menutup dialog modal */
   onClose: () => void;
 }
 
@@ -16,14 +45,20 @@ export default function SubmissionSuccessModal({
   result,
   onClose,
 }: SubmissionSuccessModalProps) {
+  // State lokal penanda apakah kode transaksi berhasil disalin ke clipboard
   const [copied, setCopied] = useState<boolean>(false);
 
+  // Jangan render apa pun jika modal tertutup atau respons data belum tersedia
   if (!isOpen || !result) return null;
 
+  /**
+   * Handler untuk menyalin kode tiket transaksi ke clipboard perangkat pengguna
+   */
   const handleCopy = () => {
     if (result.kodeSetor) {
       navigator.clipboard.writeText(result.kodeSetor);
       setCopied(true);
+      // Kembalikan ikon salin ke kondisi awal setelah 2 detik
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -35,7 +70,9 @@ export default function SubmissionSuccessModal({
         role="dialog"
         aria-modal="true"
       >
-        {/* Top Close Button */}
+        {/* ===================================================================== */}
+        {/* TOMBOL SILANG PENUTUP (Kanan Atas)                                    */}
+        {/* ===================================================================== */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center text-gray-500 transition-colors z-10 cursor-pointer"
@@ -44,7 +81,9 @@ export default function SubmissionSuccessModal({
           <X className="w-4 h-4" />
         </button>
 
-        {/* Modal Header */}
+        {/* ===================================================================== */}
+        {/* HEADER MODAL DENGAN IKON CHECKLIST SUKSES                             */}
+        {/* ===================================================================== */}
         <div className="pt-8 pb-5 px-6 text-center">
           <div className="w-14 h-14 rounded-full bg-brand-neon text-dark-container flex items-center justify-center mx-auto mb-4 shadow-lg shadow-brand-neon/30">
             <CheckCircle2 className="w-8 h-8" />
@@ -58,7 +97,9 @@ export default function SubmissionSuccessModal({
           </p>
         </div>
 
-        {/* Ticket Digital Box */}
+        {/* ===================================================================== */}
+        {/* KOTAK TIKET DIGITAL RESMI DENGAN FITUR SALIN KODE                     */}
+        {/* ===================================================================== */}
         <div className="px-6 pb-6 space-y-4">
           <div className="p-4 rounded-2xl bg-inset-gray border border-gray-200">
             <div className="flex items-center justify-between">
@@ -74,6 +115,7 @@ export default function SubmissionSuccessModal({
               <span className="font-mono text-lg sm:text-xl font-extrabold text-dark-container tracking-wider">
                 {result.kodeSetor}
               </span>
+              {/* Tombol Salin Kode */}
               <button
                 type="button"
                 onClick={handleCopy}
@@ -94,7 +136,9 @@ export default function SubmissionSuccessModal({
             </div>
           </div>
 
-          {/* Details Grid */}
+          {/* ===================================================================== */}
+          {/* GRID DUA METRIK HASIL TRANSAKSI (Total Berat & Poin Reward)           */}
+          {/* ===================================================================== */}
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div className="p-3.5 rounded-xl bg-inset-gray border border-gray-200">
               <span className="text-[10px] text-text-secondary uppercase font-bold block">
@@ -116,8 +160,11 @@ export default function SubmissionSuccessModal({
             </div>
           </div>
 
-          {/* Action Buttons */}
+          {/* ===================================================================== */}
+          {/* TOMBOL NAVIGASI & PENUTUP                                             */}
+          {/* ===================================================================== */}
           <div className="pt-2 flex flex-col gap-2.5">
+            {/* CTA Utama: Memantau Status di Halaman Histori */}
             <Link
               href="/histori"
               className="w-full bg-brand-neon hover:bg-brand-neon-hover text-dark-container font-extrabold text-xs py-3 rounded-full flex items-center justify-center gap-2 transition-all shadow-md shadow-brand-neon/25"
@@ -126,6 +173,7 @@ export default function SubmissionSuccessModal({
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
 
+            {/* CTA Sekunder: Menutup Modal & Reset Form */}
             <button
               type="button"
               onClick={onClose}

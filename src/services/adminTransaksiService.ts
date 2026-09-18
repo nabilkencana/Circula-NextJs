@@ -1,3 +1,16 @@
+/**
+ * @file adminTransaksiService.ts
+ * @description Layanan komunikasi data (Service Layer) untuk modul Transaksi Administrator Circula.
+ * Bertanggung jawab atas:
+ * 1. Pengambilan dan pemetaan data penyetoran sampah (`getTransaksiSetorList`) dari endpoint admin.
+ * 2. Pemrosesan verifikasi hasil timbangan riil petugas (`verifyTimbanganSetor`) dan finalisasi poin (`finalizeTransaksiSetor`).
+ * 3. Pengambilan dan pengelolaan penukaran voucher reward nasabah (`getTransaksiTkrList`, `completeTkrPenukaran`).
+ * 4. Perhitungan statistik telemetri ringkasan operasional bulanan (`calculateTelemetryStats`).
+ * 5. Penyimpanan cache lokal (`localStorage`) untuk ketahanan terhadap kegagalan jaringan sementara.
+ * 
+ * @module Services/AdminTransaksiService
+ */
+
 import {
   TransaksiSetorAdminRecord,
   TransaksiTkrAdminRecord,
@@ -10,9 +23,16 @@ import {
 import { fetchWithAuth } from "@/lib/api/client";
 import { ENDPOINTS } from "@/lib/api/endpoints";
 
+// Kunci penyimpanan cache lokal browser untuk data transaksi
 const STR_STORAGE_KEY = "circula_admin_transaksi_str_v2";
 const TKR_STORAGE_KEY = "circula_admin_transaksi_tkr_v1";
 
+/**
+ * Mengambil daftar seluruh transaksi penyetoran sampah (STR) dari backend.
+ * 
+ * @async
+ * @returns {Promise<TransaksiSetorAdminRecord[]>} Array daftar transaksi penyetoran ternormalisasi.
+ */
 export async function getTransaksiSetorList(): Promise<TransaksiSetorAdminRecord[]> {
   const strResult = await fetchWithAuth<any[]>(
     ENDPOINTS.ADMIN_SETOR.LIST(),
@@ -26,9 +46,12 @@ export async function getTransaksiSetorList(): Promise<TransaksiSetorAdminRecord
   return [];
 }
 
-// Backend setor (STR): { id, kodeSetor, tanggal, status, totalBeratKg, totalPoin,
-//   nasabah:{namaNasabah,telp}, detailSetors:[{kategoriSampahId, beratKg, subtotalPoin, kategoriSampah:{id, namaKategori, poinPerKg}}] }
-// Frontend TransaksiSetorAdminRecord butuh flat fields.
+/**
+ * Memetakan respons mentah API penyetoran backend menjadi struktur flat `TransaksiSetorAdminRecord`.
+ * 
+ * @param {any} raw - Objek data mentah dari backend.
+ * @returns {TransaksiSetorAdminRecord} Objek transaksi terformat untuk komponen tabel frontend.
+ */
 function mapSetorApi(raw: any): TransaksiSetorAdminRecord {
   const nasabah = raw.nasabah || {};
   const detail = Array.isArray(raw.detailSetors) ? raw.detailSetors : [];
@@ -55,6 +78,12 @@ function mapSetorApi(raw: any): TransaksiSetorAdminRecord {
   };
 }
 
+/**
+ * Format string ISO waktu menjadi format tanggal Indonesia terbaca (WIB).
+ * 
+ * @param {string} iso - String timestamp ISO.
+ * @returns {string} Tanggal terformat (misal: "26 Agu 2026, 10:00 WIB").
+ */
 function formatTgl(iso: string): string {
   try {
     return new Date(iso).toLocaleDateString("id-ID", {
@@ -66,12 +95,28 @@ function formatTgl(iso: string): string {
   }
 }
 
+/**
+ * Menyimpan cache daftar transaksi penyetoran ke `localStorage`.
+ * 
+ * @param {TransaksiSetorAdminRecord[]} list - Daftar transaksi penyetoran yang akan disimpan.
+ */
 export function saveTransaksiSetorList(list: TransaksiSetorAdminRecord[]): void {
   if (typeof window !== "undefined") {
     localStorage.setItem(STR_STORAGE_KEY, JSON.stringify(list));
   }
 }
 
+/**
+ * Memperbarui hasil timbangan riil dan status transaksi penyetoran di loket unit.
+ * 
+ * @async
+ * @param {string} id - Identifier database transaksi setor.
+ * @param {VerifySetorPayload} payload - Data status baru, catatan admin, dan berat riil per item.
+ * @param {SampahItemRincian[]} [updatedItems] - Daftar item sampah dengan bobot baru.
+ * @param {number} [totalBerat] - Total berat timbangan baru.
+ * @param {number} [totalPoin] - Total poin hasil kalkulasi baru.
+ * @returns {Promise<TransaksiSetorAdminRecord>} Data transaksi yang telah diperbarui.
+ */
 export async function verifyTimbanganSetor(
   id: string,
   payload: VerifySetorPayload,
@@ -84,7 +129,7 @@ export async function verifyTimbanganSetor(
     { method: "PUT", body: JSON.stringify(payload) }
   );
   if (!verifyResult.ok) {
-    console.warn(`[AdminTransaksiService] Verify API failed (${verifyResult.error}), persisting locally.`);
+    console.warn(`[AdminTransaksiService] Panggilan verifikasi gagal (${verifyResult.error}), menyimpan pembaruan secara lokal.`);
   } else if (verifyResult.data && typeof verifyResult.data === "object") {
     const mapped = mapSetorApi(verifyResult.data);
     const currentList = await getTransaksiSetorList();
@@ -98,6 +143,7 @@ export async function verifyTimbanganSetor(
     return mapped;
   }
 
+  // Fallback pembaruan data secara lokal jika server offline
   const currentList = await getTransaksiSetorList();
   const index = currentList.findIndex((item) => item.id === id);
   if (index === -1) {
@@ -121,6 +167,13 @@ export async function verifyTimbanganSetor(
   return updatedRecord;
 }
 
+/**
+ * Memfinalisasi transaksi penyetoran yang telah diverifikasi menjadi status `selesai` dan menyalurkan poin.
+ * 
+ * @async
+ * @param {string} id - Identifier transaksi setor.
+ * @returns {Promise<TransaksiSetorAdminRecord>} Data transaksi final berstatus selesai.
+ */
 export async function finalizeTransaksiSetor(id: string): Promise<TransaksiSetorAdminRecord> {
   const currentList = await getTransaksiSetorList();
   const record = currentList.find((item) => item.id === id);
@@ -145,6 +198,12 @@ export async function finalizeTransaksiSetor(id: string): Promise<TransaksiSetor
   );
 }
 
+/**
+ * Mengambil daftar transaksi penukaran poin hadiah (TKR) dari backend.
+ * 
+ * @async
+ * @returns {Promise<TransaksiTkrAdminRecord[]>} Array daftar transaksi penukaran voucher reward.
+ */
 export async function getTransaksiTkrList(): Promise<TransaksiTkrAdminRecord[]> {
   const result = await fetchWithAuth<any[]>(
     ENDPOINTS.PENUKARAN.ADMIN_LIST(),
@@ -158,9 +217,12 @@ export async function getTransaksiTkrList(): Promise<TransaksiTkrAdminRecord[]> 
   return [];
 }
 
-// Backend penukaran (TKR): { id, kodePenukaran, tanggal, status, poinTerpakai,
-//   nasabah:{namaNasabah,telp}, hadiah:{namaHadiah} }
-// Frontend TransaksiTkrAdminRecord butuh flat fields.
+/**
+ * Memetakan respons API penukaran poin mentah menjadi format `TransaksiTkrAdminRecord`.
+ * 
+ * @param {any} raw - Objek mentah dari backend.
+ * @returns {TransaksiTkrAdminRecord} Objek penukaran terformat untuk tabel frontend.
+ */
 function mapTkrApi(raw: any): TransaksiTkrAdminRecord {
   const nasabah = raw.nasabah || {};
   const hadiah = raw.hadiah || {};
@@ -177,19 +239,31 @@ function mapTkrApi(raw: any): TransaksiTkrAdminRecord {
   };
 }
 
+/**
+ * Menyimpan cache daftar transaksi penukaran poin ke `localStorage`.
+ * 
+ * @param {TransaksiTkrAdminRecord[]} list - Daftar transaksi TKR yang akan disimpan.
+ */
 export function saveTransaksiTkrList(list: TransaksiTkrAdminRecord[]): void {
   if (typeof window !== "undefined") {
     localStorage.setItem(TKR_STORAGE_KEY, JSON.stringify(list));
   }
 }
 
+/**
+ * Menandai transaksi penukaran hadiah telah selesai diserahkan ke nasabah.
+ * 
+ * @async
+ * @param {string} id - Identifier transaksi penukaran.
+ * @returns {Promise<TransaksiTkrAdminRecord>} Data penukaran terbaru berstatus selesai.
+ */
 export async function completeTkrPenukaran(id: string): Promise<TransaksiTkrAdminRecord> {
   const result = await fetchWithAuth(
     ENDPOINTS.PENUKARAN.ADMIN_STATUS(id),
     { method: "PUT", body: JSON.stringify({ status: "selesai" }) }
   );
   if (!result.ok) {
-    console.warn(`[AdminTransaksiService] TKR complete API failed (${result.error}), persisting locally.`);
+    console.warn(`[AdminTransaksiService] Pembaruan status penukaran gagal (${result.error}), memperbarui secara lokal.`);
   }
 
   const currentList = await getTransaksiTkrList();
@@ -215,6 +289,13 @@ export async function completeTkrPenukaran(id: string): Promise<TransaksiTkrAdmi
   return updatedRecord;
 }
 
+/**
+ * Menghitung ringkasan statistik telemetri operasional transaksi bank sampah.
+ * 
+ * @param {TransaksiSetorAdminRecord[]} strList - Daftar transaksi setor.
+ * @param {TransaksiTkrAdminRecord[]} tkrList - Daftar transaksi penukaran poin.
+ * @returns {TransaksiTelemetryStats} Objek ringkasan metrik statistik.
+ */
 export function calculateTelemetryStats(
   strList: TransaksiSetorAdminRecord[],
   tkrList: TransaksiTkrAdminRecord[]

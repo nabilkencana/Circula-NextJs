@@ -1,3 +1,13 @@
+/**
+ * @file useAdminTransaksi.ts
+ * @description Custom React Hook untuk manajemen state modul Buku Transaksi Administrator Circula.
+ * Mengelola pemuatan data penyetoran (STR) dan penukaran voucher (TKR), penyaringan status dan teks,
+ * pagination interaktif, pembukaan modal verifikasi timbangan loket (`QuickVerifyModal`),
+ * finalisasi pencairan poin nasabah, penyerahan hadiah voucher, serta ekspor berkas rekapitulasi CSV.
+ * 
+ * @module Hooks/UseAdminTransaksi
+ */
+
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
@@ -17,11 +27,18 @@ import {
   calculateTelemetryStats,
 } from "@/services/adminTransaksiService";
 
+/**
+ * Hook useAdminTransaksi
+ * 
+ * @returns {object} Kumpulan state transaksi, filter toolbar, pagination, dan handler operasional.
+ */
 export function useAdminTransaksi() {
+  // State data mentah transaksi penyetoran dan penukaran
   const [strList, setStrList] = useState<TransaksiSetorAdminRecord[]>([]);
   const [tkrList, setTkrList] = useState<TransaksiTkrAdminRecord[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // State kendali tampilan dan penyaringan data
   const [viewType, setViewType] = useState<TransaksiViewType>("STR");
   const [statusFilter, setStatusFilter] = useState<string>("semua");
   const [selectedBulan, setSelectedBulan] = useState<string>("Agustus 2026");
@@ -29,6 +46,7 @@ export function useAdminTransaksi() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const pageSize = 4;
 
+  // State kendali modal verifikasi cepat timbangan
   const [verifyModalOpen, setVerifyModalOpen] = useState(false);
   const [selectedRecordForVerify, setSelectedRecordForVerify] =
     useState<TransaksiSetorAdminRecord | null>(null);
@@ -38,7 +56,7 @@ export function useAdminTransaksi() {
     message: string;
   } | null>(null);
 
-  // Load data on mount
+  // Pemuatan data transaksi dari server saat komponen dimount
   useEffect(() => {
     let isMounted = true;
     async function loadData() {
@@ -52,7 +70,7 @@ export function useAdminTransaksi() {
         setStrList(loadedStr);
         setTkrList(loadedTkr);
       } catch (err) {
-        console.error("Error loading transaksi:", err);
+        console.error("Kesalahan saat memuat transaksi:", err);
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -64,14 +82,12 @@ export function useAdminTransaksi() {
     };
   }, []);
 
-  // Filter STR
+  // Filter daftar transaksi penyetoran (STR) berdasarkan status dan kata kunci
   const filteredStrList = useMemo(() => {
     return strList.filter((item) => {
-      // Filter status
       if (statusFilter !== "semua" && item.status !== statusFilter) {
         return false;
       }
-      // Filter search
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase().trim();
         const matchCode = item.kodeTransaksi.toLowerCase().includes(query);
@@ -83,7 +99,7 @@ export function useAdminTransaksi() {
     });
   }, [strList, statusFilter, searchQuery]);
 
-  // Filter TKR
+  // Filter daftar transaksi penukaran hadiah (TKR) berdasarkan status dan pencarian
   const filteredTkrList = useMemo(() => {
     return tkrList.filter((item) => {
       if (statusFilter !== "semua" && item.status !== statusFilter) {
@@ -100,63 +116,72 @@ export function useAdminTransaksi() {
     });
   }, [tkrList, statusFilter, searchQuery]);
 
-  // Pagination for STR
+  // Pemotongan data transaksi untuk halaman aktif (Pagination STR)
   const paginatedStrList = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return filteredStrList.slice(start, start + pageSize);
   }, [filteredStrList, currentPage, pageSize]);
 
-  // Pagination for TKR
+  // Pemotongan data penukaran untuk halaman aktif (Pagination TKR)
   const paginatedTkrList = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return filteredTkrList.slice(start, start + pageSize);
   }, [filteredTkrList, currentPage, pageSize]);
 
+  // Penghitungan jumlah total halaman pagination
   const totalPages = useMemo(() => {
     const totalItems = viewType === "STR" ? filteredStrList.length : filteredTkrList.length;
     return Math.max(1, Math.ceil(totalItems / pageSize));
   }, [viewType, filteredStrList.length, filteredTkrList.length, pageSize]);
 
+  // Statistik telemetri di bagian hero
   const telemetryStats = useMemo(() => {
     return calculateTelemetryStats(strList, tkrList);
   }, [strList, tkrList]);
 
-  // Handlers
+  // Handler pergantian tab tampilan STR / TKR
   const handleSwitchType = useCallback((type: TransaksiViewType) => {
     setViewType(type);
     setCurrentPage(1);
     setStatusFilter("semua");
   }, []);
 
+  // Handler perubahan filter status
   const handleStatusFilterChange = useCallback((status: string) => {
     setStatusFilter(status);
     setCurrentPage(1);
   }, []);
 
+  // Handler pemilihan bulan operasional
   const handleBulanChange = useCallback((bulan: string) => {
     setSelectedBulan(bulan);
     setCurrentPage(1);
   }, []);
 
+  // Handler perubahan teks pencarian
   const handleSearchChange = useCallback((query: string) => {
     setSearchQuery(query);
     setCurrentPage(1);
   }, []);
 
+  // Handler perpindahan halaman pagination
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page);
   }, []);
 
+  // Handler membuka dialog modal verifikasi timbangan
   const handleOpenVerify = useCallback((record: TransaksiSetorAdminRecord) => {
     setSelectedRecordForVerify(record);
     setVerifyModalOpen(true);
   }, []);
 
+  // Handler menutup dialog modal verifikasi
   const handleCloseVerify = useCallback(() => {
     setVerifyModalOpen(false);
     setSelectedRecordForVerify(null);
   }, []);
 
+  // Handler konfirmasi submit hasil timbangan dari modal
   const handleConfirmVerify = useCallback(
     async (
       payload: VerifySetorPayload,
@@ -191,7 +216,7 @@ export function useAdminTransaksi() {
           message,
         });
       } catch (err) {
-        console.error("Error verifying transaksi:", err);
+        console.error("Kesalahan verifikasi transaksi:", err);
         setToastMessage({
           type: "error",
           message: "Gagal memverifikasi transaksi. Silakan coba kembali.",
@@ -203,6 +228,7 @@ export function useAdminTransaksi() {
     [selectedRecordForVerify, handleCloseVerify]
   );
 
+  // Handler finalisasi transaksi diverifikasi menjadi selesai
   const handleFinalize = useCallback(async (id: string) => {
     try {
       setIsSubmitting(true);
@@ -215,7 +241,7 @@ export function useAdminTransaksi() {
         message: `Transaksi ${updated.kodeTransaksi} berhasil difinalisasi menjadi Selesai. Poin telah masuk ke rekening nasabah.`,
       });
     } catch (err) {
-      console.error("Error finalizing transaksi:", err);
+      console.error("Kesalahan finalisasi transaksi:", err);
       setToastMessage({
         type: "error",
         message: "Gagal memfinalisasi transaksi.",
@@ -225,6 +251,7 @@ export function useAdminTransaksi() {
     }
   }, []);
 
+  // Handler penyerahan voucher hadiah selesai
   const handleCompleteTkr = useCallback(async (id: string) => {
     try {
       setIsSubmitting(true);
@@ -237,7 +264,7 @@ export function useAdminTransaksi() {
         message: `Voucher penukaran ${updated.kodePenukaran} berhasil diserahkan dan status diubah menjadi Selesai.`,
       });
     } catch (err) {
-      console.error("Error completing TKR:", err);
+      console.error("Kesalahan penyelesaian voucher TKR:", err);
       setToastMessage({
         type: "error",
         message: "Gagal menyelesaikan penukaran voucher.",
@@ -247,6 +274,7 @@ export function useAdminTransaksi() {
     }
   }, []);
 
+  // Handler ekspor data rekapitulasi penyetoran ke berkas CSV
   const handleExportRekap = useCallback(() => {
     const csvRows = [
       ["KODE", "TANGGAL", "NASABAH", "RINCIAN", "TOTAL_BERAT_KG", "POIN", "STATUS"],

@@ -15,17 +15,46 @@ import {
 } from "lucide-react";
 import { HadiahItem, TukarPoinResponse, SaldoNasabahSummary } from "@/types/tukarPoin";
 
+/**
+ * Interface properties untuk komponen modal konfirmasi dan sukses penukaran poin.
+ */
 interface TukarPoinConfirmModalProps {
+  /** Item hadiah yang dipilih untuk ditukar, null jika modal tidak aktif */
   item: HadiahItem | null;
+  /** Objek ringkasan saldo poin nasabah saat ini */
   saldoSummary: SaldoNasabahSummary;
+  /** Flag penanda modal sedang terbuka */
   isOpen: boolean;
+  /** Callback untuk menutup modal atau membatalkan penukaran */
   onClose: () => void;
+  /** Fungsi handler async untuk mengirim request transaksi penukaran ke backend */
   onConfirm: () => Promise<void>;
+  /** Status proses transaksi (loading spinner pada tombol) */
   isSubmitting: boolean;
+  /** Data respons dari backend jika penukaran sukses (kode nota, kode voucher, sisa saldo) */
   successData: TukarPoinResponse["data"] | null;
+  /** Pesan kesalahan jika transaksi penukaran gagal diproses */
   errorMessage: string | null;
 }
 
+/**
+ * Komponen Dialog Modal Konfirmasi & Keberhasilan Penukaran Poin (TukarPoinConfirmModal)
+ *
+ * Mengelola dialog interaktif penukaran poin dengan 2 mode tampilan (state):
+ * 1. STATE 1 - Penukaran Berhasil:
+ *    - Menampilkan lencana sukses, kode nota resmi sistem, dan kode klaim voucher merchant.
+ *    - Fitur salin ke clipboard dengan notifikasi ikon centang.
+ *    - Buku besar transaksi ringkas (poin terpakai dan sisa saldo).
+ *    - Tautan langsung menuju lembar cetak nota digital (`/nota/[kodeNota]`).
+ * 2. STATE 2 - Konfirmasi Awal Penukaran:
+ *    - Rincian item hadiah (thumbnail, nama produk, kategori, harga poin).
+ *    - Kalkulasi otomatis saldo awal, pemotongan poin, dan sisa saldo setelah klaim.
+ *    - Checkbox persetujuan nasabah bahwa transaksi bersifat final dan memotong poin langsung.
+ *    - Indikator loading spinner saat request HTTP POST dikirim.
+ *
+ * @param props Properti modal konfirmasi penukaran poin
+ * @returns JSX Element dialog modal atau null jika tertutup
+ */
 export default function TukarPoinConfirmModal({
   item,
   saldoSummary,
@@ -36,16 +65,24 @@ export default function TukarPoinConfirmModal({
   successData,
   errorMessage,
 }: TukarPoinConfirmModalProps) {
+  // State lokal persetujuan syarat & ketentuan transaksi
   const [agreed, setAgreed] = useState(true);
+  // State lokal feedback penyalinan kode nota ke clipboard
   const [copied, setCopied] = useState(false);
 
+  // Jika modal ditutup atau data kosong, jangan render apapun
   if (!isOpen || (!item && !successData)) return null;
 
   const currentItem = item;
+  // Hitung sisa poin setelah dipotong harga hadiah
   const sisaPoin = currentItem
     ? saldoSummary.saldoPoinAktif - currentItem.poinDibutuhkan
     : 0;
 
+  /**
+   * Menyalin kode nota atau kode voucher ke clipboard perangkat nasabah
+   * @param code String kode unik yang akan disalin
+   */
   const handleCopyCode = (code: string) => {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
       navigator.clipboard.writeText(code);
@@ -57,13 +94,15 @@ export default function TukarPoinConfirmModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs transition-opacity duration-200">
       <div className="bg-white rounded-3xl border border-gray-200 w-full max-w-lg overflow-hidden shadow-2xl animate-modal-enter">
-        {/* ================= STATE 1: SUCCESS CONFIRMATION ================= */}
+        {/* ================= STATE 1: MODAL SUKSES PENUKARAN ================= */}
         {successData ? (
           <div className="p-6 sm:p-8">
+            {/* Lencana Sukses Visual */}
             <div className="w-14 h-14 rounded-full bg-lime-100 text-emerald-800 flex items-center justify-center mx-auto mb-4 shadow-xs">
               <CheckCircle2 className="w-8 h-8 stroke-[2.2]" />
             </div>
 
+            {/* Judul & Keterangan Sukses */}
             <div className="text-center">
               <h3 className="text-xl sm:text-2xl font-bold text-text-primary tracking-tight">
                 Penukaran Poin Berhasil!
@@ -73,7 +112,7 @@ export default function TukarPoinConfirmModal({
               </p>
             </div>
 
-            {/* Generated Claim Code Box */}
+            {/* Kotak Kode Nota Resmi & Kode Merchant dengan Fitur Salin Cepat */}
             <div className="my-6 p-4 rounded-2xl bg-inset-gray border border-gray-200 text-center">
               <span className="text-[10px] font-extrabold uppercase tracking-wider text-text-secondary block mb-1">
                 Kode Nota Penukaran Resmi
@@ -96,6 +135,7 @@ export default function TukarPoinConfirmModal({
                 </button>
               </div>
 
+              {/* Tampilkan kode klaim merchant jika hadiah berbentuk voucher digital */}
               {successData.kodeKlaimMerchant && (
                 <div className="mt-2 pt-2 border-t border-gray-200/80 text-xs text-text-secondary">
                   Kode Klaim Merchant:{" "}
@@ -106,7 +146,7 @@ export default function TukarPoinConfirmModal({
               )}
             </div>
 
-            {/* Transaction Ledger Summary Inset */}
+            {/* Rincian Buku Besar Pemotongan Poin Nasabah */}
             <div className="space-y-2 p-4 rounded-2xl bg-inset-gray border border-gray-200 text-xs mb-6">
               <div className="flex justify-between">
                 <span className="text-text-secondary">Hadiah:</span>
@@ -124,7 +164,7 @@ export default function TukarPoinConfirmModal({
               </div>
             </div>
 
-            {/* Actions */}
+            {/* Tombol Aksi: Cetak Nota atau Tutup Dialog */}
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
                 href={`/nota/${successData.kodeNota}`}
@@ -143,10 +183,10 @@ export default function TukarPoinConfirmModal({
             </div>
           </div>
         ) : (
-          /* ================= STATE 2: CONFIRMATION PROMPT ================= */
+          /* ================= STATE 2: DIALOG KONFIRMASI AWAL ================= */
           currentItem && (
             <div>
-              {/* Modal Top Header */}
+              {/* Header Modal */}
               <div className="flex items-center justify-between p-5 sm:p-6 border-b border-gray-200">
                 <div>
                   <h3 className="text-base sm:text-lg font-bold text-text-primary">
@@ -165,9 +205,9 @@ export default function TukarPoinConfirmModal({
                 </button>
               </div>
 
-              {/* Modal Body */}
+              {/* Isi Konten Modal */}
               <div className="p-5 sm:p-6 space-y-4">
-                {/* Reward Preview Inset */}
+                {/* Pratinjau Kartu Hadiah yang Dipilih */}
                 <div className="flex items-center gap-4 p-3.5 rounded-2xl bg-inset-gray border border-gray-200">
                   <div className="w-16 h-16 rounded-xl overflow-hidden relative shrink-0 bg-gray-200">
                     <Image
@@ -193,7 +233,7 @@ export default function TukarPoinConfirmModal({
                   </div>
                 </div>
 
-                {/* Point Ledger Breakdown Bento */}
+                {/* Buku Besar Simulasi Pemotongan Saldo Poin */}
                 <div className="p-4 rounded-2xl bg-inset-gray border border-gray-200 space-y-2.5 text-xs">
                   <div className="flex items-center justify-between">
                     <span className="text-text-secondary">Saldo Poin Anda Saat Ini:</span>
@@ -215,7 +255,7 @@ export default function TukarPoinConfirmModal({
                   </div>
                 </div>
 
-                {/* Consent Checkbox */}
+                {/* Checkbox Persetujuan Syarat & Ketentuan */}
                 <label className="flex items-start gap-2.5 cursor-pointer pt-1">
                   <input
                     type="checkbox"
@@ -229,6 +269,7 @@ export default function TukarPoinConfirmModal({
                   </span>
                 </label>
 
+                {/* Banner Peringatan Kesalahan API (jika ada error) */}
                 {errorMessage && (
                   <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-700 flex items-center gap-2">
                     <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
@@ -237,7 +278,7 @@ export default function TukarPoinConfirmModal({
                 )}
               </div>
 
-              {/* Modal Footer Actions */}
+              {/* Tombol Aksi Footer Modal */}
               <div className="p-5 sm:p-6 border-t border-gray-200 bg-gray-50/60 flex items-center justify-end gap-3">
                 <button
                   type="button"

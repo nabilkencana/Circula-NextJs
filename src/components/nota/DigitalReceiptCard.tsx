@@ -6,12 +6,35 @@ import ReceiptItemsTable from "./ReceiptItemsTable";
 import ReceiptCalculationDeck from "./ReceiptCalculationDeck";
 import ReceiptSignatureFooter from "./ReceiptSignatureFooter";
 
+/**
+ * Interface properties untuk kartu struk digital nota.
+ */
 interface DigitalReceiptCardProps {
+  /** Tab tipe nota yang sedang aktif ditinjau ('setor' atau 'tukar') */
   activeTab: TipeNota;
+  /** Data transaksi penyetoran sampah (STR), null jika tidak tersedia */
   notaSetor: NotaSetorDetail | null;
+  /** Data transaksi penukaran hadiah (TKR), null jika tidak tersedia */
   notaTukar: NotaTukarDetail | null;
 }
 
+/**
+ * Komponen Kartu Struk Transaksi Digital (DigitalReceiptCard)
+ *
+ * Wadah visual utama lembar nota resmi Bank Sampah Circula yang didesain
+ * responsif di layar gawai dan dioptimalkan secara presisi untuk CSS Print Media (`print-receipt-sheet`).
+ *
+ * Mendukung 2 varian nota:
+ * 1. MODE 1: NOTA PENYETORAN SAMPAH (STR)
+ *    - Kop unit bank sampah, metadata penimbangan, tabel material terpilah,
+ *      rekapitulasi poin & estimasi rupiah, serta tera metrologi digital.
+ * 2. MODE 2: NOTA PENUKARAN POIN REWARD (TKR)
+ *    - Kop merchant rekanan, nomor nota, detail produk hadiah, kode klaim voucher,
+ *      rincian pemotongan saldo, status verifikasi klaim, dan tanda tangan otomatisasi sistem.
+ *
+ * @param props Properti tab aktif dan data nota
+ * @returns JSX Element lembar nota transaksi
+ */
 export default function DigitalReceiptCard({
   activeTab,
   notaSetor,
@@ -22,10 +45,10 @@ export default function DigitalReceiptCard({
       {/* ================= MODE 1: NOTA PENYETORAN SAMPAH (STR) ================= */}
       {activeTab === "setor" && notaSetor ? (
         <div>
-          {/* Header */}
+          {/* Kop Unit Bank Sampah */}
           <ReceiptHeader unitName={notaSetor.namaUnit} />
 
-          {/* 4-Column Metadata Inset */}
+          {/* Grid 4 Kolom Metadata Transaksi */}
           <ReceiptMetadataGrid
             kodeTransaksi={notaSetor.kodeTransaksi}
             waktuVerifikasi={notaSetor.waktuVerifikasi}
@@ -33,10 +56,10 @@ export default function DigitalReceiptCard({
             noTelepon={notaSetor.noTelepon}
           />
 
-          {/* Itemized Recyclable Waste Table */}
+          {/* Tabel Rincian Material Sampah & Bobot */}
           <ReceiptItemsTable items={notaSetor.items} />
 
-          {/* Grand Total Ledger Deck */}
+          {/* Rekapitulasi Finansial & Poin Baru */}
           <ReceiptCalculationDeck
             totalBeratKg={notaSetor.totalBeratKg}
             estimasiNilaiRupiah={notaSetor.estimasiNilaiRupiah}
@@ -45,7 +68,7 @@ export default function DigitalReceiptCard({
             totalSaldoAkhir={notaSetor.totalSaldoAkhir}
           />
 
-          {/* QR Code & Signature Sign-off */}
+          {/* Tera Metrologi Digital & Tanda Tangan Petugas */}
           <ReceiptSignatureFooter
             petugasPenimbang={notaSetor.petugasPenimbang}
             catatanPetugas={notaSetor.catatanPetugas}
@@ -55,10 +78,10 @@ export default function DigitalReceiptCard({
       ) : activeTab === "tukar" && notaTukar ? (
         /* ================= MODE 2: NOTA PENUKARAN POIN (TKR) ================= */
         <div>
-          {/* Header */}
+          {/* Kop Merchant & Koperasi Rekanan */}
           <ReceiptHeader unitName="Kemitraan Merchant & Koperasi Circula (ID: REWARD-01)" />
 
-          {/* 4-Column Metadata Inset */}
+          {/* Grid 4 Kolom Metadata Transaksi */}
           <ReceiptMetadataGrid
             kodeTransaksi={notaTukar.kodeTransaksi}
             waktuVerifikasi={notaTukar.waktuTransaksi}
@@ -66,7 +89,7 @@ export default function DigitalReceiptCard({
             noTelepon="085678901234"
           />
 
-          {/* TKR Reward Item Detail Inset */}
+          {/* Panel Rincian Hadiah yang Ditukarkan */}
           <div className="my-6 p-6 rounded-2xl bg-inset-gray border border-gray-200 space-y-4">
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-text-secondary block">
               Detail Hadiah Yang Diklaim
@@ -92,6 +115,7 @@ export default function DigitalReceiptCard({
               </div>
             </div>
 
+            {/* Rincian Pemotongan & Sisa Saldo */}
             <div className="grid grid-cols-2 gap-4 text-xs">
               <div>
                 <span className="text-text-secondary block">Biaya Penukaran Poin:</span>
@@ -108,7 +132,7 @@ export default function DigitalReceiptCard({
             </div>
           </div>
 
-          {/* Grand Total Ledger Deck for Tukar */}
+          {/* Deck Status Verifikasi Klaim */}
           <div className="bg-dark-container rounded-2xl p-6 text-white my-6 border border-white/10 shadow-lg">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
@@ -128,7 +152,7 @@ export default function DigitalReceiptCard({
             </div>
           </div>
 
-          {/* QR Code & Signature Sign-off */}
+          {/* Tera Metrologi Digital & Verifikasi Otomatis Sistem */}
           <ReceiptSignatureFooter
             petugasPenimbang="Sistem Otomatisasi Hadiah Circula"
             catatanPetugas="Kode klaim dapat ditukarkan langsung ke merchant rekanan resmi Circula."
@@ -139,3 +163,4 @@ export default function DigitalReceiptCard({
     </div>
   );
 }
+

@@ -1,3 +1,15 @@
+/**
+ * @file page.tsx
+ * @description Halaman utama Manajemen Master Kategori & Tarif Sampah Admin Circula (Rute: `/admin/kategori-sampah`).
+ * Mengintegrasikan seluruh komponen pengelolaan katalog material dengan custom hook `useAdminKategori`.
+ * Menyediakan pemantauan telemetri harga tolok ukur, penyaringan kata kunci dan kelompok jenis material,
+ * grid kartu material interaktif, slide-over drawer penambahan/pembaruan kategori (`KategoriDrawerModal`),
+ * modal dialog konfirmasi penghapusan aman (`DeleteKategoriConfirmModal`), penyesuaian harga massal persentase (`BatchPricingModal`),
+ * serta umpan balik visual notifikasi toast.
+ * 
+ * @module App/AdminKategoriSampahPage
+ */
+
 "use client";
 
 import React from "react";
@@ -13,7 +25,14 @@ import BottomAdminKategoriRibbon from "@/components/admin-kategori/BottomAdminKa
 import { useAdminKategori } from "@/hooks/useAdminKategori";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 
+/**
+ * Komponen Halaman AdminKategoriSampahPage
+ * 
+ * @component
+ * @returns {JSX.Element} Halaman master kategori & tarif sampah untuk administrator unit bank sampah.
+ */
 export default function AdminKategoriSampahPage() {
+  // Destrukturisasi state dan handler bisnis dari custom hook
   const {
     filteredList,
     filterState,
@@ -41,10 +60,10 @@ export default function AdminKategoriSampahPage() {
 
   return (
     <div className="min-h-screen bg-white font-sans text-text-primary flex flex-col justify-between selection:bg-brand-neon selection:text-dark-container">
-      {/* 1. SINGLE TOP NAVBAR ONLY */}
+      {/* 1. Header Navigasi Konsol Administrator */}
       <NavbarAdminConsole />
 
-      {/* Floating Feedback Toast Notification */}
+      {/* Pop-up Mengambang Notifikasi Umpan Balik (Toast Alert) */}
       {toast && (
         <div className="fixed top-20 right-4 sm:right-8 z-50 animate-in slide-in-from-top-3 fade-in duration-200">
           <div
@@ -55,21 +74,21 @@ export default function AdminKategoriSampahPage() {
             }`}
           >
             {toast.type === "success" ? (
-              <CheckCircle2 className="w-5 h-5 text-brand-neon shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-brand-neon shrink-0" aria-hidden="true" />
             ) : (
-              <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
+              <AlertCircle className="w-5 h-5 text-red-400 shrink-0" aria-hidden="true" />
             )}
             <span className="text-xs sm:text-sm font-medium">{toast.message}</span>
           </div>
         </div>
       )}
 
-      {/* Main Page Content */}
+      {/* Konten Utama Halaman Master Kategori */}
       <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-2">
-        {/* 2. Hero Showcase */}
+        {/* 2. Spanduk Hero Kategori dengan 3 Metrik Telemetri */}
         <KategoriHero stats={stats} />
 
-        {/* 3. Search & Filter Toolbar */}
+        {/* 3. Bilah Alat Pencarian, Filter Jenis & Tombol Tambah Kategori */}
         <KategoriToolbar
           searchQuery={filterState.searchQuery}
           onSearchChange={handleSearch}
@@ -78,7 +97,7 @@ export default function AdminKategoriSampahPage() {
           onOpenCreate={handleOpenCreate}
         />
 
-        {/* 4. 6-Card Category Grid */}
+        {/* 4. Grid Kartu Daftar Kategori Material Aktif */}
         <KategoriGridCard
           records={filteredList}
           totalCount={stats.totalMaterial}
@@ -87,12 +106,12 @@ export default function AdminKategoriSampahPage() {
           onOpenBatch={handleOpenBatch}
         />
 
-        {/* 5. Bottom Reassurance Ribbon */}
+        {/* 5. Pita Bawah Pernyataan Jaminan Integritas Sinkronisasi Multi-Tenant */}
         <BottomAdminKategoriRibbon />
       </main>
 
-      {/* 6. Modals & Drawers */}
-      {/* Create / Edit Slide-over Drawer */}
+      {/* 6. Komponen Dialog Modal & Drawer Interaktif */}
+      {/* Slide-over Drawer Tambah / Edit Kategori Material */}
       <KategoriDrawerModal
         isOpen={isDrawerOpen}
         mode={drawerMode}
@@ -102,7 +121,7 @@ export default function AdminKategoriSampahPage() {
         onSave={handleSave}
       />
 
-      {/* Delete Confirmation Modal */}
+      {/* Modal Dialog Konfirmasi Hapus Kategori */}
       <DeleteKategoriConfirmModal
         isOpen={isDeleteModalOpen}
         record={selectedKategori}
@@ -111,7 +130,7 @@ export default function AdminKategoriSampahPage() {
         onConfirm={handleConfirmDelete}
       />
 
-      {/* Batch Price Adjustment Modal */}
+      {/* Modal Dialog Penyesuaian Harga Massal (Batch Pricing) */}
       <BatchPricingModal
         isOpen={isBatchModalOpen}
         isSubmitting={isSubmitting}
@@ -119,7 +138,7 @@ export default function AdminKategoriSampahPage() {
         onConfirmBatch={handleConfirmBatch}
       />
 
-      {/* 7. Shared Admin Footer */}
+      {/* 7. Footer Khusus Konsol Administrator */}
       <FooterAdmin />
     </div>
   );

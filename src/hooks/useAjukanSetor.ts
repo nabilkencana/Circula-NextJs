@@ -1,5 +1,37 @@
 "use client";
 
+/**
+ * ============================================================================
+ * Hook: useAjukanSetor
+ * Direktori: src/hooks/useAjukanSetor.ts
+ *
+ * Fungsi Utama:
+ * Custom React Hook yang mengatur seluruh siklus hidup formulir pengajuan
+ * penyetoran sampah (Multi-item Waste Deposit Flow).
+ *
+ * Tanggung Jawab & Fitur Utama:
+ * 1. Dynamic Multi-Item Rows:
+ *    - Menambah jenis sampah baru (`addItem`) secara cerdas (otomatis memilih kategori
+ *      yang belum pernah dipilih).
+ *    - Menghapus baris item (`removeItem`) dengan validasi minimal 1 baris.
+ *    - Mengubah kategori sampah (`updateItemCategory`) serta memperbarui tarif & poin seketika.
+ *    - Mengubah berat sampah (`updateItemWeight`) baik via tombol stepper [- / +] maupun ketik langsung,
+ *      dilengkapi aturan clamping nilai minimal 0.1 kg dan toleransi koma/titik desimal.
+ * 2. Real-time Calculation & Projection:
+ *    - Total estimasi bobot sampah (kg).
+ *    - Total perolehan poin reward dan ekuivalen nominal rupiah.
+ *    - Proyeksi saldo poin akhir nasabah setelah transaksi selesai diverifikasi.
+ * 3. Pre-Submission Validation & Modals:
+ *    - Validasi persetujuan standar pemilahan 3R (`confirmedTerms`).
+ *    - Modal konfirmasi rincian setoran (`SetorConfirmModal`).
+ *    - Modal sukses (`SubmissionSuccessModal`) yang menampilkan tiket kode setor resmi.
+ * 4. Integrasi Layanan Backend:
+ *    - Pengambilan opsi kategori sampah dan saldo nasabah secara paralel.
+ *    - Pengiriman transaksi ke backend melalui `submitPengajuanSetor`.
+ *    - Umpan balik notifikasi Toast Provider terintegrasi.
+ * ============================================================================
+ */
+
 import { useState, useMemo, useEffect, useCallback } from "react";
 import {
   SetorSampahItemInput,
@@ -15,16 +47,25 @@ import { getSaldoNasabah } from "@/services/tukarPoinService";
 import { getCurrentUser } from "@/services/authService";
 import { useToast } from "@/components/ui/ToastProvider";
 
+/**
+ * Mendapatkan string tanggal hari ini dalam format YYYY-MM-DD (ISO 8601)
+ */
 const getTodayString = () => {
   const d = new Date();
   return d.toISOString().split("T")[0];
 };
 
+/**
+ * Custom Hook useAjukanSetor:
+ * @param initialParams Parameter opsional dari query string URL (misal kategoriId atau bobot awal)
+ */
 export function useAjukanSetor(initialParams?: {
   kategoriId?: string | null;
   berat?: string | null;
 }) {
   const { toast } = useToast();
+
+  // State master kategori dan data logistik jadwal
   const [categories, setCategories] = useState<KategoriSampah[]>([]);
   const [tanggal, setTanggal] = useState<string>(getTodayString);
   const [metodePenyerahan, setMetodePenyerahan] = useState<"drop-off" | "jemput">(
@@ -33,11 +74,16 @@ export function useAjukanSetor(initialParams?: {
   const [catatan, setCatatan] = useState<string>("");
   const [confirmedTerms, setConfirmedTerms] = useState<boolean>(true);
   const [saldoAkunSaatIni, setSaldoAkunSaatIni] = useState<number>(0);
+
+  // State status modal konfirmasi pra-kirim
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState<boolean>(false);
 
-  // Dynamic multi-item list state
+  // =========================================================================
+  // STATE DAFTAR ITEM DINAMIS (Multi-item rows)
+  // Diinisialisasi dari query params atau default seeder baris item awal
+  // =========================================================================
   const [items, setItems] = useState<SetorSampahItemInput[]>(() => {
-    // Seed rows from loaded categories (empty at mount -> empty list)
+    // Fungsi pembantu membuat baris item kalkulasi
     const makeItem = (
       cat: KategoriSampah,
       i: number,
@@ -54,6 +100,7 @@ export function useAjukanSetor(initialParams?: {
       subtotalRupiah: Math.round(beratKg * cat.hargaPerKg),
     });
 
+    // Jika ada parameter kategoriId dari URL (misal dari halaman kalkulator daur ulang)
     if (initialParams?.kategoriId) {
       const targetCat = categories.find((c) => c.id === initialParams.kategoriId);
       if (targetCat) {
@@ -66,6 +113,7 @@ export function useAjukanSetor(initialParams?: {
       }
     }
 
+    // Default baris awal jika kategori belum termuat dari API
     const petCat = categories.find((c) => c.namaKategori.includes("PET"));
     const kardusCat = categories.find((c) => c.namaKategori.includes("Kardus"));
     const seeds = [petCat, kardusCat].filter(
@@ -74,14 +122,16 @@ export function useAjukanSetor(initialParams?: {
     return seeds.map((cat, i) => makeItem(cat, i, i === 0 ? 4.5 : 2.0));
   });
 
-  // Submission & UI feedback state
+  // State pengiriman dan modal hasil sukses
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [submissionResult, setSubmissionResult] =
     useState<SetorSampahSubmissionResponse["data"] | null>(null);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false);
 
-  // Load available categories and live balance from API
+  // =========================================================================
+  // EFEK PEMUATAN DATA MASTER KATEGORI & SALDO NASABAH
+  // =========================================================================
   useEffect(() => {
     let isMounted = true;
     async function loadData() {
@@ -116,7 +166,7 @@ export function useAjukanSetor(initialParams?: {
           }
         }
       } catch (err) {
-        console.error("Failed to load initial categories or saldo:", err);
+        console.error("Gagal memuat kategori awal atau saldo nasabah:", err);
       }
     }
     loadData();
@@ -125,9 +175,11 @@ export function useAjukanSetor(initialParams?: {
     };
   }, []);
 
-  // Action: Add new item row
+  // =========================================================================
+  // HANDLER AKSI: Menambah Baris Sampah Baru
+  // Memilih kategori berikutnya yang belum terpilih agar tidak redundan
+  // =========================================================================
   const addItem = useCallback(() => {
-    // Pick next category that is not yet selected if possible
     const usedIds = new Set(items.map((it) => it.kategoriSampahId));
     const defaultCat = categories.find((c) => !usedIds.has(c.id));
     const nextCat = defaultCat || categories[0];
@@ -151,7 +203,10 @@ export function useAjukanSetor(initialParams?: {
     setItems((prev) => [...prev, newItem]);
   }, [categories, items]);
 
-  // Action: Remove item row
+  // =========================================================================
+  // HANDLER AKSI: Menghapus Baris Sampah
+  // Mencegah penghapusan jika hanya tersisa 1 baris item
+  // =========================================================================
   const removeItem = useCallback((tempId: string) => {
     setItems((prev) => {
       if (prev.length <= 1) {
@@ -163,7 +218,10 @@ export function useAjukanSetor(initialParams?: {
     });
   }, []);
 
-  // Action: Update category for a specific row
+  // =========================================================================
+  // HANDLER AKSI: Mengubah Pilihan Kategori pada Baris Tertentu
+  // Menghitung ulang subtotal poin dan rupiah seketika
+  // =========================================================================
   const updateItemCategory = useCallback(
     (tempId: string, kategoriId: string) => {
       const selected =
@@ -191,7 +249,10 @@ export function useAjukanSetor(initialParams?: {
     [categories]
   );
 
-  // Action: Update item weight (supports stepper [- / +] or direct input)
+  // =========================================================================
+  // HANDLER AKSI: Mengubah Bobot Sampah (Stepper +/- atau Input Langsung)
+  // Menjamin nilai valid antara 0.1 kg hingga batas wajar 999 kg
+  // =========================================================================
   const updateItemWeight = useCallback(
     (tempId: string, deltaOrValue: number | string) => {
       setItems((prev) =>
@@ -200,16 +261,16 @@ export function useAjukanSetor(initialParams?: {
 
           let newWeight: number;
           if (typeof deltaOrValue === "number") {
-            // Delta step e.g. +0.5 or -0.5
+            // Perubahan bertahap tombol stepper, misal +0.5 kg atau -0.5 kg
             newWeight = Math.round((it.beratKg + deltaOrValue) * 10) / 10;
           } else {
-            // Direct input string
+            // Input langsung melalui ketikan angka pada textfield
             const cleaned = deltaOrValue.replace(",", ".");
             const parsed = parseFloat(cleaned);
             newWeight = isNaN(parsed) ? 0.1 : parsed;
           }
 
-          // Clamp minimum weight to 0.1 kg
+          // Batasi batas minimal 0.1 kg dan presisi 1 desimal
           newWeight = Math.max(0.1, Math.min(999, newWeight));
           newWeight = Number(newWeight.toFixed(1));
 
@@ -225,7 +286,9 @@ export function useAjukanSetor(initialParams?: {
     []
   );
 
-  // Calculated Selectors
+  // =========================================================================
+  // MEMOIZED SELECTORS: Kalkulasi Akumulasi Estimasi Transaksi
+  // =========================================================================
   const totalEstimasiBerat = useMemo(() => {
     const sum = items.reduce((acc, curr) => acc + curr.beratKg, 0);
     return Number(sum.toFixed(1));
@@ -239,9 +302,12 @@ export function useAjukanSetor(initialParams?: {
     return items.reduce((acc, curr) => acc + curr.subtotalRupiah, 0);
   }, [items]);
 
+  // Proyeksi total saldo poin setelah reward transaksi ini dikreditkan
   const proyeksiSaldoAkhir = saldoAkunSaatIni + totalEstimasiPoin;
 
-  // Pre-submit validation: open confirmation modal
+  // =========================================================================
+  // VALIDASI PRA-KIRIM: Membuka Modal Konfirmasi
+  // =========================================================================
   const handleInitiateSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setErrorMessage(null);
@@ -271,7 +337,10 @@ export function useAjukanSetor(initialParams?: {
     setIsConfirmModalOpen(false);
   };
 
-  // Form Submit Handler (executed from confirm modal)
+  // =========================================================================
+  // EKSEKUSI PENGIRIMAN: Dijalankan dari Modal Konfirmasi
+  // Mengirim payload ke API, memperbarui state, dan menampilkan modal sukses
+  // =========================================================================
   const handleConfirmSubmit = async () => {
     setErrorMessage(null);
     setIsSubmitting(true);
@@ -303,7 +372,7 @@ export function useAjukanSetor(initialParams?: {
         toast({ variant: "error", title: "Pengajuan Gagal", message: msg });
       }
     } catch (err) {
-      console.error("[useAjukanSetor] Submit error:", err);
+      console.error("[useAjukanSetor] Kesalahan pengiriman:", err);
       const msg =
         err instanceof Error
           ? err.message
@@ -334,13 +403,13 @@ export function useAjukanSetor(initialParams?: {
     removeItem,
     updateItemCategory,
     updateItemWeight,
-    // Computed totals
+    // Nilai kalkulasi akumulasi
     totalEstimasiBerat,
     totalEstimasiPoin,
     totalEstimasiRupiah,
     saldoAkunSaatIni,
     proyeksiSaldoAkhir,
-    // Submission status & actions
+    // Status pengiriman dan dialog interaktif
     isSubmitting,
     errorMessage,
     submissionResult,

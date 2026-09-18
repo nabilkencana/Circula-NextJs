@@ -6,26 +6,53 @@ import Image from "next/image";
 import { X, Calculator, ArrowRight, Star } from "lucide-react";
 import { KategoriSampah } from "@/types/kategoriSampah";
 
+/**
+ * Interface properties untuk komponen modal kalkulator simulasi reward poin.
+ */
 interface LivePointEstimatorModalProps {
+  /** Flag penanda modal sedang terbuka */
   isOpen: boolean;
+  /** Objek data kategori sampah yang dipilih untuk disimulasikan */
   item: KategoriSampah | null;
+  /** Callback untuk menutup dialog modal */
   onClose: () => void;
 }
 
+/**
+ * Komponen Dialog Modal Simulasi Nilai Setor Sampah (LivePointEstimatorModal)
+ *
+ * Memberikan simulasi transparan kepada nasabah sebelum melakukan penyetoran:
+ * 1. Rincian Material Terpilih: Thumbnail, tarif harga beli per kg, dan rasio poin per kg.
+ * 2. Slider Interaktif Bobot (0.5 kg - 50 kg) dengan kelipatan 0.5 kg.
+ * 3. Kotak Hasil Kalkulasi:
+ *    - Uang Tabungan: Estimasi uang tunai rupiah (Rp) yang akan diterima di loket/rekening.
+ *    - Reward Poin: Bonus poin Circula yang dapat ditukarkan di katalog hadiah.
+ * 4. Tautan Integrasi Langsung: Tombol CTA yang langsung membawa bobot dan ID kategori
+ *    ke formulir pengajuan penyetoran (`/setor/ajukan?kategoriId=[id]&berat=[weight]`).
+ *
+ * @param props Properti modal simulasi
+ * @returns JSX Element modal kalkulator atau null jika tidak aktif
+ */
 export default function LivePointEstimatorModal({
   isOpen,
   item,
   onClose,
 }: LivePointEstimatorModalProps) {
+  // State bobot simulasi penyetoran dalam satuan kg (nilai bawaan: 5 kg)
   const [weight, setWeight] = useState<number>(5);
 
+  /**
+   * Menutup modal dan mereset nilai bobot kembali ke bawaan
+   */
   const handleClose = () => {
     setWeight(5);
     onClose();
   };
 
+  // Jangan render elemen jika modal tidak terbuka atau data item kosong
   if (!isOpen || !item) return null;
 
+  // Kalkulasi reaktif nilai rupiah dan poin
   const totalRupiah = Math.round(weight * item.hargaPerKg);
   const totalPoin = Math.round(weight * item.poinPerKg);
 
@@ -36,7 +63,7 @@ export default function LivePointEstimatorModal({
         role="dialog"
         aria-modal="true"
       >
-        {/* Header */}
+        {/* ================= HEADER DIALOG MODAL ================= */}
         <div className="p-5 sm:p-6 border-b border-gray-200 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-brand-neon text-dark-container flex items-center justify-center font-bold">
@@ -58,9 +85,9 @@ export default function LivePointEstimatorModal({
           </button>
         </div>
 
-        {/* Body */}
+        {/* ================= ISI BADAN MODAL ================= */}
         <div className="p-5 sm:p-6 space-y-5">
-          {/* Selected Item Card */}
+          {/* Kartu Ringkasan Item Terpilih */}
           <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-inset-gray border border-gray-200">
             <div className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 bg-gray-200">
               <Image
@@ -84,7 +111,7 @@ export default function LivePointEstimatorModal({
             </div>
           </div>
 
-          {/* Weight Input & Slider */}
+          {/* Slider Penyesuaian Bobot Timbangan (Kg) */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-xs font-bold text-text-primary">
@@ -110,8 +137,9 @@ export default function LivePointEstimatorModal({
             </div>
           </div>
 
-          {/* Result Calculation Boxes */}
+          {/* Kotak Hasil Perhitungan (Rupiah & Poin) */}
           <div className="grid grid-cols-2 gap-3 pt-2">
+            {/* Uang Tabungan Rupiah */}
             <div className="p-4 rounded-2xl bg-inset-gray border border-gray-200">
               <span className="text-[10px] uppercase font-bold text-text-secondary block mb-1">
                 Uang Tabungan
@@ -126,6 +154,7 @@ export default function LivePointEstimatorModal({
               </span>
             </div>
 
+            {/* Poin Reward Circula */}
             <div className="p-4 rounded-2xl bg-dark-container text-white border border-white/10">
               <span className="text-[10px] uppercase font-bold text-brand-neon block mb-1">
                 Reward Poin
@@ -143,7 +172,7 @@ export default function LivePointEstimatorModal({
           </div>
         </div>
 
-        {/* Footer Actions */}
+        {/* ================= TOMBOL AKSI FOOTER MODAL ================= */}
         <div className="p-5 sm:p-6 bg-inset-gray border-t border-gray-200 flex flex-col sm:flex-row items-center gap-3">
           <button
             onClick={handleClose}
@@ -163,3 +192,4 @@ export default function LivePointEstimatorModal({
     </div>
   );
 }
+

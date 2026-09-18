@@ -1,27 +1,57 @@
+/**
+ * @file TransaksiTableRow.tsx
+ * @description Komponen baris tabel transaksi penyetoran sampah (STR) pada panel admin Circula.
+ * Menampilkan 6 kolom informasi:
+ * 1. Kode Transaksi & Tanggal-Waktu pencatatan.
+ * 2. Identitas Nasabah Penyetor (Nama dan Telepon).
+ * 3. Rincian Kategori Sampah & Berat Fisik (kg).
+ * 4. Perolehan Reward Poin (Estimasi awal vs Poin Riil).
+ * 5. Lencana Status Transaksi (Menunggu Konfirmasi, Diverifikasi, Selesai, Ditolak).
+ * 6. Tombol Aksi Operasional ("Timbang & Verifikasi", "Finalisasi Selesai", "Cetak Struk").
+ * 
+ * @module Components/AdminTransaksi/TransaksiTableRow
+ */
+
 import React from "react";
 import Link from "next/link";
 import { Scale, Printer, CheckCircle2 } from "lucide-react";
 import { TransaksiSetorAdminRecord } from "@/types/adminTransaksi";
 
+/**
+ * Properti untuk komponen TransaksiTableRow
+ * 
+ * @interface TransaksiTableRowProps
+ * @property {TransaksiSetorAdminRecord} record - Catatan data transaksi penyetoran.
+ * @property {(record: TransaksiSetorAdminRecord) => void} onOpenVerify - Handler membuka modal verifikasi timbangan.
+ * @property {(id: string) => void} onFinalize - Handler langsung finalisasi transaksi diverifikasi.
+ */
 interface TransaksiTableRowProps {
   record: TransaksiSetorAdminRecord;
   onOpenVerify: (record: TransaksiSetorAdminRecord) => void;
   onFinalize: (id: string) => void;
 }
 
+/**
+ * Komponen TransaksiTableRow
+ * 
+ * @component
+ * @param {TransaksiTableRowProps} props - Data transaksi dan callback aksi.
+ * @returns {JSX.Element} Elemen baris `<tr>` untuk tabel data penyetoran.
+ */
 export default function TransaksiTableRow({
   record,
   onOpenVerify,
   onFinalize,
 }: TransaksiTableRowProps) {
-  // Format items rincian
+  // Format gabungan string rincian kategori sampah
   const rincianText = record.rincianSampah
     .map((s) => `${s.namaKategori} (${s.berat} kg${s.isReal ? " Real" : ""})`)
     .join(" • ");
 
   return (
     <tr className="border-b border-gray-100 hover:bg-gray-50/60 transition-colors">
-      {/* 1. KODE & TANGGAL */}
+      
+      {/* 1. KODE TRANSAKSI & TANGGAL */}
       <td className="py-4.5 px-6">
         <div className="font-bold text-xs sm:text-sm text-text-primary">
           {record.kodeTransaksi}
@@ -51,7 +81,7 @@ export default function TransaksiTableRow({
         </div>
       </td>
 
-      {/* 4. TOTAL REWARD */}
+      {/* 4. TOTAL REWARD POIN */}
       <td className="py-4.5 px-6">
         {record.isEstimatedReward ? (
           <span className="inline-block bg-inset-gray border border-gray-200 text-xs font-semibold px-3 py-1 rounded-full text-gray-700">
@@ -65,7 +95,7 @@ export default function TransaksiTableRow({
         )}
       </td>
 
-      {/* 5. STATUS */}
+      {/* 5. LENCANA STATUS OPERASIONAL */}
       <td className="py-4.5 px-6">
         {record.status === "menunggu_konfirmasi" && (
           <span className="inline-flex items-center gap-1.5 bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A] text-xs font-semibold px-3 py-1 rounded-full">
@@ -81,7 +111,7 @@ export default function TransaksiTableRow({
 
         {record.status === "selesai" && (
           <span className="inline-flex items-center gap-1.5 bg-[#DCFCE7] text-[#15803D] border border-green-200 text-xs font-semibold px-3 py-1 rounded-full">
-            <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
+            <CheckCircle2 className="w-3.5 h-3.5 text-green-600" aria-hidden="true" />
             <span>Selesai</span>
           </span>
         )}
@@ -93,7 +123,7 @@ export default function TransaksiTableRow({
         )}
       </td>
 
-      {/* 6. AKSI OPERASIONAL */}
+      {/* 6. AKSI OPERASIONAL PETUGAS */}
       <td className="py-4.5 px-6">
         {record.status === "menunggu_konfirmasi" && (
           <button
@@ -101,7 +131,7 @@ export default function TransaksiTableRow({
             onClick={() => onOpenVerify(record)}
             className="inline-flex items-center gap-1.5 bg-brand-neon hover:bg-brand-neon-hover text-text-primary font-bold text-xs px-4 py-2 rounded-full shadow-2xs transition-all cursor-pointer whitespace-nowrap"
           >
-            <Scale className="w-3.5 h-3.5 text-text-primary" />
+            <Scale className="w-3.5 h-3.5 text-text-primary" aria-hidden="true" />
             <span>Timbang &amp; Verifikasi</span>
           </button>
         )}
@@ -121,7 +151,7 @@ export default function TransaksiTableRow({
             href={`/nota/${record.id}`}
             className="inline-flex items-center gap-1.5 border border-gray-200 hover:bg-gray-50 text-text-primary text-xs font-semibold px-4 py-2 rounded-full transition-colors cursor-pointer whitespace-nowrap"
           >
-            <Printer className="w-3.5 h-3.5 text-gray-500" />
+            <Printer className="w-3.5 h-3.5 text-gray-500" aria-hidden="true" />
             <span>Cetak Struk</span>
           </Link>
         )}
@@ -132,6 +162,7 @@ export default function TransaksiTableRow({
           </span>
         )}
       </td>
+
     </tr>
   );
 }

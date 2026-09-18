@@ -3,11 +3,21 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
+/**
+ * Komponen Banner Ajakan Bergabung Sebelum Footer (PreFooterCTA)
+ *
+ * Elemen penutup halaman beranda yang mendorong konversi pengunjung menjadi nasabah aktif:
+ * 1. Menampilkan latar belakang fotografi alam lestari dengan gradasi gelap.
+ * 2. Judul persuasif dan insentif bonus saldo poin untuk penyetoran perdana.
+ * 3. Tombol CTA utama menuju halaman pendaftaran akun nasabah (`/register`).
+ *
+ * @returns JSX Element banner ajakan registrasi
+ */
 export default function PreFooterCTA() {
   return (
     <section className="px-4 sm:px-6 my-16 max-w-7xl mx-auto">
       <div className="rounded-[28px] bg-dark-container p-8 sm:p-12 md:p-14 text-white border border-white/10 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 shadow-2xl">
-        {/* Background pattern */}
+        {/* ================= LAPISAN LATAR BELAKANG GAMBAR & GRADASI ================= */}
         <div className="absolute inset-0 z-0">
           <Image
             src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1600&q=80"
@@ -19,7 +29,7 @@ export default function PreFooterCTA() {
           <div className="absolute inset-0 bg-linear-to-r from-dark-container via-dark-container/90 to-dark-container/80" />
         </div>
 
-        {/* Left Side - Clean without badge */}
+        {/* ================= SISI KIRI: AJAKAN BERTINDAK & INSENTIF POIN ================= */}
         <div className="relative z-10 max-w-xl text-center md:text-left">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-tight leading-tight">
             Siap Mewujudkan Lingkungan Bersih dan Bernilai Ekonomi?
@@ -30,7 +40,7 @@ export default function PreFooterCTA() {
           </p>
         </div>
 
-        {/* Right Side */}
+        {/* ================= SISI KANAN: TOMBOL REGISTRASI AKUN ================= */}
         <div className="relative z-10 shrink-0">
           <Link
             href="/register"

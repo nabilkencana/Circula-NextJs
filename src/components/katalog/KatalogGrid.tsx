@@ -3,17 +3,37 @@ import KatalogCard from "./KatalogCard";
 import { KategoriSampah } from "@/types/kategoriSampah";
 import { AlertCircle } from "lucide-react";
 
+/**
+ * Interface properties untuk komponen grid katalog sampah (KatalogGrid).
+ */
 interface KatalogGridProps {
+  /** Array daftar kategori sampah yang siap dirender */
   items: KategoriSampah[];
+  /** Flag penanda status proses pemuatan data */
   isLoading?: boolean;
+  /** Callback saat pengguna mengklik tombol kalkulator simulasi pada kartu */
   onOpenEstimator: (item: KategoriSampah) => void;
 }
 
+/**
+ * Komponen Grid Daftar Katalog Sampah (KatalogGrid)
+ *
+ * Mengelola tata letak responsif (1 kolom mobile, 2 kolom tablet, 3 kolom desktop):
+ * 1. Status Loading: Menampilkan 6 placeholder kartu skeleton dengan animasi denyut (`animate-pulse`).
+ * 2. Status Empty: Tampilan informatif ketika filter pencarian tidak menemukan kecocokan kata kunci.
+ * 3. Status Berisi Data: Merender daftar kartu `KatalogCard` dengan efek kemunculan bertahap (`staggered delay`).
+ *
+ * @param props Properti komponen grid katalog
+ * @returns JSX Element grid katalog sampah
+ */
 export default function KatalogGrid({
   items,
   isLoading = false,
   onOpenEstimator,
 }: KatalogGridProps) {
+  // ---------------------------------------------------------------------------
+  // KONDISI 1: LOADING SKELETON
+  // ---------------------------------------------------------------------------
   if (isLoading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 my-10">
@@ -36,6 +56,9 @@ export default function KatalogGrid({
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // KONDISI 2: HASIL PENCARIAN KOSONG (EMPTY STATE)
+  // ---------------------------------------------------------------------------
   if (items.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 my-16 text-center">
@@ -53,6 +76,9 @@ export default function KatalogGrid({
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // KONDISI 3: GRID TERISI DATA KATEGORI
+  // ---------------------------------------------------------------------------
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 my-8">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -72,3 +98,4 @@ export default function KatalogGrid({
     </section>
   );
 }
+

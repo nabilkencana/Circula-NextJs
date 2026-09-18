@@ -114,7 +114,7 @@ export default function UnitFieldGroups({
             htmlFor="telp"
             className="block text-xs font-bold text-text-primary uppercase tracking-wider mb-1.5"
           >
-            Nomor Kontak / WhatsApp Operasional <span className="text-red-500">*</span>
+            Nomor Kontak<span className="text-red-500">*</span>
           </label>
           <div className="relative flex rounded-xl border border-gray-200 bg-inset-gray overflow-hidden focus-within:border-dark-container focus-within:ring-1 focus-within:ring-dark-container">
             <div className="flex items-center px-3 bg-gray-100 border-r border-gray-200 text-xs font-bold text-text-primary select-none gap-1">

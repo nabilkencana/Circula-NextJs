@@ -1,17 +1,39 @@
+/**
+ * @file Footer.tsx
+ * @description Komponen footer universal untuk area publik Circula (Landing page, Katalog, Histori, Pengajuan).
+ * Menampilkan identitas merek, sertifikasi standar lingkungan ISO 14001,
+ * tautan rute layanan utama, direktori edukasi 3R, serta kontak informasi operasional loket.
+ * 
+ * @module Components/Layout/Footer
+ */
+
 import React from "react";
 import Link from "next/link";
 import { Leaf, ShieldCheck } from "lucide-react";
 
+/**
+ * Komponen Footer Publik Circula
+ * 
+ * @component
+ * @returns {JSX.Element} Bagian kaki halaman berstruktur 4-kolom responsif dengan palet warna abu-abu bersih.
+ */
 export default function Footer() {
   return (
-    <footer className="border-t border-gray-100 bg-[#F9F9F8] pt-14 pb-10 font-sans">
+    <footer 
+      aria-label="Kaki Halaman Publik Circula"
+      className="border-t border-gray-100 bg-[#F9F9F8] pt-14 pb-10 font-sans"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 text-xs">
-          {/* Col 1: Brand & Certification */}
+          
+          {/* ========================================================================= */}
+          {/* KOLOM 1: IDENTITAS BRAND & BADGE SERTIFIKASI MUTU LINGKUNGAN              */}
+          {/* ========================================================================= */}
           <div className="space-y-3.5">
+            {/* Logo dan Teks Merk */}
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-full bg-[#111315] flex items-center justify-center text-[#CEF241] shadow-xs">
-                <Leaf className="w-4 h-4 fill-[#CEF241]" />
+                <Leaf className="w-4 h-4 fill-[#CEF241]" aria-hidden="true" />
               </div>
               <div className="flex flex-col">
                 <span className="font-extrabold text-sm tracking-wider text-gray-900 leading-none uppercase">
@@ -23,19 +45,23 @@ export default function Footer() {
               </div>
             </div>
 
+            {/* Narasi Ringkas Misi Lingkungan */}
             <p className="text-gray-500 leading-relaxed max-w-xs">
-              Platform bank sampah digital terintegrasi untuk ekonomi sirkular ramah lingkungan.
+              Platform bank sampah digital terintegrasi untuk mendukung percepatan ekonomi sirkular ramah lingkungan di Indonesia.
             </p>
 
+            {/* Lencana Verifikasi ISO 14001 */}
             <div className="pt-1">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-gray-200/80 text-[11px] font-semibold text-gray-700 shadow-2xs">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" aria-hidden="true" />
                 <span>ISO 14001 Certified</span>
               </div>
             </div>
           </div>
 
-          {/* Col 2: LAYANAN */}
+          {/* ========================================================================= */}
+          {/* KOLOM 2: TAUTAN LAYANAN OPERASIONAL NASABAH & PARTNER                     */}
+          {/* ========================================================================= */}
           <div>
             <h3 className="font-extrabold text-gray-900 uppercase tracking-wider mb-3.5 text-xs">
               LAYANAN
@@ -64,7 +90,9 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Col 3: EDUKASI & INFO */}
+          {/* ========================================================================= */}
+          {/* KOLOM 3: PANDUAN EDUKASI 3R & PUSAT BANTUAN                              */}
+          {/* ========================================================================= */}
           <div>
             <h3 className="font-extrabold text-gray-900 uppercase tracking-wider mb-3.5 text-xs">
               EDUKASI &amp; INFO
@@ -93,7 +121,9 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Col 4: KONTAK LOKET */}
+          {/* ========================================================================= */}
+          {/* KOLOM 4: INFORMASI KONTAK DAN JAM OPERASIONAL LOKET                       */}
+          {/* ========================================================================= */}
           <div>
             <h3 className="font-extrabold text-gray-900 uppercase tracking-wider mb-3.5 text-xs">
               KONTAK LOKET
@@ -111,11 +141,14 @@ export default function Footer() {
               </p>
             </div>
           </div>
+
         </div>
 
-        {/* Bottom Bar */}
+        {/* ========================================================================= */}
+        {/* BARIS BAWAH: HAK CIPTA & KETERANGAN SISTEM                                */}
+        {/* ========================================================================= */}
         <div className="mt-12 pt-6 border-t border-gray-200/70 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500 font-medium">
-          <p>© 2026 Circula Technologies. Hak cipta dilindungi.</p>
+          <p>© 2026 Circula Technologies. Hak cipta dilindungi undang-undang.</p>
           <p>Sistem Pengelolaan Sampah Digital Terintegrasi</p>
         </div>
       </div>

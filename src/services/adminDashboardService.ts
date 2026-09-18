@@ -1,8 +1,23 @@
+/**
+ * @file adminDashboardService.ts
+ * @description Layanan komunikasi data (Service Layer) untuk modul Dashboard Administrator Unit Circula.
+ * Melakukan agregasi data telemetri secara simultan menggunakan `Promise.all` meliputi:
+ * 1. Statistik global platform dari endpoint `DASHBOARD.STATS`.
+ * 2. Daftar tiket antrean penyetoran status `menunggu_konfirmasi` dari `ADMIN_SETOR.LIST`.
+ * 3. Rekapitulasi volume material bulanan dari `LAPORAN.REKAPITULASI_BULANAN`.
+ * Menyediakan fallback data terstruktur yang aman (`EMPTY_DASHBOARD_DATA`) jika backend tidak merespons.
+ * 
+ * @module Services/AdminDashboardService
+ */
+
 import { DashboardTelemetryData, QueueItemRecord } from "@/types/adminDashboard";
 import { apiRequest } from "@/lib/api/client";
 import { ADMIN_SETOR, LAPORAN, DASHBOARD } from "@/lib/api/endpoints";
 import { getCurrentUser } from "@/services/authService";
 
+/**
+ * Struktur objek default ketika telemetri dashboard sedang diinisialisasi atau mengalami kegagalan jaringan.
+ */
 export const EMPTY_DASHBOARD_DATA: DashboardTelemetryData = {
   unitNama: "Bank Sampah Circula",
   unitKode: "UNIT-01",
@@ -21,23 +36,33 @@ export const EMPTY_DASHBOARD_DATA: DashboardTelemetryData = {
   scaleDeviceId: "#SCL-DIGITAL-01",
 };
 
+/**
+ * Mengambil dan merangkum seluruh telemetri operasional unit bank sampah untuk panel dashboard admin.
+ * 
+ * @async
+ * @returns {Promise<DashboardTelemetryData>} Data metrik telemetri yang telah diagregasi dan dinormalisasi.
+ */
 export async function getDashboardTelemetry(): Promise<DashboardTelemetryData> {
+  // Ambil profil admin yang sedang login untuk identitas unit bank sampah
   const currentUser = getCurrentUser();
   const unitNama = currentUser?.adminBank?.namaUnit || "Unit Bank Sampah Circula";
 
   try {
+    // Memanggil 3 endpoint independen secara paralel untuk kecepatan pemuatan data
     const [statsData, queueData, rekapData] = await Promise.all([
       apiRequest<any>(DASHBOARD.STATS).catch(() => null),
       apiRequest<any[]>(ADMIN_SETOR.LIST({ status: "menunggu_konfirmasi" })).catch(() => null),
       apiRequest<any>(LAPORAN.REKAPITULASI_BULANAN("2026-08")).catch(() => null),
     ]);
 
+    // Ekstraksi total berat sampah dalam kilogram
     const totalBeratKg = Number(
       statsData?.totalBeratSampahKg ?? rekapData?.totalVolume?.totalKg ?? 0
     );
     const totalNasabah = Number(statsData?.totalNasabah ?? 0);
     const totalPoinTersalurkan = Number(statsData?.totalPoinTersalurkan ?? 0);
 
+    // Pemetaan data antrean verifikasi timbangan
     const queueList: QueueItemRecord[] = Array.isArray(queueData)
       ? queueData.map((item: any) => ({
           id: item.id || `str-${item.kodeSetor}`,
@@ -54,6 +79,7 @@ export async function getDashboardTelemetry(): Promise<DashboardTelemetryData> {
         }))
       : [];
 
+    // Pemetaan komposisi material daur ulang yang terkumpul
     const composition = rekapData?.breakdownMaterials || [
       {
         kategoriLabel: "Plastik (PET & HDPE)",
@@ -81,6 +107,7 @@ export async function getDashboardTelemetry(): Promise<DashboardTelemetryData> {
       },
     ];
 
+    // Mengembalikan objek gabungan telemetri yang siap ditampilkan pada UI dashboard
     return {
       unitNama,
       unitKode: "UNIT-01",

@@ -1,15 +1,46 @@
 "use client";
 
+/**
+ * ============================================================================
+ * Komponen: SaldoPoinProminentCard
+ * Direktori: src/components/histori/SaldoPoinProminentCard.tsx
+ *
+ * Fungsi Utama:
+ * Menampilkan kartu ringkasan saldo poin nasabah (Reward Balance Card) secara
+ * menonjol di halaman dashboard atau histori penyetoran.
+ * Informasi yang disajikan:
+ * 1. Poin Reward Aktif yang siap ditukarkan dengan hadiah katalog.
+ * 2. Total akumulasi berat sampah yang telah disetorkan (dalam kg).
+ * 3. Total frekuensi transaksi penyetoran yang tercatat.
+ * 4. Tombol aksi cepat: "Tukarkan Poin Hadiah" dan "Ajukan Setor Baru".
+ *
+ * Konsep Teknis & Animasi:
+ * - Menggunakan custom hook `useCountUp` untuk menganimasikan pertambahan angka
+ *   dari 0 ke target secara halus (rolling numbers) saat kartu pertama kali dimuat.
+ * - Efek visual modern: Gradasi gelap, ambient radial blur glow neon, dan glassmorphism.
+ * - Skeleton loader saat kondisi `isLoading` aktif.
+ * ============================================================================
+ */
+
 import React from "react";
 import Link from "next/link";
 import { Star, Scale, History, ArrowRight, PlusCircle, Sparkles, TrendingUp } from "lucide-react";
 import { useCountUp } from "@/hooks/useCountUp";
 
+/**
+ * Interface SaldoPoinProminentCardProps:
+ * Kontrak properti data metrik nasabah.
+ */
 interface SaldoPoinProminentCardProps {
+  /** Saldo poin reward aktif yang dimiliki nasabah */
   saldoPoin: number;
+  /** Akumulasi berat seluruh sampah yang berhasil disetor (dalam kg) */
   totalKg: number;
+  /** Total banyaknya transaksi penyetoran nasabah */
   totalTransaksi: number;
+  /** Nama lengkap nasabah (opsional) */
   namaNasabah?: string;
+  /** Status pemuatan data dari API */
   isLoading?: boolean;
 }
 
@@ -20,14 +51,17 @@ export default function SaldoPoinProminentCard({
   namaNasabah,
   isLoading = false,
 }: SaldoPoinProminentCardProps) {
+  // Animasi angka count-up untuk memberikan pengalaman visual interaktif (micro-interaction)
   const animatedSaldo = useCountUp(saldoPoin, 700);
   const animatedKg = useCountUp(totalKg, 700, 1);
   const animatedTrx = useCountUp(totalTransaksi, 600);
+
+  // Render skeleton placeholder saat data sedang diambil dari backend
   if (isLoading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-6">
         <div className="bg-dark-container rounded-3xl p-6 sm:p-8 animate-pulse text-white/40 h-44 flex items-center justify-center">
-          <span className="text-xs font-semibold">Memuat data saldo poin & metrik akun...</span>
+          <span className="text-xs font-semibold">Memuat data saldo poin &amp; metrik akun...</span>
         </div>
       </div>
     );
@@ -36,12 +70,16 @@ export default function SaldoPoinProminentCard({
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 mb-8">
       <div className="bg-linear-to-br from-dark-container via-[#172013] to-dark-container rounded-3xl p-6 sm:p-8 text-white border border-brand-neon/20 shadow-xl relative overflow-hidden">
-        {/* Ambient background glow */}
+        {/* ========================================================================= */}
+        {/* AMBIENT BACKGROUND GLOW (Efek pencahayaan lembut di latar belakang)        */}
+        {/* ========================================================================= */}
         <div className="absolute -top-24 -right-24 w-72 h-72 bg-brand-neon/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6">
-          {/* Left Column: Prominent Balance Display */}
+          {/* ======================================================================= */}
+          {/* KOLOM KIRI: Tampilan Saldo Poin Reward Utama Nasabah                    */}
+          {/* ======================================================================= */}
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-neon/20 border border-brand-neon/30 text-brand-neon text-[11px] font-extrabold uppercase tracking-wider">
@@ -70,8 +108,11 @@ export default function SaldoPoinProminentCard({
             </div>
           </div>
 
-          {/* Middle Column: Quick Metrics Grid */}
+          {/* ======================================================================= */}
+          {/* KOLOM TENGAH: Grid Dua Metrik Cepat (Total Sampah Kg & Frekuensi Setor) */}
+          {/* ======================================================================= */}
           <div className="grid grid-cols-2 gap-3 sm:gap-4 py-2 lg:py-0 border-y lg:border-y-0 lg:border-x border-white/10 lg:px-8">
+            {/* Metrik 1: Berat Total Sampah Terkumpul */}
             <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs">
               <div className="flex items-center gap-2 text-white/60 text-xs mb-1">
                 <Scale className="w-4 h-4 text-brand-neon" />
@@ -82,6 +123,7 @@ export default function SaldoPoinProminentCard({
               </p>
             </div>
 
+            {/* Metrik 2: Total Frekuensi Penyetoran */}
             <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xs">
               <div className="flex items-center gap-2 text-white/60 text-xs mb-1">
                 <History className="w-4 h-4 text-brand-neon" />
@@ -93,8 +135,11 @@ export default function SaldoPoinProminentCard({
             </div>
           </div>
 
-          {/* Right Column: CTA Buttons */}
+          {/* ======================================================================= */}
+          {/* KOLOM KANAN: Tombol Aksi Cepat (Tukar Poin & Pengajuan Setor Baru)       */}
+          {/* ======================================================================= */}
           <div className="flex flex-col sm:flex-row lg:flex-col gap-2.5 shrink-0 justify-center">
+            {/* CTA Utama: Navigasi ke Halaman Katalog Penukaran Poin */}
             <Link
               href="/tukar-poin"
               className="btn-interactive inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-brand-neon hover:bg-brand-neon-hover active:scale-95 text-dark-container font-extrabold text-xs sm:text-sm shadow-md transition-all"
@@ -104,6 +149,7 @@ export default function SaldoPoinProminentCard({
               <ArrowRight className="w-4 h-4" />
             </Link>
 
+            {/* CTA Sekunder: Pengajuan Setor Sampah Baru */}
             <Link
               href="/setor/ajukan"
               className="btn-interactive inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 text-white font-bold text-xs sm:text-sm border border-white/15 transition-all"

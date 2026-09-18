@@ -1,5 +1,17 @@
 import { WasteCategory, WorkflowStep } from "@/types";
 
+/**
+ * Data Standar Baku Kategori Sampah UKK (UKK_WASTE_CATEGORIES)
+ *
+ * Mewakili 4 kategori material anorganik utama sesuai spesifikasi UKK SMK Rekayasa Perangkat Lunak:
+ * 1. Plastik: Botol Plastik PET bening
+ * 2. Kertas: Kardus dan karton bekas kering
+ * 3. Logam: Kaleng minuman aluminium
+ * 4. Kaca: Botol kaca bening utuh
+ *
+ * Dilengkapi dengan harga beli acuan per kg (Rp/kg), rasio perolehan poin per kg,
+ * warna aksen badge, URL gambar Unsplash beresolusi tinggi, dan deskripsi syarat kelayakan setor.
+ */
 export const UKK_WASTE_CATEGORIES: WasteCategory[] = [
   {
     id: "eacfc2cf-2dc6-40c3-96fe-d55806f96b50",
@@ -51,6 +63,15 @@ export const UKK_WASTE_CATEGORIES: WasteCategory[] = [
   },
 ];
 
+/**
+ * Data 4 Langkah Alur Kerja Penyetoran Sampah Digital (WORKFLOW_STEPS)
+ *
+ * Menjelaskan tahapan terpadu dari sisi nasabah:
+ * 1. Pemilahan di tingkat rumah tangga.
+ * 2. Pengajuan tiket setor online melalui aplikasi web.
+ * 3. Penimbangan digital presisi di loket unit bank sampah.
+ * 4. Pencairan poin otomatis menjadi reward sembako/pulsa/voucher.
+ */
 export const WORKFLOW_STEPS: WorkflowStep[] = [
   {
     stepNumber: "01",

@@ -1,5 +1,27 @@
 "use client";
 
+/**
+ * ============================================================================
+ * Hook: useTukarPoin
+ * Direktori: src/hooks/useTukarPoin.ts
+ *
+ * Fungsi Utama:
+ * Custom React Hook yang mengatur logika bisnis dan state management katalog penukaran poin:
+ * 1. Pemuatan Paralel (Concurrent Fetching): Mengambil daftar katalog hadiah dan
+ *    ringkasan saldo nasabah saat komponen pertama kali di-mount.
+ * 2. Penyaringan & Pencarian (useMemo):
+ *    - Filter kategori: "semua", "sembako", "voucher", "pulsa", "merchandise".
+ *    - Pencarian teks fleksibel mencakup nama produk, deskripsi, dan mitra merchant.
+ * 3. Logika Validasi Poin:
+ *    - `isPointSufficient`: Mengecek apakah saldo nasabah mencukupi poin produk.
+ *    - `kekuranganPoin`: Menghitung selisih poin yang kurang jika saldo belum cukup.
+ * 4. Alur Transaksi Penukaran (Redemption Flow):
+ *    - Inisiasi pemilihan hadiah (`handleInitiateRedeem`).
+ *    - Konfirmasi dan eksekusi API penukaran (`handleConfirmRedeem`).
+ *    - Pengurangan otomatis saldo lokal nasabah dan stok produk seketika setelah berhasil.
+ * ============================================================================
+ */
+
 import { useState, useMemo, useEffect } from "react";
 import {
   HadiahItem,
@@ -14,6 +36,10 @@ import {
   DEFAULT_HADIAH_ITEMS,
 } from "@/services/tukarPoinService";
 
+/**
+ * State Saldo Default:
+ * Digunakan sebagai nilai fallback awal sebelum data riil dari backend termuat.
+ */
 const DEFAULT_SALDO_STATE: SaldoNasabahSummary = {
   saldoPoinSaatIni: 350,
   saldoPoinAktif: 350,
@@ -23,13 +49,20 @@ const DEFAULT_SALDO_STATE: SaldoNasabahSummary = {
 };
 
 export function useTukarPoin(initialItems: HadiahItem[] = []) {
+  // State daftar barang hadiah di katalog
   const [items, setItems] = useState<HadiahItem[]>(
     initialItems.length > 0 ? initialItems : DEFAULT_HADIAH_ITEMS
   );
+
+  // State ringkasan saldo poin nasabah
   const [saldoSummary, setSaldoSummary] = useState<SaldoNasabahSummary>(DEFAULT_SALDO_STATE);
+
+  // State parameter filter tab dan pencarian teks
   const [selectedCategory, setSelectedCategory] = useState<KategoriHadiah>("semua");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // State alur modal penukaran
   const [activeItemToRedeem, setActiveItemToRedeem] = useState<HadiahItem | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [redemptionSuccessData, setRedemptionSuccessData] = useState<
@@ -37,9 +70,13 @@ export function useTukarPoin(initialItems: HadiahItem[] = []) {
   >(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Background fetch to sync items & user point balance if API is active
+  // =========================================================================
+  // SINKRONISASI DATA AWAL (Background Fetch)
+  // Memuat daftar hadiah dan saldo nasabah secara paralel dengan Promise.all
+  // =========================================================================
   useEffect(() => {
     let isMounted = true;
+
     async function loadInitialData() {
       setIsLoading(true);
       try {
@@ -56,23 +93,29 @@ export function useTukarPoin(initialItems: HadiahItem[] = []) {
           }
         }
       } catch (err) {
-        console.error("Failed to load rewards or saldo:", err);
+        console.error("Gagal memuat katalog hadiah atau saldo nasabah:", err);
       } finally {
         if (isMounted) {
           setIsLoading(false);
         }
       }
     }
+
     loadInitialData();
+
     return () => {
       isMounted = false;
     };
   }, []);
 
-  // Filtered rewards
+  // =========================================================================
+  // PENYARINGAN KATALOG HADIAH (useMemo)
+  // Memfilter barang berdasarkan kategori terpilih dan kata kunci pencarian
+  // =========================================================================
   const filteredItems = useMemo(() => {
     let list = [...items];
 
+    // Filter Kategori
     if (selectedCategory !== "semua") {
       list = list.filter((item) => {
         const nama = item.namaHadiah.toLowerCase();
@@ -92,6 +135,7 @@ export function useTukarPoin(initialItems: HadiahItem[] = []) {
       });
     }
 
+    // Filter Pencarian Teks Bebas
     if (searchQuery.trim() !== "") {
       const q = searchQuery.toLowerCase().trim();
       list = list.filter(
@@ -105,27 +149,43 @@ export function useTukarPoin(initialItems: HadiahItem[] = []) {
     return list;
   }, [items, selectedCategory, searchQuery]);
 
+  /**
+   * Mengecek apakah poin nasabah cukup untuk menukar hadiah tertentu
+   */
   const isPointSufficient = (poinDibutuhkan: number) => {
     if (!saldoSummary) return false;
     return saldoSummary.saldoPoinAktif >= poinDibutuhkan;
   };
 
+  /**
+   * Menghitung sisa kekurangan poin yang harus dikumpulkan nasabah
+   */
   const kekuranganPoin = (poinDibutuhkan: number) => {
     if (!saldoSummary) return 0;
     return Math.max(0, poinDibutuhkan - saldoSummary.saldoPoinAktif);
   };
 
+  /**
+   * Membuka modal konfirmasi penukaran barang jika poin mencukupi
+   */
   const handleInitiateRedeem = (item: HadiahItem) => {
     if (!isPointSufficient(item.poinDibutuhkan)) return;
     setErrorMessage(null);
     setActiveItemToRedeem(item);
   };
 
+  /**
+   * Membatalkan proses penukaran dan menutup modal konfirmasi
+   */
   const handleCancelRedeem = () => {
     setActiveItemToRedeem(null);
     setErrorMessage(null);
   };
 
+  /**
+   * Mengonfirmasi penukaran poin: mengirim payload ke backend API
+   * dan memperbarui saldo lokal serta stok barang secara otomatis
+   */
   const handleConfirmRedeem = async () => {
     if (!activeItemToRedeem) return;
 
@@ -136,7 +196,8 @@ export function useTukarPoin(initialItems: HadiahItem[] = []) {
       const res = await tukarPoinHadiah({ hadiahId: activeItemToRedeem.id });
       if (res.success && res.data) {
         setRedemptionSuccessData(res.data);
-        // Deduct points from local saldo snapshot
+
+        // Potong saldo poin secara lokal di state
         setSaldoSummary((prev) => ({
           saldoPoinSaatIni: res.data.sisaPoin,
           saldoPoinAktif: res.data.sisaPoin,
@@ -145,7 +206,8 @@ export function useTukarPoin(initialItems: HadiahItem[] = []) {
           poinTerpakaiBulanIni: (prev?.poinTerpakaiBulanIni ?? 0) + res.data.poinTerpakai,
           totalTransaksiSelesai: (prev?.totalTransaksiSelesai ?? 0) + 1,
         }));
-        // Deduct local item stock
+
+        // Kurangi stok produk secara lokal
         setItems((prev) =>
           prev.map((it) =>
             it.id === activeItemToRedeem.id
@@ -174,6 +236,9 @@ export function useTukarPoin(initialItems: HadiahItem[] = []) {
     }
   };
 
+  /**
+   * Menutup modal sukses penukaran tiket
+   */
   const handleCloseSuccessModal = () => {
     setRedemptionSuccessData(null);
     setActiveItemToRedeem(null);

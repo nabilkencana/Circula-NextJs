@@ -1,3 +1,16 @@
+/**
+ * @file KategoriDrawerModal.tsx
+ * @description Komponen laci formulir geser (Slide-Over Drawer) untuk penambahan dan pengeditan kategori sampah.
+ * Memuat kolom-kolom input komprehensif:
+ * 1. Unggah/Pemilihan preset foto contoh fisik material sampah.
+ * 2. Nama spesifik material kategori (misal: "Botol Plastik PET Bening Bersih").
+ * 3. Kelompok jenis sampah (Plastik, Kertas, Logam, Kaca) serta satuan penimbangan tetap (kg).
+ * 4. Penetapan tarif harga beli tunai per kilogram (Rupiah) dan kompensasi poin reward per kilogram.
+ * 5. Deskripsi detail dan petunjuk standar pemilahan mutu 3R.
+ * 
+ * @module Components/AdminKategori/KategoriDrawerModal
+ */
+
 "use client";
 
 import React, { useState } from "react";
@@ -10,6 +23,17 @@ import {
 } from "@/types/adminKategori";
 import Image from "next/image";
 
+/**
+ * Properti untuk komponen KategoriDrawerModal
+ * 
+ * @interface KategoriDrawerModalProps
+ * @property {boolean} isOpen - Status keterbukaan drawer.
+ * @property {"create" | "edit"} mode - Mode operasi formulir ("create" untuk baru, "edit" untuk perubahan).
+ * @property {KategoriSampahAdminRecord | null} record - Data kategori yang sedang diedit (null jika mode create).
+ * @property {boolean} isSubmitting - Status proses penyimpanan ke database.
+ * @property {() => void} onClose - Callback untuk menutup drawer.
+ * @property {(payload: CreateKategoriPayload | UpdateKategoriPayload) => void} onSave - Callback simpan formulir.
+ */
 interface KategoriDrawerModalProps {
   isOpen: boolean;
   mode: "create" | "edit";
@@ -19,6 +43,7 @@ interface KategoriDrawerModalProps {
   onSave: (payload: CreateKategoriPayload | UpdateKategoriPayload) => void;
 }
 
+// Koleksi preset foto material daur ulang berkualitas tinggi
 const SAMPLE_PHOTO_PRESETS = [
   "https://images.unsplash.com/photo-1527061011665-3652c757a4d4?w=600&auto=format&fit=crop&q=80",
   "https://images.unsplash.com/photo-1534056070602-a2a913134263?w=600&auto=format&fit=crop&q=80",
@@ -36,6 +61,9 @@ interface DrawerContentProps {
   onSave: (payload: CreateKategoriPayload | UpdateKategoriPayload) => void;
 }
 
+/**
+ * Konten Formulir Internal Slide-Over Drawer
+ */
 function KategoriDrawerContent({
   mode,
   record,
@@ -43,6 +71,7 @@ function KategoriDrawerContent({
   onClose,
   onSave,
 }: DrawerContentProps) {
+  // State data formulir
   const [namaKategori, setNamaKategori] = useState(
     mode === "edit" && record ? record.namaKategori : ""
   );
@@ -62,6 +91,9 @@ function KategoriDrawerContent({
     mode === "edit" && record?.imageUrl ? record.imageUrl : SAMPLE_PHOTO_PRESETS[0]
   );
 
+  /**
+   * Validasi dan pengiriman formulir kategori material.
+   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!namaKategori.trim() || !hargaBeliPerKg || !poinRewardPerKg) return;
@@ -92,7 +124,7 @@ function KategoriDrawerContent({
 
   return (
     <div className="relative w-full max-w-lg bg-white h-full shadow-2xl flex flex-col justify-between z-10 animate-in slide-in-from-right duration-250">
-      {/* Header */}
+      {/* Header Drawer */}
       <div className="p-6 border-b border-gray-200 flex items-start justify-between bg-white sticky top-0 z-10">
         <div>
           <h2 className="font-extrabold text-xl text-text-primary tracking-tight">
@@ -109,13 +141,14 @@ function KategoriDrawerContent({
           className="p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-text-primary transition-colors cursor-pointer"
           aria-label="Tutup form drawer"
         >
-          <X className="w-5 h-5" />
+          <X className="w-5 h-5" aria-hidden="true" />
         </button>
       </div>
 
-      {/* Scrollable Form Body */}
+      {/* Badan Formulir yang Dapat Digulir (Scrollable Form Body) */}
       <form id="kategori-form" onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto flex-1">
-        {/* Photo Upload / Preset Zone */}
+        
+        {/* Pratinjau & Pemilihan Foto Material */}
         <div>
           <label className="block text-xs font-bold text-text-primary uppercase tracking-wider mb-2">
             FOTO CONTOH MATERIAL
@@ -125,7 +158,7 @@ function KategoriDrawerContent({
               <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-gray-200 border border-gray-300 shrink-0">
                 <Image
                   src={imageUrl}
-                  alt="Preview Material"
+                  alt="Preview Material Sampah"
                   fill
                   className="object-cover"
                 />
@@ -139,14 +172,14 @@ function KategoriDrawerContent({
                 </p>
                 <div className="mt-2 flex items-center gap-2">
                   <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                    <Upload className="w-3 h-3" />
+                    <Upload className="w-3 h-3" aria-hidden="true" />
                     Pilih File Foto
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Presets Row */}
+            {/* Opsi Cepat Pilihan Preset Foto */}
             <div>
               <span className="text-[10px] text-gray-400 uppercase font-semibold block mb-1.5">
                 Atau pilih contoh foto material:
@@ -162,6 +195,7 @@ function KategoriDrawerContent({
                         ? "border-brand-neon ring-2 ring-brand-neon/40 scale-105"
                         : "border-gray-200 opacity-60 hover:opacity-100"
                     }`}
+                    aria-label={`Pilih preset foto ${idx + 1}`}
                   >
                     <Image
                       src={pUrl}
@@ -176,12 +210,16 @@ function KategoriDrawerContent({
           </div>
         </div>
 
-        {/* Nama Spesifik Kategori */}
+        {/* Input Nama Spesifik Kategori */}
         <div>
-          <label className="block text-xs font-bold text-text-primary uppercase tracking-wider mb-1.5">
+          <label 
+            htmlFor="nama-kategori-input"
+            className="block text-xs font-bold text-text-primary uppercase tracking-wider mb-1.5"
+          >
             NAMA SPESIFIK KATEGORI <span className="text-red-500">*</span>
           </label>
           <input
+            id="nama-kategori-input"
             type="text"
             required
             value={namaKategori}
@@ -191,13 +229,17 @@ function KategoriDrawerContent({
           />
         </div>
 
-        {/* 2-Columns: Jenis Sampah & Satuan */}
+        {/* Pilihan 2-Kolom: Jenis Sampah & Satuan */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-bold text-text-primary uppercase tracking-wider mb-1.5">
+            <label 
+              htmlFor="pilihan-jenis-sampah"
+              className="block text-xs font-bold text-text-primary uppercase tracking-wider mb-1.5"
+            >
               PILIHAN JENIS SAMPAH <span className="text-red-500">*</span>
             </label>
             <select
+              id="pilihan-jenis-sampah"
               value={jenisSampah}
               onChange={(e) => setJenisSampah(e.target.value as JenisSampah)}
               className="w-full h-11 px-3 rounded-xl border border-gray-200 bg-inset-gray text-sm text-text-primary focus:outline-none focus:border-brand-neon focus:bg-white focus:ring-2 focus:ring-brand-neon/30 transition-all cursor-pointer"
@@ -222,10 +264,13 @@ function KategoriDrawerContent({
           </div>
         </div>
 
-        {/* 2-Columns: Harga Beli Tunai & Nilai Poin */}
+        {/* 2-Kolom: Harga Beli Tunai & Nilai Poin Kompensasi */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-bold text-text-primary uppercase tracking-wider mb-1.5">
+            <label 
+              htmlFor="harga-beli-per-kg-input"
+              className="block text-xs font-bold text-text-primary uppercase tracking-wider mb-1.5"
+            >
               HARGA BELI PER KG (RP) <span className="text-red-500">*</span>
             </label>
             <div className="relative">
@@ -233,6 +278,7 @@ function KategoriDrawerContent({
                 Rp
               </span>
               <input
+                id="harga-beli-per-kg-input"
                 type="number"
                 required
                 min={0}
@@ -245,11 +291,15 @@ function KategoriDrawerContent({
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-text-primary uppercase tracking-wider mb-1.5">
+            <label 
+              htmlFor="poin-reward-per-kg-input"
+              className="block text-xs font-bold text-text-primary uppercase tracking-wider mb-1.5"
+            >
               NILAI POIN PER KG <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <input
+                id="poin-reward-per-kg-input"
                 type="number"
                 required
                 min={0}
@@ -265,12 +315,16 @@ function KategoriDrawerContent({
           </div>
         </div>
 
-        {/* Deskripsi & Standar Kebersihan 3R */}
+        {/* Deskripsi Standar Mutu 3R */}
         <div>
-          <label className="block text-xs font-bold text-text-primary uppercase tracking-wider mb-1.5">
+          <label 
+            htmlFor="deskripsi-kategori-textarea"
+            className="block text-xs font-bold text-text-primary uppercase tracking-wider mb-1.5"
+          >
             DESKRIPSI &amp; STANDAR KEBERSIHAN 3R <span className="text-red-500">*</span>
           </label>
           <textarea
+            id="deskripsi-kategori-textarea"
             required
             rows={3}
             value={deskripsi}
@@ -281,7 +335,7 @@ function KategoriDrawerContent({
         </div>
       </form>
 
-      {/* Footer CTA Actions */}
+      {/* Footer Drawer: Tombol Aksi Simpan & Batal */}
       <div className="p-6 border-t border-gray-200 bg-[#FAFBF9] flex flex-col gap-2">
         <button
           type="submit"
@@ -289,7 +343,7 @@ function KategoriDrawerContent({
           disabled={isSubmitting}
           className="w-full bg-brand-neon hover:bg-brand-neon-hover text-text-primary font-bold text-xs sm:text-sm py-3.5 rounded-full flex items-center justify-center gap-2 shadow-xs transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60 cursor-pointer"
         >
-          <Check className="w-4 h-4 stroke-[2.5]" />
+          <Check className="w-4 h-4 stroke-[2.5]" aria-hidden="true" />
           <span>{isSubmitting ? "Menyimpan Master..." : "Simpan Master Kategori"}</span>
         </button>
 
@@ -305,6 +359,9 @@ function KategoriDrawerContent({
   );
 }
 
+/**
+ * Komponen KategoriDrawerModal
+ */
 export default function KategoriDrawerModal({
   isOpen,
   mode,
@@ -316,14 +373,14 @@ export default function KategoriDrawerModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end">
-      {/* Backdrop */}
+    <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-modal="true">
+      {/* Backdrop Gelap Transparan */}
       <div
         className="fixed inset-0 bg-dark-container/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
         onClick={onClose}
       />
 
-      {/* Drawer Content */}
+      {/* Konten Laci Geser */}
       <KategoriDrawerContent
         key={record ? record.id : "new-kategori"}
         mode={mode}

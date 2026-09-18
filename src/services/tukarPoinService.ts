@@ -1,3 +1,25 @@
+/**
+ * ============================================================================
+ * Service: Tukar Poin Service
+ * Direktori: src/services/tukarPoinService.ts
+ *
+ * Fungsi Utama:
+ * Lapisan layanan (Service Layer) untuk mengelola seluruh data katalog hadiah,
+ * sinkronisasi saldo poin nasabah, dan pemrosesan transaksi penukaran poin reward.
+ *
+ * Fitur & Tanggung Jawab:
+ * 1. `DEFAULT_HADIAH_ITEMS`: Kumpulan data cadangan (Offline Fallback / Initial Seed)
+ *    berisi 12 varian hadiah terverifikasi (Sembako, E-Wallet, Pulsa, Token PLN, Donasi, dsb).
+ * 2. `mapHadiah`: Adapter pattern yang menormalisasi dan menginferensi kategori barang
+ *    dari nama hadiah jika backend API hanya mengirim atribut dasar.
+ * 3. `getHadiahList`: Mengambil katalog hadiah aktif dari endpoint backend `/hadiah`
+ *    dengan fallback otomatis ke data default jika server offline.
+ * 4. `getSaldoNasabah`: Mengambil saldo poin aktif dan akumulasi setoran sampah nasabah.
+ * 5. `tukarPoinHadiah`: Mengirimkan transaksi penukaran poin (`POST /penukaran/tukar`).
+ * 6. `getMyPenukaran` & `getNotaPenukaran`: Mengambil riwayat klaim hadiah dan nota digital.
+ * ============================================================================
+ */
+
 import {
   HadiahItem,
   TukarPoinPayload,
@@ -7,11 +29,10 @@ import {
 import { apiRequest, getToken } from "@/lib/api/client";
 import { HADIAH, PENUKARAN, DASHBOARD } from "@/lib/api/endpoints";
 
-// ─── Service Functions ────────────────────────────────────────────────────────
-
-// Backend hadiah field: { id, namaHadiah, poinDibutuhkan, stok, foto, ... }.
-// Frontend HadiahItem butuh { kategori, deskripsi, imageUrl, satuan, ... }.
-// Map + infer kategori dari nama (backend tak kirim kategori/deskripsi/satuan).
+/**
+ * Master Data Fallback Hadiah (Default Catalog Items):
+ * Digunakan sebagai seeding awal antarmuka dan fallback jika koneksi backend terkendala.
+ */
 export const DEFAULT_HADIAH_ITEMS: HadiahItem[] = [
   {
     id: "hd-beras-5kg",
@@ -175,6 +196,11 @@ export const DEFAULT_HADIAH_ITEMS: HadiahItem[] = [
   },
 ];
 
+/**
+ * Adapter Normalizer (mapHadiah):
+ * Mengubah objek mentah dari backend API menjadi interface `HadiahItem` yang lengkap.
+ * Menganalisis kata kunci nama produk untuk menginferensi kategori tab yang sesuai.
+ */
 function mapHadiah(raw: any): HadiahItem {
   const nama = (raw.namaHadiah || "").toLowerCase();
   let kategori: HadiahItem["kategori"] = "merchandise";
@@ -202,6 +228,11 @@ function mapHadiah(raw: any): HadiahItem {
   };
 }
 
+/**
+ * Mengambil Daftar Hadiah Katalog dari API:
+ * Melakukan pemanggilan ke endpoint `/hadiah`. Jika terjadi kegagalan jaringan,
+ * otomatis mengembalikan `DEFAULT_HADIAH_ITEMS`.
+ */
 export async function getHadiahList(): Promise<HadiahItem[]> {
   try {
     const data = await apiRequest<any[]>(HADIAH.LIST);
@@ -212,6 +243,10 @@ export async function getHadiahList(): Promise<HadiahItem[]> {
   }
 }
 
+/**
+ * Mengambil Ringkasan Saldo dan Metrik Nasabah:
+ * Mengakses endpoint ringkasan nasabah `/dashboard/summary` dengan token JWT aktif.
+ */
 export async function getSaldoNasabah(): Promise<SaldoNasabahSummary | null> {
   try {
     const token = getToken();
@@ -233,6 +268,11 @@ export async function getSaldoNasabah(): Promise<SaldoNasabahSummary | null> {
   }
 }
 
+/**
+ * Mengirim Permintaan Penukaran Poin Hadiah ke Server:
+ * @param payload Berisi `hadiahId` yang akan ditukarkan
+ * @returns Respons nota penukaran resmi beserta sisa saldo poin
+ */
 export async function tukarPoinHadiah(
   payload: TukarPoinPayload
 ): Promise<TukarPoinResponse> {
@@ -257,6 +297,9 @@ export async function tukarPoinHadiah(
   throw new Error("Gagal memproses penukaran poin. Coba lagi.");
 }
 
+/**
+ * Mengambil Riwayat Seluruh Transaksi Penukaran Poin Nasabah
+ */
 export async function getMyPenukaran() {
   try {
     return await apiRequest(PENUKARAN.MY_PENUKARAN);
@@ -265,6 +308,9 @@ export async function getMyPenukaran() {
   }
 }
 
+/**
+ * Mengambil Nota Digital Spesifik Berdasarkan ID Penukaran
+ */
 export async function getNotaPenukaran(id: string) {
   try {
     return await apiRequest(PENUKARAN.NOTA(id));

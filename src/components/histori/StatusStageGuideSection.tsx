@@ -1,8 +1,25 @@
+/**
+ * @file StatusStageGuideSection.tsx
+ * @description Komponen bagian edukasi alur 4 tahap status penyetoran sampah pada halaman riwayat.
+ * Menjelaskan arti dari masing-masing siklus hidup transaksi:
+ * 1. Menunggu Konfirmasi: Menunggu penyerahan fisik sampah ke unit Circula.
+ * 2. Diverifikasi: Sampah sedang ditimbang menggunakan timbangan tera digital oleh petugas.
+ * 3. Selesai: Timbangan disepakati dan poin langsung dikreditkan ke saldo nasabah.
+ * 4. Ditolak: Sampah tidak memenuhi kriteria kebersihan atau tercampur limbah B3/residu.
+ * 
+ * Peran dalam UKK:
+ * - Menjelaskan State Lifecycle transaksi bank sampah secara transparan kepada penguji.
+ * - Menggunakan split grid 2 kolom dengan citra kalibrasi timbangan tera standar Metrologi Nasional.
+ */
+
 import React from "react";
-import Image from "next/image";
-import { Check } from "lucide-react";
+import Image from "next/image"; // Komponen gambar Next.js
+import { Check } from "lucide-react"; // Ikon centang tebal
 
 export default function StatusStageGuideSection() {
+  /**
+   * Data konfigurasi 4 tahapan status transaksi penyetoran.
+   */
   const stages = [
     {
       num: "1",
@@ -28,8 +45,10 @@ export default function StatusStageGuideSection() {
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 my-10">
+      {/* Grid 2 Kolom Seimbang: Sisi Kiri Penjelasan Status, Sisi Kanan Foto Timbangan Industri */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-        {/* Left Column: Dark Stage Guide Card */}
+        
+        {/* ─── Kolom Kiri: Kartu Panduan 4 Tahap Status ─── */}
         <div className="bg-[#111315] rounded-3xl p-6 sm:p-8 md:p-10 text-white border border-white/10 flex flex-col justify-between shadow-xl">
           <div>
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white tracking-tight leading-snug">
@@ -39,9 +58,11 @@ export default function StatusStageGuideSection() {
               Pastikan sampah Anda melewati seluruh tahapan untuk pencairan poin.
             </p>
 
+            {/* Render List Tahapan (Mapping stages array) */}
             <div className="mt-7 space-y-4">
               {stages.map((stage) => (
                 <div key={stage.num} className="flex items-start gap-3.5">
+                  {/* Badge Bulat Centang Hijau Neon */}
                   <div className="w-5 h-5 rounded-full bg-[#CEF241] text-[#111315] flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
                     <Check className="w-3.5 h-3.5 text-[#111315] stroke-3" />
                   </div>
@@ -59,8 +80,9 @@ export default function StatusStageGuideSection() {
           </div>
         </div>
 
-        {/* Right Column: Industrial Scale & Conveyor Inspection Photography */}
+        {/* ─── Kolom Kanan: Foto Showcase Timbangan Tera Digital ─── */}
         <div className="relative rounded-3xl overflow-hidden border border-gray-200/80 shadow-xl min-h-95 flex flex-col justify-between p-6 sm:p-8 bg-[#181B1E]">
+          {/* Foto Alat Timbang Tera Berstandar Metrologi */}
           <Image
             src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80"
             alt="Timbangan Industri Tera Digital Berkalibrasi"
@@ -68,9 +90,10 @@ export default function StatusStageGuideSection() {
             sizes="(max-width: 1024px) 100vw, 50vw"
             className="object-cover z-0"
           />
+          {/* Lapisan Gradient Bawah */}
           <div className="absolute inset-0 bg-linear-to-t from-[#111315] via-[#111315]/40 to-transparent z-1" />
 
-          {/* Bottom Docked Direct Text Overlay */}
+          {/* Teks Informasi Akurasi Timbangan di Bawah Kartu */}
           <div className="relative z-10 text-white mt-auto pt-8">
             <h4 className="text-base sm:text-lg font-bold text-white tracking-tight">
               Timbangan Transparan &amp; Akurat
@@ -81,6 +104,7 @@ export default function StatusStageGuideSection() {
             </p>
           </div>
         </div>
+
       </div>
     </section>
   );

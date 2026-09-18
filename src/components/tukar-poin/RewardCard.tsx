@@ -1,5 +1,29 @@
 "use client";
 
+/**
+ * ============================================================================
+ * Komponen: RewardCard
+ * Direktori: src/components/tukar-poin/RewardCard.tsx
+ *
+ * Fungsi Utama:
+ * Merender kartu produk individu dalam kisi (grid) katalog hadiah.
+ * Fitur & Komponen Tampilan:
+ * 1. Visual Produk: Gambar rasio 16:10 dengan penanganan error fallback (`onError`).
+ * 2. Dynamic Promotional Badge: Label sorotan seperti "TERLARIS", "FAVORIT", "INSTANT DIGITAL".
+ * 3. Category Pill: Penanda kategori produk (Sembako, E-Wallet, Pulsa/Data, Eco, Donasi)
+ *    dilengkapi ikon yang sesuai.
+ * 4. Poin & Ekuivalen Rupiah: Nilai harga poin produk dan ekuivalen nilai kasnya.
+ * 5. Informasi Lokasi/Stok: Indikator ketersediaan stok fisik di loket atau pengiriman via WhatsApp.
+ * 6. Tombol Interaktif Penukaran:
+ *    - Mode Donasi: Tombol hitam "Donasikan Poin" dengan ikon panah neon.
+ *    - Mode Produk/Voucher: Tombol neon "Tukar Sekarang" (atau status "Stok Habis" jika kuota 0).
+ *
+ * Konsep Teknis & Animasi:
+ * - Hover Micro-interactions: Efek bayangan membesar, terangkat ke atas (`hover:-translate-y-1`),
+ *   dan zoom halus pada gambar produk (`group-hover:scale-105`).
+ * ============================================================================
+ */
+
 import React, { useState } from "react";
 import Image from "next/image";
 import {
@@ -15,10 +39,18 @@ import {
 } from "lucide-react";
 import { HadiahItem } from "@/types/tukarPoin";
 
+/**
+ * Interface RewardCardProps:
+ * Kontrak properti untuk satu kartu produk hadiah.
+ */
 interface RewardCardProps {
+  /** Objek data produk hadiah lengkap */
   item: HadiahItem;
+  /** Status apakah saldo poin nasabah mencukupi */
   isSufficient: boolean;
+  /** Selisih kekurangan poin nasabah (0 jika cukup) */
   kekurangan: number;
+  /** Callback saat tombol penukaran ditekan */
   onRedeem: (item: HadiahItem) => void;
 }
 
@@ -28,12 +60,14 @@ export default function RewardCard({
   kekurangan,
   onRedeem,
 }: RewardCardProps) {
+  // State penanda jika gambar gagal dimuat dari server eksternal
   const [imgError, setImgError] = useState(false);
 
+  // Penanda tipe item (donasi sosial atau barang fisik/digital)
   const isDonasi = item.isDonasi || item.kategori === "donasi" || item.namaHadiah.toLowerCase().includes("donasi");
   const isOutOfStock = item.stok <= 0;
 
-  // Category label & icon
+  // Penentuan label kategori dan teks fallback
   const catLabel = item.categoryLabel || (
     item.kategori === "sembako" ? "Sembako" :
     item.kategori === "voucher" ? "E-Wallet" :
@@ -41,6 +75,7 @@ export default function RewardCard({
     isDonasi ? "Donasi" : "Eco"
   );
 
+  // Format teks ekuivalen nominal Rupiah
   const rupiahText = item.nilaiRupiahText || (
     isDonasi ? "Penyaluran Terbuka" :
     item.kategori === "voucher" || item.kategori === "pulsa"
@@ -48,6 +83,7 @@ export default function RewardCard({
       : `Setara Rp ${(item.poinDibutuhkan * 350).toLocaleString("id-ID")}`
   );
 
+  // Keterangan lokasi loket atau kanal pemenuhan hadiah
   const locationText = item.lokasiInfo || (
     isDonasi ? "Penyaluran via Komunitas Warga (RT/RW Binaan)" :
     item.kategori === "voucher" || item.kategori === "pulsa"
@@ -58,9 +94,11 @@ export default function RewardCard({
   return (
     <div className="bg-white border border-gray-200/80 rounded-3xl p-5 flex flex-col justify-between hover:border-gray-300 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
       <div>
-        {/* Top Image Container */}
+        {/* ===================================================================== */}
+        {/* CONTAINER VISUAL GAMBAR PRODUK (Rasio 16:10)                           */}
+        {/* ===================================================================== */}
         <div className="relative rounded-2xl overflow-hidden aspect-16/10 bg-[#F4F5F4] flex items-center justify-center mb-4">
-          {/* Badge: Top-Left */}
+          {/* Badge Promosi: Kiri Atas (TERLARIS / FAVORIT / INSTANT DIGITAL) */}
           {item.badge && (
             <div className="absolute top-3 left-3 z-10">
               <span
@@ -77,7 +115,7 @@ export default function RewardCard({
             </div>
           )}
 
-          {/* Category Pill: Bottom-Right */}
+          {/* Pill Kategori: Kanan Bawah */}
           <div className="absolute bottom-3 right-3 z-10">
             <span className="bg-black/75 text-white text-[11px] font-bold px-2.5 py-1 rounded-full backdrop-blur-xs flex items-center gap-1.5 shadow-xs">
               {isDonasi ? (
@@ -93,7 +131,7 @@ export default function RewardCard({
             </span>
           </div>
 
-          {/* Product Visual */}
+          {/* Visual Gambar Produk atau Ilustrasi Fallback */}
           {isDonasi && !item.imageUrl ? (
             <div className="flex flex-col items-center justify-center p-6 text-center">
               <div className="w-12 h-12 rounded-full bg-white text-emerald-600 flex items-center justify-center shadow-xs mb-2">
@@ -130,7 +168,9 @@ export default function RewardCard({
           )}
         </div>
 
-        {/* Metadata Row: Points & Setara Rupiah */}
+        {/* ===================================================================== */}
+        {/* BARIS HARGA POIN & NILAI SETARA RUPIAH                                */}
+        {/* ===================================================================== */}
         <div className="flex items-center justify-between gap-2 pt-0.5">
           <div className="flex items-center gap-1 text-xs font-black text-[#111827]">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 fill-emerald-100" />
@@ -141,12 +181,12 @@ export default function RewardCard({
           </span>
         </div>
 
-        {/* Product Title */}
+        {/* Nama Produk Hadiah */}
         <h3 className="font-bold text-base text-[#111827] mt-1.5 line-clamp-1 leading-snug">
           {item.namaHadiah}
         </h3>
 
-        {/* Stock / Fulfillment / Location Subtitle */}
+        {/* Keterangan Kanal Penyerahan / Loket Pengambilan */}
         <div className="flex items-center gap-1.5 text-xs text-gray-500 mt-1 line-clamp-1">
           {isDonasi ? (
             <Heart className="w-3.5 h-3.5 text-gray-400 shrink-0" />
@@ -159,9 +199,12 @@ export default function RewardCard({
         </div>
       </div>
 
-      {/* Action CTA Button */}
+      {/* ===================================================================== */}
+      {/* TOMBOL AKSI PENUKARAN (Redeem CTA)                                    */}
+      {/* ===================================================================== */}
       <div className="pt-4">
         {isDonasi ? (
+          /* Tombol Khusus Program Donasi */
           <button
             type="button"
             onClick={() => onRedeem(item)}
@@ -173,6 +216,7 @@ export default function RewardCard({
             </div>
           </button>
         ) : (
+          /* Tombol Penukaran Produk / Voucher Reguler */
           <button
             type="button"
             onClick={() => onRedeem(item)}

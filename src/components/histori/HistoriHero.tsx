@@ -1,3 +1,26 @@
+/**
+ * ============================================================================
+ * Komponen: HistoriHero
+ * Direktori: src/components/histori/HistoriHero.tsx
+ *
+ * Fungsi Utama:
+ * Header representasional (Hero Section) untuk halaman Status & Riwayat Penyetoran.
+ * Menampilkan:
+ * 1. Visual latar belakang fasilitas sortir modern (Unsplash image) dengan overlay gradasi gelap.
+ * 2. Judul utama dan deskripsi pemantauan verifikasi timbangan dan perolehan poin.
+ * 3. Tiga pilar layanan (Hero Deck):
+ *    - Verifikasi Cepat (1x24 jam kerja)
+ *    - Poin Masuk Instan (real-time saat status Selesai)
+ *    - Nota Digital Sah (STR-XXXX yang dapat diunduh/dicetak)
+ *
+ * Karakteristik Teknis:
+ * - Server Component / Static Representation: Komponen ini stateless murni tanpa hook,
+ *   sangat ringan dan teroptimasi untuk performa rendering awal.
+ * - Next.js Image Optimization: Menggunakan properti `priority`, `fill`, dan `sizes="100vw"`
+ *   untuk meminimalisir LCP (Largest Contentful Paint).
+ * ============================================================================
+ */
+
 import React from "react";
 import Image from "next/image";
 import { Clock, CheckCircle2, FileText } from "lucide-react";
@@ -6,7 +29,9 @@ export default function HistoriHero() {
   return (
     <section className="px-4 sm:px-6 pt-4 sm:pt-6">
       <div className="max-w-7xl mx-auto rounded-3xl bg-[#111315] overflow-hidden text-white relative border border-white/10 shadow-2xl p-6 sm:p-10 md:p-12">
-        {/* Background sorting line photography overlay */}
+        {/* ========================================================================= */}
+        {/* LATAR BELAKANG FOTOGRAFI FASILITAS PEMILAHAN DIGITAL DENGAN GRADIENT DARK */}
+        {/* ========================================================================= */}
         <div className="absolute inset-0 z-0">
           <Image
             src="https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=2000&q=80"
@@ -16,11 +41,14 @@ export default function HistoriHero() {
             sizes="100vw"
             className="object-cover object-center opacity-35 scale-105"
           />
+          {/* Lapisan gradasi horizontal dan vertikal agar teks di atasnya mudah dibaca */}
           <div className="absolute inset-0 bg-linear-to-r from-[#111315] via-[#111315]/85 to-[#111315]/70" />
           <div className="absolute inset-0 bg-linear-to-t from-[#111315] via-transparent to-[#111315]/50" />
         </div>
 
-        {/* Content */}
+        {/* ========================================================================= */}
+        {/* JUDUL DAN DESKRIPSI UTAMA HALAMAN RIWAYAT PENYETORAN                      */}
+        {/* ========================================================================= */}
         <div className="relative z-10 max-w-3xl">
           <h1 className="text-3xl sm:text-4xl lg:text-[40px] font-bold text-white tracking-tight leading-tight">
             Status &amp; Verifikasi Penyetoran Sampah
@@ -32,9 +60,11 @@ export default function HistoriHero() {
           </p>
         </div>
 
-        {/* Floating Hero Deck (3 docked status cards) */}
+        {/* ========================================================================= */}
+        {/* FLOATING HERO DECK: 3 KARTU DOCK PENJELAS KEUNGGULAN PROSES               */}
+        {/* ========================================================================= */}
         <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 pt-6 border-t border-white/10">
-          {/* Deck 1 */}
+          {/* Pilar 1: Verifikasi Cepat */}
           <div className="bg-[#181B1E]/80 rounded-2xl p-4 sm:p-5 border border-white/10 backdrop-blur-sm flex items-start gap-3.5 hover:border-[#CEF241]/40 transition-all group">
             <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 text-[#CEF241] flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-105 transition-transform">
               <Clock className="w-4 h-4 text-[#CEF241]" />
@@ -49,7 +79,7 @@ export default function HistoriHero() {
             </div>
           </div>
 
-          {/* Deck 2 */}
+          {/* Pilar 2: Poin Masuk Instan */}
           <div className="bg-[#181B1E]/80 rounded-2xl p-4 sm:p-5 border border-white/10 backdrop-blur-sm flex items-start gap-3.5 hover:border-[#CEF241]/40 transition-all group">
             <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 text-[#CEF241] flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-105 transition-transform">
               <CheckCircle2 className="w-4 h-4 text-[#CEF241]" />
@@ -64,7 +94,7 @@ export default function HistoriHero() {
             </div>
           </div>
 
-          {/* Deck 3 */}
+          {/* Pilar 3: Nota Digital Sah */}
           <div className="bg-[#181B1E]/80 rounded-2xl p-4 sm:p-5 border border-white/10 backdrop-blur-sm flex items-start gap-3.5 hover:border-[#CEF241]/40 transition-all group">
             <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 text-[#CEF241] flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-105 transition-transform">
               <FileText className="w-4 h-4 text-[#CEF241]" />

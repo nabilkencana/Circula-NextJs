@@ -1,3 +1,18 @@
+/**
+ * @file QuickVerifyModal.tsx
+ * @description Modal dialog verifikasi timbangan penyetoran cepat (Quick-Verify Modal) pada admin Circula.
+ * Berfungsi sebagai antarmuka operasional petugas loket untuk:
+ * 1. Memilih status hasil pemeriksaan fisik:
+ *    - `Selesai`: Otomatis menghitung dan mengkreditkan poin ke saldo rekening nasabah.
+ *    - `Diverifikasi`: Menyimpan catatan timbangan aktual tanpa langsung menutup tiket.
+ *    - `Ditolak`: Membatalkan pengajuan bila material tidak sesuai regulasi 3R (wajib catatan).
+ * 2. Mengisi input berat aktual riil (kg) per kategori material sampah terpilah.
+ * 3. Menghitung akumulasi bobot dan perolehan poin secara otomatis secara real-time.
+ * 4. Menyediakan pintasan catatan cepat (Quick Notes Pills) untuk efisiensi entri data.
+ * 
+ * @module Components/AdminTransaksi/QuickVerifyModal
+ */
+
 "use client";
 
 import React, { useState } from "react";
@@ -9,6 +24,16 @@ import {
   VerifySetorPayload,
 } from "@/types/adminTransaksi";
 
+/**
+ * Properti untuk komponen QuickVerifyModal
+ * 
+ * @interface QuickVerifyModalProps
+ * @property {boolean} isOpen - Status keterbukaan jendela dialog modal.
+ * @property {TransaksiSetorAdminRecord | null} record - Data transaksi yang sedang diverifikasi.
+ * @property {boolean} isSubmitting - Status proses pengiriman data ke server backend.
+ * @property {() => void} onClose - Callback untuk menutup modal.
+ * @property {(payload: VerifySetorPayload, updatedItems: SampahItemRincian[], totalBerat: number, totalPoin: number) => void} onConfirm - Callback saat form berhasil disubmit.
+ */
 interface QuickVerifyModalProps {
   isOpen: boolean;
   record: TransaksiSetorAdminRecord | null;
@@ -22,6 +47,9 @@ interface QuickVerifyModalProps {
   ) => void;
 }
 
+/**
+ * Komponen QuickVerifyModal (Pembungkus State Kunci)
+ */
 export default function QuickVerifyModal({
   isOpen,
   record,
@@ -42,6 +70,9 @@ export default function QuickVerifyModal({
   );
 }
 
+/**
+ * Form Internal Modal Verifikasi Timbangan
+ */
 function QuickVerifyModalForm({
   record,
   isSubmitting,
@@ -58,14 +89,20 @@ function QuickVerifyModalForm({
     totalPoin: number
   ) => void;
 }) {
+  // State pilihan status verifikasi (default: selesai)
   const [status, setStatus] = useState<StatusSetor>("selesai");
+  // Catatan petugas loket
   const [catatanAdmin, setCatatanAdmin] = useState(
     record.catatanPetugas || "Berat sampah sesuai hasil timbangan real petugas."
   );
+  // Daftar item material dengan nilai bobot yang dapat diedit
   const [items, setItems] = useState<SampahItemRincian[]>(() =>
     record.rincianSampah.map((item) => ({ ...item, isReal: true }))
   );
 
+  /**
+   * Handler perubahan input bobot kilogram per item material.
+   */
   const handleWeightChange = (index: number, valStr: string) => {
     const val = parseFloat(valStr) || 0;
     setItems((prev) => {
@@ -75,21 +112,23 @@ function QuickVerifyModalForm({
     });
   };
 
-  // Calculate total weight and poin
+  // Kalkulasi total berat keseluruhan (kg)
   const totalBerat = parseFloat(
     items.reduce((acc, curr) => acc + curr.berat, 0).toFixed(1)
   );
 
-  // Calculate points based on individual item poinPerKg if available, or proportion
-  const calculatedPoints = items.reduce((acc, curr, idx) => {
+  // Kalkulasi poin berdasarkan bobot aktual dikali tarif poin per kg kategori
+  const calculatedPoints = items.reduce((acc, curr) => {
     const rate =
       curr.poinPerKg ||
       (record.totalBerat > 0 ? record.totalPoin / record.totalBerat : 10);
     return acc + Math.round(curr.berat * rate);
   }, 0);
 
+  // Jika status ditolak, poin yang disalurkan adalah 0
   const totalPoin = status === "ditolak" ? 0 : calculatedPoints;
 
+  // Daftar opsi catatan cepat untuk mempermudah petugas loket
   const quickNotes = [
     "Sesuai timbangan riil",
     "Kondisi bersih & terpilah",
@@ -97,6 +136,9 @@ function QuickVerifyModalForm({
     "Tidak memenuhi syarat daur ulang",
   ];
 
+  /**
+   * Menempelkan teks catatan cepat ke kolom catatan petugas.
+   */
   const applyQuickNote = (note: string) => {
     if (!catatanAdmin || catatanAdmin === "Berat sampah sesuai hasil timbangan real petugas.") {
       setCatatanAdmin(note);
@@ -105,6 +147,9 @@ function QuickVerifyModalForm({
     }
   };
 
+  /**
+   * Validasi dan pengiriman formulir verifikasi.
+   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (status !== "ditolak" && totalBerat <= 0) {
@@ -131,15 +176,26 @@ function QuickVerifyModalForm({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity duration-200">
-      <div className="bg-white rounded-3xl max-w-lg w-full border border-gray-200 shadow-2xl overflow-hidden animate-modal-enter max-h-[92vh] flex flex-col">
-        {/* Header */}
+      <div 
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="quick-verify-modal-title"
+        className="bg-white rounded-3xl max-w-lg w-full border border-gray-200 shadow-2xl overflow-hidden animate-modal-enter max-h-[92vh] flex flex-col"
+      >
+        
+        {/* ===================================================================== */}
+        {/* HEADER MODAL VERIFIKASI                                               */}
+        {/* ===================================================================== */}
         <div className="px-6 py-5 border-b border-gray-200 flex items-center justify-between bg-inset-gray shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-brand-neon flex items-center justify-center shadow-xs">
-              <Scale className="w-5 h-5 text-text-primary" />
+              <Scale className="w-5 h-5 text-text-primary" aria-hidden="true" />
             </div>
             <div>
-              <h3 className="font-bold text-sm sm:text-base text-text-primary">
+              <h3 
+                id="quick-verify-modal-title"
+                className="font-bold text-sm sm:text-base text-text-primary"
+              >
                 Verifikasi Timbangan Penyetoran
               </h3>
               <p className="text-xs text-text-secondary">
@@ -151,19 +207,24 @@ function QuickVerifyModalForm({
             type="button"
             onClick={onClose}
             className="p-1.5 rounded-full hover:bg-gray-200 text-gray-500 transition-colors cursor-pointer"
+            aria-label="Tutup jendela modal"
           >
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
 
-        {/* Form Body - Scrollable */}
+        {/* ===================================================================== */}
+        {/* BADAN FORMULIR: PILIHAN STATUS, ENTRI TIMBANGAN & CATATAN              */}
+        {/* ===================================================================== */}
         <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto flex-1">
-          {/* Status Chooser Tabs */}
+          
+          {/* Pilihan 3 Status Hasil Timbangan */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">
               Status Verifikasi Hasil Timbangan
             </label>
             <div className="grid grid-cols-3 gap-2">
+              {/* Opsi 1: Selesai */}
               <button
                 type="button"
                 onClick={() => setStatus("selesai")}
@@ -173,11 +234,12 @@ function QuickVerifyModalForm({
                     : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
                 }`}
               >
-                <CheckCircle2 className={`w-4 h-4 mb-1 ${status === "selesai" ? "text-emerald-600" : "text-gray-400"}`} />
+                <CheckCircle2 className={`w-4 h-4 mb-1 ${status === "selesai" ? "text-emerald-600" : "text-gray-400"}`} aria-hidden="true" />
                 <span>Selesai</span>
                 <span className="text-[10px] font-normal opacity-80 mt-0.5">Kredit Poin</span>
               </button>
 
+              {/* Opsi 2: Diverifikasi */}
               <button
                 type="button"
                 onClick={() => setStatus("diverifikasi")}
@@ -187,11 +249,12 @@ function QuickVerifyModalForm({
                     : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
                 }`}
               >
-                <Clock className={`w-4 h-4 mb-1 ${status === "diverifikasi" ? "text-blue-600" : "text-gray-400"}`} />
+                <Clock className={`w-4 h-4 mb-1 ${status === "diverifikasi" ? "text-blue-600" : "text-gray-400"}`} aria-hidden="true" />
                 <span>Diverifikasi</span>
                 <span className="text-[10px] font-normal opacity-80 mt-0.5">Timbang Saja</span>
               </button>
 
+              {/* Opsi 3: Ditolak */}
               <button
                 type="button"
                 onClick={() => setStatus("ditolak")}
@@ -201,16 +264,17 @@ function QuickVerifyModalForm({
                     : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
                 }`}
               >
-                <XCircle className={`w-4 h-4 mb-1 ${status === "ditolak" ? "text-red-600" : "text-gray-400"}`} />
+                <XCircle className={`w-4 h-4 mb-1 ${status === "ditolak" ? "text-red-600" : "text-gray-400"}`} aria-hidden="true" />
                 <span>Ditolak</span>
                 <span className="text-[10px] font-normal opacity-80 mt-0.5">Batal Setor</span>
               </button>
             </div>
           </div>
 
+          {/* Kotak Peringatan Kontekstual Berdasarkan Status */}
           {status === "ditolak" ? (
             <div className="bg-red-50 border border-red-200 rounded-xl p-3.5 flex items-start gap-2.5 text-xs text-red-900">
-              <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" aria-hidden="true" />
               <p>
                 Status ditolak akan membatalkan penyetoran. Poin tidak akan disalurkan ke nasabah.
                 Mohon cantumkan alasan penolakan pada catatan petugas di bawah.
@@ -218,7 +282,7 @@ function QuickVerifyModalForm({
             </div>
           ) : (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5 flex items-start gap-2.5 text-xs text-amber-900">
-              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" aria-hidden="true" />
               <p>
                 Sesuaikan berat aktual material sesuai hasil timbangan operasional bank sampah.
                 Poin akan dikalkulasi otomatis dan langsung disalurkan ke nasabah saat berstatus <strong>Selesai</strong>.
@@ -226,7 +290,7 @@ function QuickVerifyModalForm({
             </div>
           )}
 
-          {/* Material Items List */}
+          {/* Daftar Input Bobot Timbangan Riil Material */}
           <div className="space-y-3">
             <label className="block text-xs font-bold uppercase tracking-wider text-gray-600">
               Rincian Material Terpilah (kg)
@@ -261,22 +325,26 @@ function QuickVerifyModalForm({
             ))}
           </div>
 
-          {/* Catatan Admin */}
+          {/* Catatan Petugas Loket & Tombol Quick Notes */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-600">
+              <label 
+                htmlFor="catatan-petugas-transaksi"
+                className="block text-xs font-bold uppercase tracking-wider text-gray-600"
+              >
                 Catatan Petugas {status === "ditolak" ? "(Wajib)" : "(Opsional)"}
               </label>
               <span className="text-[11px] text-gray-400">Tersimpan di struk nota</span>
             </div>
             <textarea
+              id="catatan-petugas-transaksi"
               rows={2}
               value={catatanAdmin}
               onChange={(e) => setCatatanAdmin(e.target.value)}
               placeholder="Tuliskan catatan verifikasi timbangan atau alasan penolakan..."
               className="w-full px-3.5 py-2.5 text-xs text-text-primary bg-white border border-gray-300 rounded-xl focus:outline-none focus:border-brand-neon focus:ring-2 focus:ring-brand-neon/20"
             />
-            {/* Quick Notes Pills */}
+            {/* Pil Opsi Catatan Cepat */}
             <div className="flex flex-wrap gap-1.5 pt-1">
               {quickNotes.map((note) => (
                 <button
@@ -291,7 +359,7 @@ function QuickVerifyModalForm({
             </div>
           </div>
 
-          {/* Summary Box */}
+          {/* Kotak Ringkasan Total Bobot Riil & Poin yang Dihasilkan */}
           <div className="bg-inset-gray border border-gray-200 rounded-2xl p-4 flex items-center justify-between">
             <div>
               <div className="text-[11px] text-gray-500 font-medium">
@@ -320,7 +388,7 @@ function QuickVerifyModalForm({
             </div>
           </div>
 
-          {/* Actions */}
+          {/* Tombol Aksi Bawah */}
           <div className="flex items-center justify-end gap-3 pt-2">
             <button
               type="button"
@@ -339,7 +407,7 @@ function QuickVerifyModalForm({
                   : "bg-brand-neon hover:bg-brand-neon-hover text-text-primary"
               }`}
             >
-              {status === "ditolak" ? <XCircle className="w-4 h-4" /> : <Check className="w-4 h-4" />}
+              {status === "ditolak" ? <XCircle className="w-4 h-4" aria-hidden="true" /> : <Check className="w-4 h-4" aria-hidden="true" />}
               <span>
                 {isSubmitting
                   ? "Menyimpan..."

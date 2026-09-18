@@ -1,5 +1,34 @@
 "use client";
 
+/**
+ * ============================================================================
+ * Halaman: Pengajuan Penyetoran Sampah Terpilah
+ * Rute: /setor/ajukan
+ * Direktori: src/app/setor/ajukan/page.tsx
+ *
+ * Fungsi Utama:
+ * Halaman formulir utama tempat nasabah merencanakan dan mengajukan transaksi
+ * penyetoran limbah daur ulang.
+ * Fitur & Komponen Utama:
+ * 1. Deep Link Query Params: Membaca `kategoriId` dan `berat` dari URL (misal diarahkan dari
+ *    kalkulator daur ulang landing page).
+ * 2. `SetorHero`: Visual header representatif dengan 3 pilar jaminan mutu layanan.
+ * 3. Split Layout Bento (Desktop 2-Kolom):
+ *    - Sisi Kiri (8 kolom / ~65%): `FormPengajuanSetor` (Logistik jadwal, daftar multi-item, terms 3R).
+ *    - Sisi Kanan (4 kolom / ~35%): `LiveEstimationSummaryCard` (Sticky real-time counter poin & konversi rupiah)
+ *      dan `DropOffProtocolCard` (Tata cara alur penyerahan fisik).
+ * 4. `StandarPemeriksaanGuide`: Edukasi kriteria mutu fisik sampah sebelum penyerahan.
+ * 5. `BottomReassuranceRibbon`: Banner keamanan transaksi terpusat.
+ * 6. Dua Dialog Modal:
+ *    - `SetorConfirmModal`: Validasi pra-kirim rincian item.
+ *    - `SubmissionSuccessModal`: Tiket resmi STR-YYYYMM-XXXX dengan fitur salin kode transaksi.
+ *
+ * Konsep Teknis Next.js:
+ * - Suspense Boundary: Membungkus `SetorFormContent` karena menggunakan hook `useSearchParams`
+ *   agar sesuai kaidah kompilasi Next.js App Router (mencegah error bail-out ke client-only render).
+ * ============================================================================
+ */
+
 import React, { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
@@ -14,6 +43,10 @@ import SubmissionSuccessModal from "@/components/setor/SubmissionSuccessModal";
 import SetorConfirmModal from "@/components/setor/SetorConfirmModal";
 import { useAjukanSetor } from "@/hooks/useAjukanSetor";
 
+/**
+ * Komponen Konten Form Internal:
+ * Dieksekusi di dalam Suspense boundary karena membaca query parameters (`useSearchParams`).
+ */
 function SetorFormContent() {
   const searchParams = useSearchParams();
   const initialParams = {
@@ -21,6 +54,7 @@ function SetorFormContent() {
     berat: searchParams.get("berat"),
   };
 
+  // Mengambil state dan controller action dari custom hook useAjukanSetor
   const {
     categories,
     tanggal,
@@ -55,13 +89,13 @@ function SetorFormContent() {
   return (
     <>
       <main className="min-h-screen bg-white">
-        {/* Hero Section */}
+        {/* 1. Header Banner & Pilar Mutu Penyetoran */}
         <SetorHero />
 
-        {/* 2-Column Split Section: Form & Sticky Summary Bento */}
+        {/* 2. Layout Grid 2-Kolom: Formulir Input & Kartu Estimasi Sticky Bento */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Left Column: Form Pengajuan (65% width / 8 cols) */}
+            {/* Kolom Kiri: Formulir Pengajuan (65% lebar / 8 kolom) */}
             <div className="lg:col-span-8">
               <FormPengajuanSetor
                 tanggal={tanggal}
@@ -82,7 +116,7 @@ function SetorFormContent() {
               />
             </div>
 
-            {/* Right Column: Sticky Estimation Card & Protocol Guide (35% width / 4 cols) */}
+            {/* Kolom Kanan: Kartu Estimasi Sticky & Panduan Alur (35% lebar / 4 kolom) */}
             <div className="lg:col-span-4 space-y-6">
               <LiveEstimationSummaryCard
                 totalItemsCount={items.length}
@@ -100,44 +134,53 @@ function SetorFormContent() {
           </div>
         </section>
 
-        {/* Quality Criteria & Facility Photo Split Guide */}
+        {/* 3. Panduan Kriteria Kualitas & Foto Fasilitas MRF */}
         <StandarPemeriksaanGuide />
 
-        {/* Bottom Reassurance Ribbon */}
+        {/* 4. Pita Penjamin Keamanan Transaksi Sebelum Footer */}
         <BottomReassuranceRibbon />
       </main>
 
-        {/* Pre-submission Confirmation Modal */}
-        <SetorConfirmModal
-          isOpen={isConfirmModalOpen}
-          items={items}
-          tanggal={tanggal}
-          metodePenyerahan={metodePenyerahan}
-          catatan={catatan}
-          totalEstimasiBerat={totalEstimasiBerat}
-          totalEstimasiPoin={totalEstimasiPoin}
-          totalEstimasiRupiah={totalEstimasiRupiah}
-          isSubmitting={isSubmitting}
-          onClose={handleCloseConfirm}
-          onConfirm={handleConfirmSubmit}
-        />
+      {/* ===================================================================== */}
+      {/* MODAL KONFIRMASI PRA-KIRIM                                            */}
+      {/* ===================================================================== */}
+      <SetorConfirmModal
+        isOpen={isConfirmModalOpen}
+        items={items}
+        tanggal={tanggal}
+        metodePenyerahan={metodePenyerahan}
+        catatan={catatan}
+        totalEstimasiBerat={totalEstimasiBerat}
+        totalEstimasiPoin={totalEstimasiPoin}
+        totalEstimasiRupiah={totalEstimasiRupiah}
+        isSubmitting={isSubmitting}
+        onClose={handleCloseConfirm}
+        onConfirm={handleConfirmSubmit}
+      />
 
-        {/* Submission Success Modal */}
-        <SubmissionSuccessModal
-          isOpen={isSuccessModalOpen}
-          result={submissionResult}
-          onClose={closeSuccessModal}
-        />
-      </>
-    );
+      {/* ===================================================================== */}
+      {/* MODAL SUKSES PENERBITAN TIKET TRANSAKSI                               */}
+      {/* ===================================================================== */}
+      <SubmissionSuccessModal
+        isOpen={isSuccessModalOpen}
+        result={submissionResult}
+        onClose={closeSuccessModal}
+      />
+    </>
+  );
 }
 
+/**
+ * Komponen Induk Halaman AjukanSetorPage:
+ * Membungkus konten utama dalam Suspense fallback dan kerangka Navbar + Footer.
+ */
 export default function AjukanSetorPage() {
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans selection:bg-brand-neon selection:text-dark-container">
-      {/* Navbar with authenticated Nasabah state matching visual blueprint */}
+      {/* Navigasi Utama Terautentikasi */}
       <Navbar userRole="nasabah" userPoints={150} userName="Budi Santoso" />
 
+      {/* Suspense Boundary untuk useSearchParams */}
       <Suspense
         fallback={
           <div className="min-h-screen flex items-center justify-center">
@@ -148,6 +191,7 @@ export default function AjukanSetorPage() {
         <SetorFormContent />
       </Suspense>
 
+      {/* Footer Global Aplikasi */}
       <Footer />
     </div>
   );

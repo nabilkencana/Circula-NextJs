@@ -1,9 +1,29 @@
-"use client";
+/**
+ * @file RegistrationFieldGroups.tsx
+ * @description Komponen kelompok input form pendaftaran nasabah baru.
+ * Mencakup input nama lengkap (KTP), username, nomor WhatsApp dengan prefix Indonesia (+62),
+ * textarea alamat domisili, serta input kata sandi & konfirmasi dengan fitur toggle visibilitas (show/hide password).
+ * 
+ * Peran dalam UKK:
+ * - Menunjukkan arsitektur Controlled Component (state data diatur secara terpusat oleh controller parent).
+ * - Menangani event input perubahan data (`onChange`) dan validasi saat kursor keluar (`onBlur`).
+ * - Menyediakan fitur Show/Hide password interaktif menggunakan React `useState`.
+ * - Memberikan feedback validasi visual instan (border merah & pesan peringatan teks merah saat field tidak valid).
+ */
+
+"use client"; // Komponen interaktif di sisi klien
 
 import React, { useState } from "react";
-import { Eye, EyeOff, User, AtSign, MapPin, Lock } from "lucide-react";
-import { RegisterFormState } from "@/hooks/useRegisterNasabah";
+import { Eye, EyeOff, User, AtSign, MapPin, Lock } from "lucide-react"; // Ikon: Mata intip, User, Simbol @, Pin Peta, dan Gembok Sandi
+import { RegisterFormState } from "@/hooks/useRegisterNasabah"; // Tipe data state formulir
 
+/**
+ * Interface props untuk RegistrationFieldGroups
+ * @property formData - Objek data formulir nasabah terkini
+ * @property errors - Objek pesan error validasi per field (namaLengkap, username, nomorWhatsapp, dll.)
+ * @property onInputChange - Handler saat nilai input berubah
+ * @property onInputBlur - Handler opsional saat elemen input kehilangan fokus (blur)
+ */
 interface RegistrationFieldGroupsProps {
   formData: RegisterFormState;
   errors: Record<string, string>;
@@ -21,14 +41,18 @@ export default function RegistrationFieldGroups({
   onInputChange,
   onInputBlur,
 }: RegistrationFieldGroupsProps) {
+  // State lokal untuk toggle visibilitas input kata sandi (true: tampil teks biasa, false: titik sandi rahasia)
   const [showPassword, setShowPassword] = useState(false);
+  // State lokal untuk toggle visibilitas konfirmasi kata sandi
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   return (
     <div className="space-y-4 sm:space-y-5">
-      {/* Row 1: Nama Lengkap & Username */}
+      
+      {/* ─── Baris 1: Nama Lengkap & Username ─── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* Nama Lengkap */}
+        
+        {/* Input Field: Nama Lengkap (KTP) */}
         <div>
           <label
             htmlFor="namaLengkap"
@@ -37,6 +61,7 @@ export default function RegistrationFieldGroups({
             Nama Lengkap (KTP) <span className="text-red-500">*</span>
           </label>
           <div className="relative">
+            {/* Ikon User di sisi kiri dalam input field */}
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-text-secondary">
               <User className="w-4 h-4" />
             </div>
@@ -50,11 +75,12 @@ export default function RegistrationFieldGroups({
               placeholder="Contoh: Budi Santoso"
               className={`w-full pl-10 pr-3.5 py-2.5 bg-white border ${
                 errors.namaLengkap
-                  ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-                  : "border-gray-200 focus:border-dark-container focus:ring-dark-container"
+                  ? "border-red-500 focus:ring-red-500 focus:border-red-500" // Border merah saat terjadi error
+                  : "border-gray-200 focus:border-dark-container focus:ring-dark-container" // Border normal
               } rounded-xl text-sm text-text-primary placeholder:text-gray-400 focus:outline-none focus:ring-1 transition-all`}
             />
           </div>
+          {/* Umpan balik error atau deskripsi bantuan */}
           {errors.namaLengkap ? (
             <p className="text-xs text-red-600 mt-1 font-medium">
               {errors.namaLengkap}
@@ -66,7 +92,7 @@ export default function RegistrationFieldGroups({
           )}
         </div>
 
-        {/* Username */}
+        {/* Input Field: Username Akun */}
         <div>
           <label
             htmlFor="username"
@@ -75,6 +101,7 @@ export default function RegistrationFieldGroups({
             Username <span className="text-red-500">*</span>
           </label>
           <div className="relative">
+            {/* Ikon AtSign (@) di sisi kiri dalam input field */}
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-text-secondary">
               <AtSign className="w-4 h-4" />
             </div>
@@ -106,7 +133,7 @@ export default function RegistrationFieldGroups({
         </div>
       </div>
 
-      {/* Row 2: Nomor WhatsApp */}
+      {/* ─── Baris 2: Nomor WhatsApp Aktif dengan Prefix (+62) ─── */}
       <div>
         <label
           htmlFor="nomorWhatsapp"
@@ -115,6 +142,7 @@ export default function RegistrationFieldGroups({
           Nomor WhatsApp Aktif <span className="text-red-500">*</span>
         </label>
         <div className="relative flex rounded-xl border border-gray-200 bg-white overflow-hidden focus-within:border-dark-container focus-within:ring-1 focus-within:ring-dark-container">
+          {/* Prefix Kode Negara Indonesia +62 */}
           <div className="flex items-center px-3.5 bg-inset-gray border-r border-gray-200 text-xs font-bold text-text-primary select-none">
             <span>+62</span>
           </div>
@@ -142,7 +170,7 @@ export default function RegistrationFieldGroups({
         )}
       </div>
 
-      {/* Row 3: Alamat Lengkap Domisili */}
+      {/* ─── Baris 3: Alamat Lengkap Domisili (Textarea) ─── */}
       <div>
         <label
           htmlFor="alamatLengkap"
@@ -151,6 +179,7 @@ export default function RegistrationFieldGroups({
           Alamat Lengkap Domisili <span className="text-red-500">*</span>
         </label>
         <div className="relative">
+          {/* Ikon Pin Lokasi MapPin */}
           <div className="absolute top-3 left-3.5 pointer-events-none text-text-secondary">
             <MapPin className="w-4 h-4" />
           </div>
@@ -180,9 +209,10 @@ export default function RegistrationFieldGroups({
         )}
       </div>
 
-      {/* Row 4: Password & Confirm Password */}
+      {/* ─── Baris 4: Kata Sandi & Konfirmasi Kata Sandi ─── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* Password */}
+        
+        {/* Input: Kata Sandi */}
         <div>
           <label
             htmlFor="password"
@@ -191,11 +221,12 @@ export default function RegistrationFieldGroups({
             Kata Sandi <span className="text-red-500">*</span>
           </label>
           <div className="relative">
+            {/* Ikon Gembok Lock */}
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-text-secondary">
               <Lock className="w-4 h-4" />
             </div>
             <input
-              type={showPassword ? "text" : "password"}
+              type={showPassword ? "text" : "password"} // Dinamis berubah antara text dan password
               id="password"
               name="password"
               value={formData.password}
@@ -208,6 +239,7 @@ export default function RegistrationFieldGroups({
                   : "border-gray-200 focus:border-dark-container focus:ring-dark-container"
               } rounded-xl text-sm text-text-primary placeholder:text-gray-400 focus:outline-none focus:ring-1 transition-all`}
             />
+            {/* Tombol Toggle Show/Hide Password */}
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
@@ -228,7 +260,7 @@ export default function RegistrationFieldGroups({
           )}
         </div>
 
-        {/* Confirm Password */}
+        {/* Input: Konfirmasi Kata Sandi */}
         <div>
           <label
             htmlFor="confirmPassword"
@@ -254,6 +286,7 @@ export default function RegistrationFieldGroups({
                   : "border-gray-200 focus:border-dark-container focus:ring-dark-container"
               } rounded-xl text-sm text-text-primary placeholder:text-gray-400 focus:outline-none focus:ring-1 transition-all`}
             />
+            {/* Tombol Toggle Show/Hide Confirm Password */}
             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
@@ -277,7 +310,9 @@ export default function RegistrationFieldGroups({
             </p>
           )}
         </div>
+
       </div>
+
     </div>
   );
 }

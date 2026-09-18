@@ -1,3 +1,13 @@
+/**
+ * @file TransaksiTableCard.tsx
+ * @description Komponen kartu pembungkus tabel buku besar transaksi admin Circula.
+ * Mengintegrasikan komponen header tabel (`TransaksiTableHeader`), kontainer tabel dengan bilah geser horizontal (`overflow-x-auto`),
+ * perenderan baris data dinamis (`TransaksiTableRow` untuk STR dan `TransaksiTkrTableRow` untuk TKR),
+ * penanganan pesan data kosong (empty state), serta navigasi pagination (`TransaksiPagination`).
+ * 
+ * @module Components/AdminTransaksi/TransaksiTableCard
+ */
+
 import React from "react";
 import {
   TransaksiSetorAdminRecord,
@@ -9,6 +19,24 @@ import TransaksiTableRow from "./TransaksiTableRow";
 import TransaksiTkrTableRow from "./TransaksiTkrTableRow";
 import TransaksiPagination from "./TransaksiPagination";
 
+/**
+ * Properti untuk komponen TransaksiTableCard
+ * 
+ * @interface TransaksiTableCardProps
+ * @property {TransaksiViewType} viewType - Tab yang sedang aktif ("STR" atau "TKR").
+ * @property {string} selectedBulan - Bulan yang dipilih.
+ * @property {number} totalFilteredCount - Jumlah total data setelah filter.
+ * @property {number} displayedCount - Jumlah data yang sedang ditampilkan di halaman aktif.
+ * @property {number} currentPage - Nomor halaman aktif.
+ * @property {number} totalPages - Total jumlah halaman.
+ * @property {TransaksiSetorAdminRecord[]} paginatedStrList - Daftar data penyetoran per halaman.
+ * @property {TransaksiTkrAdminRecord[]} paginatedTkrList - Daftar data penukaran per halaman.
+ * @property {(page: number) => void} onPageChange - Handler perpindahan halaman.
+ * @property {() => void} onExportRekap - Handler cetak/ekspor berkas rekapitulasi.
+ * @property {(record: TransaksiSetorAdminRecord) => void} onOpenVerify - Handler membuka modal verifikasi timbangan.
+ * @property {(id: string) => void} onFinalize - Handler finalisasi transaksi.
+ * @property {(id: string) => void} onCompleteTkr - Handler penyelesaian voucher.
+ */
 interface TransaksiTableCardProps {
   viewType: TransaksiViewType;
   selectedBulan: string;
@@ -25,6 +53,13 @@ interface TransaksiTableCardProps {
   onCompleteTkr: (id: string) => void;
 }
 
+/**
+ * Komponen TransaksiTableCard
+ * 
+ * @component
+ * @param {TransaksiTableCardProps} props - Data dan callback tabel transaksi.
+ * @returns {JSX.Element} Kartu tabel administrasi lengkap dengan header dan navigasi halaman.
+ */
 export default function TransaksiTableCard({
   viewType,
   selectedBulan,
@@ -42,7 +77,7 @@ export default function TransaksiTableCard({
 }: TransaksiTableCardProps) {
   return (
     <div className="bg-white border border-gray-200 rounded-3xl shadow-xs overflow-hidden mb-8">
-      {/* Table Header */}
+      {/* 1. Header Kartu Tabel */}
       <TransaksiTableHeader
         viewType={viewType}
         selectedBulan={selectedBulan}
@@ -50,7 +85,7 @@ export default function TransaksiTableCard({
         onExportRekap={onExportRekap}
       />
 
-      {/* Table Content */}
+      {/* 2. Konten Tabel Responsif dengan Scroll Horisontal */}
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse min-w-190">
           <thead>
@@ -113,7 +148,7 @@ export default function TransaksiTableCard({
         </table>
       </div>
 
-      {/* Pagination */}
+      {/* 3. Baris Navigasi Halaman Pagination */}
       <TransaksiPagination
         displayedCount={displayedCount}
         totalCount={totalFilteredCount}

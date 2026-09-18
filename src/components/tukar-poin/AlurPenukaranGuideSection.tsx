@@ -1,8 +1,28 @@
+/**
+ * ============================================================================
+ * Komponen: AlurPenukaranGuideSection
+ * Direktori: src/components/tukar-poin/AlurPenukaranGuideSection.tsx
+ *
+ * Fungsi Utama:
+ * Bagian panduan visual (Educational Guide) yang menjelaskan 3 langkah alur
+ * penukaran poin reward bagi nasabah:
+ * 1. Langkah 1: Pilih Voucher atau Produk (memilih hadiah sesuai kecukupan saldo poin).
+ * 2. Langkah 2: Dapatkan Kode Nota Penukaran (sistem otomatis menerbitkan tiket TKR-XXXX).
+ * 3. Langkah 3: Ambil di Unit atau Terima E-Wallet (tunjukkan nota ke kasir atau terima saldo instan).
+ * 4. Kolom visual: Menampilkan foto kemitraan berkelanjutan bersama koperasi & merchant terpercaya.
+ *
+ * Karakteristik Teknis:
+ * - Server Component / Static: Tanpa hooks, sangat ringan dan cepat di-render.
+ * - Next.js Image Optimization: Menggunakan `<Image fill sizes="..." />` dengan overlay gradasi.
+ * ============================================================================
+ */
+
 import React from "react";
 import Image from "next/image";
 import { ShieldCheck, CheckCircle2 } from "lucide-react";
 
 export default function AlurPenukaranGuideSection() {
+  // Master data 3 tahapan penukaran poin
   const steps = [
     {
       num: "1",
@@ -24,7 +44,9 @@ export default function AlurPenukaranGuideSection() {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 my-12">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-        {/* Left Column: Dark Guide Card with Steps */}
+        {/* ===================================================================== */}
+        {/* KOLOM KIRI: Kartu Panduan Gelap dengan 3 Nomor Langkah               */}
+        {/* ===================================================================== */}
         <div className="bg-dark-container rounded-3xl p-6 sm:p-8 md:p-10 text-white border border-white/10 flex flex-col justify-between shadow-xl">
           <div>
             <div className="inline-flex items-center px-3 py-1 rounded-full bg-brand-neon/15 border border-brand-neon/30 text-brand-neon text-[10px] font-extrabold uppercase tracking-wider mb-3">
@@ -40,7 +62,7 @@ export default function AlurPenukaranGuideSection() {
               secara otomatis oleh sistem.
             </p>
 
-            {/* 3 Numbered Steps */}
+            {/* 3 Langkah Bernomor */}
             <div className="mt-8 space-y-4">
               {steps.map((step) => (
                 <div
@@ -64,7 +86,9 @@ export default function AlurPenukaranGuideSection() {
           </div>
         </div>
 
-        {/* Right Column: Sustainable Marketplace Photography & Inset Banner */}
+        {/* ===================================================================== */}
+        {/* KOLOM KANAN: Visual Kemitraan Berkelanjutan & Banner Garansi          */}
+        {/* ===================================================================== */}
         <div className="relative rounded-3xl overflow-hidden border border-gray-200 shadow-xl min-h-80 lg:min-h-95">
           <Image
             src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=80"
@@ -73,9 +97,10 @@ export default function AlurPenukaranGuideSection() {
             sizes="(max-width: 1024px) 100vw, 50vw"
             className="object-cover"
           />
+          {/* Overlay gradasi gelap */}
           <div className="absolute inset-0 bg-linear-to-t from-dark-container/95 via-dark-container/40 to-transparent" />
 
-          {/* Bottom Docked Inset Banner */}
+          {/* Banner Mengambang di Bagian Bawah Gambar */}
           <div className="absolute bottom-5 left-5 right-5 p-5 rounded-2xl bg-dark-container/90 border border-white/15 backdrop-blur-md text-white">
             <div className="flex items-center gap-1.5 text-brand-neon">
               <ShieldCheck className="w-4 h-4" />

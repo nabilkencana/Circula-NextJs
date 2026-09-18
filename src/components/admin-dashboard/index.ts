@@ -1,3 +1,11 @@
+/**
+ * @file index.ts
+ * @description Pintu gerbang re-export (Barrel File) untuk seluruh sub-komponen modul Admin Dashboard Circula.
+ * Memudahkan impor komponen pada halaman utama dashboard administrasi.
+ * 
+ * @module Components/AdminDashboard
+ */
+
 export { default as DashboardHero } from "./DashboardHero";
 export { default as FastActionTriggers } from "./FastActionTriggers";
 export { default as DashboardKpiGrid } from "./DashboardKpiGrid";

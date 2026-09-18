@@ -1,20 +1,58 @@
 "use client";
 
+/**
+ * ============================================================================
+ * Komponen: SetorConfirmModal
+ * Direktori: src/components/setor/SetorConfirmModal.tsx
+ *
+ * Fungsi Utama:
+ * Dialog modal konfirmasi pra-pengiriman (Pre-submission Confirmation Dialog).
+ * Berfungsi sebagai gerbang verifikasi terakhir sebelum data transaksi dikirim ke backend API:
+ * 1. Menampilkan rekapitulasi tanggal setor dan metode logistik (drop-off mandiri / jemput armada).
+ * 2. Menampilkan tabel daftar barang terpilah beserta rincian berat, tarif per kg, dan subtotal poin.
+ * 3. Menampilkan kotak ringkasan total estimasi bobot fisik (kg) dan total potensi poin reward.
+ * 4. Menampilkan catatan instruksi khusus dari nasabah (jika diisi).
+ * 5. Menyediakan dua tombol aksi: "Periksa Kembali" (batal/tutup modal) dan
+ *    "Ya, Ajukan Setor Sekarang" (eksekusi pengiriman dengan indikator status loading spinner).
+ *
+ * Konsep Teknis & Aksesibilitas:
+ * - Backdrop Overlay: Menggunakan latar belakang gelap transparan dengan `backdrop-blur-xs`.
+ * - Scrollable Container: Bagian isi modal memiliki `overflow-y-auto` dengan `max-h-[90vh]`
+ *   agar tetap nyaman digunakan pada layar perangkat kecil atau ponsel.
+ * - Animasi Halus: Memanfaatkan kelas utilitas `animate-modal-enter` saat modal terbuka.
+ * ============================================================================
+ */
+
 import React from "react";
 import { AlertCircle, Check, X, Scale, Star, Calendar, Truck, FileText } from "lucide-react";
 import { SetorSampahItemInput } from "@/types/setorSampah";
 
+/**
+ * Interface SetorConfirmModalProps:
+ * Kontrak properti yang harus disediakan untuk merender dialog modal konfirmasi.
+ */
 interface SetorConfirmModalProps {
+  /** Penanda apakah dialog modal sedang terbuka */
   isOpen: boolean;
+  /** Daftar seluruh item sampah yang dimasukkan nasabah */
   items: SetorSampahItemInput[];
+  /** String tanggal rencana penyetoran */
   tanggal: string;
+  /** Pilihan metode penyerahan ('drop-off' atau 'jemput') */
   metodePenyerahan: "drop-off" | "jemput";
+  /** Catatan khusus untuk petugas (opsional) */
   catatan?: string;
+  /** Total estimasi berat sampah akumulatif (kg) */
   totalEstimasiBerat: number;
+  /** Total potensi poin reward yang akan didapat */
   totalEstimasiPoin: number;
+  /** Total ekuivalen rupiah dari nilai sampah */
   totalEstimasiRupiah: number;
+  /** Flag penanda proses pengiriman backend sedang berlangsung */
   isSubmitting: boolean;
+  /** Callback untuk menutup dialog modal tanpa mengirim */
   onClose: () => void;
+  /** Callback untuk mengeksekusi pengiriman formulir ke server */
   onConfirm: () => void;
 }
 
@@ -31,12 +69,15 @@ export default function SetorConfirmModal({
   onClose,
   onConfirm,
 }: SetorConfirmModalProps) {
+  // Jika modal tidak dalam status terbuka, hentikan render
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs transition-opacity duration-200">
       <div className="bg-white rounded-3xl border border-gray-200 max-w-lg w-full shadow-2xl overflow-hidden animate-modal-enter flex flex-col max-h-[90vh]">
-        {/* Header */}
+        {/* ===================================================================== */}
+        {/* HEADER DIALOG MODAL                                                   */}
+        {/* ===================================================================== */}
         <div className="px-6 py-5 border-b border-gray-200 flex items-center justify-between bg-inset-gray">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-brand-neon flex items-center justify-center shadow-xs">
@@ -51,19 +92,23 @@ export default function SetorConfirmModal({
               </p>
             </div>
           </div>
+          {/* Tombol Tutup Silang di Kanan Atas */}
           <button
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
             className="p-1.5 rounded-full hover:bg-gray-200 text-gray-400 hover:text-text-primary transition-colors cursor-pointer"
+            aria-label="Tutup modal konfirmasi"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Scrollable Content Body */}
+        {/* ===================================================================== */}
+        {/* KONTEN BADAN MODAL (Scrollable)                                       */}
+        {/* ===================================================================== */}
         <div className="p-6 space-y-4 overflow-y-auto flex-1">
-          {/* Metadata Row: Tanggal & Metode */}
+          {/* Baris Metadata: Tanggal Rencana & Metode Logistik */}
           <div className="grid grid-cols-2 gap-3">
             <div className="p-3 rounded-2xl bg-gray-50 border border-gray-200/80 flex items-center gap-2.5 text-xs">
               <Calendar className="w-4 h-4 text-gray-500 shrink-0" />
@@ -88,7 +133,7 @@ export default function SetorConfirmModal({
             </div>
           </div>
 
-          {/* Rincian Items Card */}
+          {/* Kartu Rincian Daftar Item Material */}
           <div className="rounded-2xl border border-gray-200 overflow-hidden">
             <div className="bg-inset-gray px-4 py-2.5 border-b border-gray-200 flex items-center justify-between text-[11px] font-bold text-text-secondary uppercase tracking-wider">
               <span>Jenis Material ({items.length})</span>
@@ -119,7 +164,7 @@ export default function SetorConfirmModal({
             </div>
           </div>
 
-          {/* Total Summary Box */}
+          {/* Kotak Ringkasan Total Penimbangan & Poin */}
           <div className="p-4 rounded-2xl bg-linear-to-br from-gray-900 to-dark-container text-white flex items-center justify-between shadow-xs">
             <div>
               <span className="text-[10px] uppercase font-bold text-gray-400 block tracking-wider">
@@ -140,7 +185,7 @@ export default function SetorConfirmModal({
             </div>
           </div>
 
-          {/* Catatan if available */}
+          {/* Catatan Khusus dari Nasabah (jika diisi) */}
           {catatan && (
             <div className="p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs text-text-secondary flex items-start gap-2">
               <FileText className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />
@@ -151,7 +196,7 @@ export default function SetorConfirmModal({
             </div>
           )}
 
-          {/* Notice */}
+          {/* Peringatan Verifikasi Definitif di Loket Fisik */}
           <div className="p-3 bg-blue-50/70 border border-blue-200/60 rounded-xl text-[11px] text-blue-800 flex items-start gap-2">
             <AlertCircle className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
             <p>
@@ -160,8 +205,11 @@ export default function SetorConfirmModal({
           </div>
         </div>
 
-        {/* Action Footer */}
+        {/* ===================================================================== */}
+        {/* TOMBOL AKSI MODAL (Footer)                                            */}
+        {/* ===================================================================== */}
         <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex items-center justify-end gap-3">
+          {/* Tombol Batal/Kembali */}
           <button
             type="button"
             onClick={onClose}
@@ -170,6 +218,8 @@ export default function SetorConfirmModal({
           >
             Periksa Kembali
           </button>
+
+          {/* Tombol Eksekusi Pengiriman */}
           <button
             type="button"
             onClick={onConfirm}
