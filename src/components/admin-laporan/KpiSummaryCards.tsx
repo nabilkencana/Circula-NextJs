@@ -1,11 +1,35 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Kartu Ringkasan Indikator KPI Laporan Admin
+ *
+ * File: src/components/admin-laporan/KpiSummaryCards.tsx
+ * Deskripsi:
+ * Menyajikan 3 kartu rangkuman metrik performa operasional:
+ * 1. Total Volume Limbah Terpilah (kg dan Metrik Ton) beserta persentase pertumbuhan.
+ * 2. Perkiraan Pembayaran Kas Unit (nilai bruto dan rata-rata per penimbangan).
+ * 3. Sirkulasi Reward & Klaim (poin diterbitkan, poin terpakai, jumlah klaim selesai).
+ *
+ * Standar Teknis UKK RPL:
+ * - Komponen visual KPI interaktif dengan styling Tailwind CSS kontras.
+ * - Format angka lokal Indonesia (`toLocaleString("id-ID")`).
+ * - Responsive grid 1 kolom di mobile, 3 kolom di desktop.
+ */
+
 import React from "react";
 import { TrendingUp, Calculator, Gift } from "lucide-react";
 import { RekapitulasiBulananResponse } from "@/types/adminLaporan";
 
+/**
+ * Properti komponen KpiSummaryCards.
+ */
 interface KpiSummaryCardsProps {
+  /** Objek respons data rekapitulasi bulanan */
   data: RekapitulasiBulananResponse;
 }
 
+/**
+ * Komponen kartu rangkuman metrik KPI performa bulanan bank sampah.
+ */
 export default function KpiSummaryCards({ data }: KpiSummaryCardsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -70,8 +94,8 @@ export default function KpiSummaryCards({ data }: KpiSummaryCardsProps) {
           </p>
         </div>
 
-        <div className="bg-[#EAF3D2] border border-brand-neon/40 rounded-xl px-3.5 py-2.5 mt-5 text-xs text-[#1F2819] font-bold flex items-center gap-2">
-          <Gift className="w-4 h-4 shrink-0 text-[#1F2819]" />
+        <div className="bg-[#EAF3D2] border border-brand-neon/40 rounded-xl px-3.5 py-2.5 mt-5 text-xs text-dark-widget font-bold flex items-center gap-2">
+          <Gift className="w-4 h-4 shrink-0 text-dark-widget" />
           <span>
             {data.sirkulasiReward.totalKlaimVoucherSelesai} Klaim voucher &amp; sembako berhasil diselesaikan
           </span>

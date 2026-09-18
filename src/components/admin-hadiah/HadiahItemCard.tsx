@@ -1,22 +1,48 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Kartu Item Inventaris Hadiah Admin (Reward Item Card)
+ *
+ * File: src/components/admin-hadiah/HadiahItemCard.tsx
+ * Deskripsi:
+ * Menampilkan kartu individual hadiah pada etalase admin, lengkap dengan gambar
+ * produk, badge status ketersediaan stok (Habis, Kritis, atau Tersedia), rasio biaya
+ * poin reward, tombol tindakan cepat Edit/Restok, serta opsi hapus item.
+ *
+ * Standar Teknis UKK RPL:
+ * - Penanganan fallback gambar aman dengan `onError` handler.
+ * - Indikator status stok berbasis kondisi visual (merah untuk habis, oranye untuk kritis, hijau untuk aman).
+ * - Aksesibilitas dengan semantic HTML (`<article>`) dan atribut ARIA yang lengkap.
+ */
+
 import React, { useState } from "react";
 import Image from "next/image";
 import { Star, Pencil, Trash2, Zap } from "lucide-react";
 import { HadiahAdminRecord } from "@/types/adminHadiah";
 
+/**
+ * Properti komponen HadiahItemCard.
+ */
 interface HadiahItemCardProps {
+  /** Objek data item hadiah yang ditampilkan */
   record: HadiahAdminRecord;
+  /** Callback saat tombol Edit/Restok ditekan */
   onEdit: (record: HadiahAdminRecord) => void;
+  /** Callback saat tombol Hapus ditekan */
   onDelete: (record: HadiahAdminRecord) => void;
 }
 
+/**
+ * Komponen kartu individual item hadiah dalam katalog admin.
+ */
 export default function HadiahItemCard({
   record,
   onEdit,
   onDelete,
 }: HadiahItemCardProps) {
+  // State indikator gagal memuat gambar remote
   const [imgError, setImgError] = useState(false);
 
-  // Badge logic
+  // Logika penentuan status stok barang
   const isOutOfStock = record.stok === 0;
   const isLowStock = record.stok > 0 && record.stok <= 20;
 

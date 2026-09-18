@@ -1,9 +1,33 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Layanan Integrasi API Rekapitulasi Laporan Bulanan Admin
+ *
+ * File: src/services/adminLaporanService.ts
+ * Deskripsi:
+ * Bertanggung jawab mengambil data rekapitulasi agregasi operasional bulanan
+ * dari API endpoint server, melakukan normalisasi komposisi tonase, valuasi kas,
+ * sirkulasi poin, serta menyediakan mekanisme caching LocalStorage dan fallback
+ * default bila sistem berada dalam kondisi offline.
+ *
+ * Standar Teknis UKK RPL:
+ * - Konsumsi REST API endpoint laporan dinamis berbasis parameter bulan (`YYYY-MM`).
+ * - Normalisasi matematis tonase kilogram ke metrik Ton (`kg / 1000`).
+ * - Fault-tolerant caching via browser `localStorage` dengan prefix terisolasi.
+ */
+
 import { RekapitulasiBulananResponse } from "@/types/adminLaporan";
 import { apiRequest } from "@/lib/api/client";
 import { LAPORAN } from "@/lib/api/endpoints";
 
+/** Prefix identifikasi penyimpanan cache laporan bulanan pada LocalStorage */
 const STORAGE_CACHE_PREFIX = "circula_admin_laporan_cache_";
 
+/**
+ * Membentuk struktur objek data rekapitulasi kosong bila API offline atau data belum tercatat.
+ *
+ * @param bulan - Format string periode bulan (cth: "2026-08").
+ * @returns Objek RekapitulasiBulananResponse dengan nilai inisial nol.
+ */
 function emptyRekapitulasi(bulan: string): RekapitulasiBulananResponse {
   const [year, month] = bulan.split("-");
   const monthNames = [
@@ -39,6 +63,13 @@ function emptyRekapitulasi(bulan: string): RekapitulasiBulananResponse {
   };
 }
 
+/**
+ * Menormalisasi payload mentah dari backend menjadi kontrak frontend yang kaya atribut visual.
+ *
+ * @param apiData - Respons mentah dari endpoint server.
+ * @param bulan - Periode bulan yang diminta.
+ * @returns Objek terstandarisasi RekapitulasiBulananResponse.
+ */
 function normalizeRekapitulasi(apiData: any, bulan: string): RekapitulasiBulananResponse {
   const tonase = apiData.rekapitulasiTonase || {};
   const breakdown = apiData.breakdownJenisSampah || {};
@@ -136,6 +167,13 @@ function normalizeRekapitulasi(apiData: any, bulan: string): RekapitulasiBulanan
   };
 }
 
+/**
+ * Mengambil data rekapitulasi operasional bulanan untuk periode tertentu.
+ * Memeriksa cache LocalStorage terlebih dahulu sebelum memanggil API.
+ *
+ * @param bulan - Format string periode bulan (cth: "2026-08").
+ * @returns Promise berisi RekapitulasiBulananResponse.
+ */
 export async function getRekapitulasiBulanan(bulan: string): Promise<RekapitulasiBulananResponse> {
   if (typeof window !== "undefined") {
     const cached = localStorage.getItem(`${STORAGE_CACHE_PREFIX}${bulan}`);
@@ -144,7 +182,7 @@ export async function getRekapitulasiBulanan(bulan: string): Promise<Rekapitulas
         const parsed = JSON.parse(cached);
         if (parsed && parsed.totalVolume) return parsed;
       } catch (e) {
-        console.error("Failed to parse cached laporan:", e);
+        console.error("Gagal membaca cache laporan:", e);
       }
     }
   }
@@ -161,7 +199,7 @@ export async function getRekapitulasiBulanan(bulan: string): Promise<Rekapitulas
       return normalized;
     }
   } catch (err) {
-    console.warn(`[LaporanService] API offline for ${bulan}:`, err);
+    console.warn(`[LaporanService] API sedang offline untuk periode ${bulan}:`, err);
   }
 
   return emptyRekapitulasi(bulan);

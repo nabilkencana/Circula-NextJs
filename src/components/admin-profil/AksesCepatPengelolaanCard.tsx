@@ -1,7 +1,26 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Kartu Tautan Akses Cepat Pengelolaan Admin Profil
+ *
+ * File: src/components/admin-profil/AksesCepatPengelolaanCard.tsx
+ * Deskripsi:
+ * Menyediakan daftar tautan pintas ke fitur-fitur penting lainnya:
+ * Katalog Kategori Sampah Unit, Katalog Hadiah & Stok Reward, serta
+ * Rekapitulasi Tonase Bulanan.
+ *
+ * Standar Teknis UKK RPL:
+ * - Next.js Link client-side navigation.
+ * - Badge penanda modul interaktif ("Katalog", "Reward", "Laporan").
+ * - Micro-interactions (hover effect bullet indicator scale).
+ */
+
 import React from "react";
 import Link from "next/link";
 import { Compass, ChevronRight } from "lucide-react";
 
+/**
+ * Komponen kartu tautan navigasi akses cepat pengelolaan operasional.
+ */
 export default function AksesCepatPengelolaanCard() {
   const links = [
     {

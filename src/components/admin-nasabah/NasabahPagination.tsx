@@ -1,14 +1,40 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Paginasi Tabel Buku Induk Nasabah Admin
+ *
+ * File: src/components/admin-nasabah/NasabahPagination.tsx
+ * Deskripsi:
+ * Mengontrol navigasi halaman tabel data nasabah (menampilkan info jumlah data yang tampil
+ * vs total data terfilter, tombol halaman sebelumnya/berikutnya, serta tombol nomor halaman).
+ *
+ * Standar Teknis UKK RPL:
+ * - Komponen pagination berbasis tombol interaktif dengan kondisi disable saat batas awal/akhir tercapai.
+ * - Indikator visual halaman aktif dengan warna kontras `bg-dark-container text-white`.
+ * - Teks rekapitulasi data informatif untuk akuntabilitas tampilan data.
+ */
+
 import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+/**
+ * Properti komponen NasabahPagination.
+ */
 interface NasabahPaginationProps {
+  /** Jumlah data yang sedang ditampilkan pada halaman saat ini */
   displayedCount: number;
+  /** Jumlah total data hasil penyaringan */
   totalCount: number;
+  /** Nomor halaman yang sedang aktif */
   currentPage: number;
+  /** Jumlah total halaman yang tersedia */
   totalPages: number;
+  /** Callback saat pengguna berpindah halaman */
   onPageChange: (page: number) => void;
 }
 
+/**
+ * Komponen navigasi paginasi data nasabah.
+ */
 export default function NasabahPagination({
   displayedCount,
   totalCount,
@@ -16,7 +42,7 @@ export default function NasabahPagination({
   totalPages,
   onPageChange,
 }: NasabahPaginationProps) {
-  // Generate pages to display (1, 2, 3...)
+  // Menghasilkan daftar nomor halaman yang ditampilkan
   const pages = Array.from({ length: Math.min(totalPages, 3) }, (_, i) => i + 1);
 
   return (

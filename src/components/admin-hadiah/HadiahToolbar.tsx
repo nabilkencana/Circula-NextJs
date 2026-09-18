@@ -1,14 +1,41 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Toolbar Pencarian & Filter Tab Katalog Hadiah Admin
+ *
+ * File: src/components/admin-hadiah/HadiahToolbar.tsx
+ * Deskripsi:
+ * Menyediakan antarmuka kontrol pencarian teks, tab tombol segmentasi stok
+ * (Semua Item, Tersedia, Stok Habis), serta tombol aksi pembuatan master hadiah baru
+ * dengan ikon plus melingkar.
+ *
+ * Standar Teknis UKK RPL:
+ * - Controlled input components dengan event callback terisolasi.
+ * - Tab segmentasi interaktif dengan feedback visual state aktif.
+ * - Desain responsif mobile-first (berbaris di desktop, stack di layar kecil).
+ */
+
 import React from "react";
 import { Search, Plus } from "lucide-react";
 
+/**
+ * Properti komponen HadiahToolbar.
+ */
 interface HadiahToolbarProps {
+  /** Kata kunci pencarian saat ini */
   searchQuery: string;
+  /** Callback saat teks pencarian berubah */
   onSearchChange: (val: string) => void;
+  /** Tab filter aktif yang sedang dipilih */
   activeTab: "semua" | "tersedia" | "habis";
+  /** Callback saat pengguna berpindah tab filter */
   onTabChange: (tab: "semua" | "tersedia" | "habis") => void;
+  /** Callback pemicu pembukaan drawer pembuatan hadiah baru */
   onOpenCreate: () => void;
 }
 
+/**
+ * Komponen bilah alat (toolbar) untuk penyaringan dan penambahan item hadiah.
+ */
 export default function HadiahToolbar({
   searchQuery,
   onSearchChange,

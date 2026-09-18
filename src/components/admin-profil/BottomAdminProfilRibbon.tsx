@@ -1,7 +1,26 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Pita Penjamin Keamanan & Tautan Dashboard Admin Profil
+ *
+ * File: src/components/admin-profil/BottomAdminProfilRibbon.tsx
+ * Deskripsi:
+ * Menampilkan bilah informasi di bagian bawah halaman pengaturan profil unit
+ * untuk menegaskan jaminan sinkronisasi JWT terenkripsi dan tautan kembali
+ * ke Dashboard Utama Konsol Admin.
+ *
+ * Standar Teknis UKK RPL:
+ * - Semantic HTML (`<section>`).
+ * - Integrasi Next.js client-side link navigation (`next/link`).
+ * - Tampilan visual konsisten dengan tema dark-container.
+ */
+
 import React from "react";
 import Link from "next/link";
 import { CheckCircle2, ArrowRight } from "lucide-react";
 
+/**
+ * Komponen pita penjamin keamanan token otorisasi profil unit.
+ */
 export default function BottomAdminProfilRibbon() {
   return (
     <section className="px-4 sm:px-6 my-8">

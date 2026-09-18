@@ -1,23 +1,51 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Toolbar Pemilihan Periode & Ekspor Laporan Admin
+ *
+ * File: src/components/admin-laporan/LaporanPeriodToolbar.tsx
+ * Deskripsi:
+ * Mengakomodasi dropdown pemilihan periode laporan bulanan, pill bulan cepat,
+ * tombol unduh CSV/Excel, serta tombol cetak dokumen standar PDF.
+ * Bagian ini otomatis disembunyikan saat mode cetak (`print:hidden`).
+ *
+ * Standar Teknis UKK RPL:
+ * - Dropdown interaktif dengan backdrop penutup klik di luar area.
+ * - Tombol aksi ekspor berkas data (CSV dan PDF).
+ * - Kelas utilitas Tailwind `print:hidden` untuk cetak rapi bebas gangguan antarmuka.
+ */
+
 "use client";
 
 import React, { useState } from "react";
 import { Calendar, ChevronDown, Download, Printer, Check } from "lucide-react";
 
+/**
+ * Properti komponen LaporanPeriodToolbar.
+ */
 interface LaporanPeriodToolbarProps {
+  /** Nilai string periode bulan yang dipilih (cth: "2026-08") */
   selectedBulan: string;
+  /** Callback saat periode bulan berganti */
   onSelectMonth: (bulan: string) => void;
+  /** Callback pemicu pengunduhan file CSV */
   onDownloadCsv: () => void;
+  /** Callback pemicu cetak dokumen PDF */
   onPrintPdf: () => void;
 }
 
+/**
+ * Komponen toolbar filter periode laporan dan opsi ekspor.
+ */
 export default function LaporanPeriodToolbar({
   selectedBulan,
   onSelectMonth,
   onDownloadCsv,
   onPrintPdf,
 }: LaporanPeriodToolbarProps) {
+  // State keterbukaan dropdown opsi bulan
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+  // Daftar opsi bulan dalam dropdown
   const monthOptions = [
     { label: "September 2026 (2026-09)", value: "2026-09" },
     { label: "Agustus 2026 (2026-08)", value: "2026-08" },
@@ -25,6 +53,7 @@ export default function LaporanPeriodToolbar({
     { label: "Juni 2026 (2026-06)", value: "2026-06" },
   ];
 
+  // Daftar pill navigasi cepat
   const quickPills = [
     { label: "Sep 2026", value: "2026-09" },
     { label: "Agu 2026", value: "2026-08" },

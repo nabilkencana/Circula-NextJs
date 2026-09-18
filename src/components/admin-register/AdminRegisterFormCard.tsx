@@ -1,3 +1,20 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Kartu Formulir Pendaftaran Administrator Unit
+ *
+ * File: src/components/admin-register/AdminRegisterFormCard.tsx
+ * Deskripsi:
+ * Menyusun kartu formulir registrasi admin unit bank sampah: kapsul pemilih peran (Role Switcher),
+ * judul sambutan, banner galat submission global, kumpulan field isian unit,
+ * kotak centang kepatuhan timbangan/SOP, tombol utama submit warna neon,
+ * serta tautan navigasi login dan pendaftaran nasabah.
+ *
+ * Standar Teknis UKK RPL:
+ * - Kapsul segmentasi peran pengguna (`RegisterRoleSegmentSwitcher`).
+ * - Validasi formulir terpadu dengan feedback pesan kesalahan per field.
+ * - Tombol CTA warna neon dengan indikator spinner pemrosesan asinkron.
+ */
+
 "use client";
 
 import React from "react";
@@ -10,10 +27,17 @@ import { useRegisterAdminUnit } from "@/hooks/useRegisterAdminUnit";
 
 type UseRegisterAdminUnitReturn = ReturnType<typeof useRegisterAdminUnit>;
 
+/**
+ * Properti komponen AdminRegisterFormCard.
+ */
 interface AdminRegisterFormCardProps {
+  /** Objek controller hasil kembalian hook useRegisterAdminUnit */
   controller: UseRegisterAdminUnitReturn;
 }
 
+/**
+ * Komponen kartu formulir pendaftaran unit bank sampah.
+ */
 export default function AdminRegisterFormCard({
   controller,
 }: AdminRegisterFormCardProps) {

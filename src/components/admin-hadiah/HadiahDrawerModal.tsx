@@ -1,3 +1,19 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Drawer Formulir Tambah & Edit Hadiah Admin
+ *
+ * File: src/components/admin-hadiah/HadiahDrawerModal.tsx
+ * Deskripsi:
+ * Menampilkan panel laci geser (slide-over drawer) dari sisi kanan layar
+ * untuk pendaftaran produk reward baru atau pembaruan atribut (nama, kategori,
+ * stok, satuan, poin tebus, dan pemilihan preset foto produk).
+ *
+ * Standar Teknis UKK RPL:
+ * - Slide-over drawer pattern dengan animasi Tailwind CSS `slide-in-from-right`.
+ * - Controlled inputs dengan validasi kelengkapan form sebelum submit.
+ * - Pemilihan foto produk fleksibel (URL kustom atau preset contoh gambar cepat).
+ */
+
 "use client";
 
 import React, { useState } from "react";
@@ -10,15 +26,25 @@ import {
 } from "@/types/adminHadiah";
 import Image from "next/image";
 
+/**
+ * Properti komponen HadiahDrawerModal.
+ */
 interface HadiahDrawerModalProps {
+  /** Penanda apakah drawer sedang terbuka */
   isOpen: boolean;
+  /** Mode formulir: "create" untuk tambah baru atau "edit" untuk memperbarui */
   mode: "create" | "edit";
+  /** Data hadiah yang sedang diedit (null jika mode create) */
   record: HadiahAdminRecord | null;
+  /** Status proses penyimpanan asinkron */
   isSubmitting: boolean;
+  /** Callback menutup drawer */
   onClose: () => void;
+  /** Callback menyimpan payload formulir */
   onSave: (payload: CreateHadiahPayload | UpdateHadiahPayload) => void;
 }
 
+/** Koleksi gambar preset hadiah untuk mempermudah demonstrasi sistem */
 const SAMPLE_HADIAH_PRESETS = [
   "https://images.unsplash.com/photo-1556742049-0a67e55722c0?w=600&auto=format&fit=crop&q=80",
   "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600&auto=format&fit=crop&q=80",
@@ -27,6 +53,9 @@ const SAMPLE_HADIAH_PRESETS = [
   "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=600&auto=format&fit=crop&q=80",
 ];
 
+/**
+ * Properti internal untuk komponen isi drawer.
+ */
 interface DrawerContentProps {
   mode: "create" | "edit";
   record: HadiahAdminRecord | null;
@@ -35,6 +64,9 @@ interface DrawerContentProps {
   onSave: (payload: CreateHadiahPayload | UpdateHadiahPayload) => void;
 }
 
+/**
+ * Komponen isi formulir drawer yang di-mount dengan state terisolasi.
+ */
 function HadiahDrawerContent({
   mode,
   record,
@@ -42,6 +74,7 @@ function HadiahDrawerContent({
   onClose,
   onSave,
 }: DrawerContentProps) {
+  // State form fields
   const [namaHadiah, setNamaHadiah] = useState(
     mode === "edit" && record ? record.namaHadiah : ""
   );
@@ -64,6 +97,9 @@ function HadiahDrawerContent({
     mode === "edit" && record?.imageUrl ? record.imageUrl : SAMPLE_HADIAH_PRESETS[0]
   );
 
+  /**
+   * Menangani submit data form hadiah.
+   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!namaHadiah.trim() || poinDibutuhkan === "" || stok === "") return;
@@ -303,6 +339,9 @@ function HadiahDrawerContent({
   );
 }
 
+/**
+ * Komponen modal drawer pembungkus dengan backdrop gelap dan transisi mulus.
+ */
 export default function HadiahDrawerModal({
   isOpen,
   mode,

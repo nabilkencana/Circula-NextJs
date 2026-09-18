@@ -1,24 +1,51 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Baris Tabel Buku Induk Nasabah Admin
+ *
+ * File: src/components/admin-nasabah/NasabahTableRow.tsx
+ * Deskripsi:
+ * Menampilkan baris data individu nasabah (avatar profil dengan fallback inisial,
+ * nama lengkap, ID nasabah, kontak telp, alamat domisili terpotong rapi, username,
+ * saldo poin aktif, badge status aktif/nonaktif, dan tombol aksi Edit, Lihat Detail, Hapus).
+ *
+ * Standar Teknis UKK RPL:
+ * - Avatar cerdas dengan penanganan error gambar remote (`onError`) dan fallback inisial nama.
+ * - Semantic table row markup (`<tr>`, `<td>`).
+ * - Tombol aksi interaktif dengan tooltips dan label ARIA ramah pembaca layar.
+ */
+
 import React, { useState } from "react";
 import Image from "next/image";
 import { Star, Pencil, Eye, Trash2 } from "lucide-react";
 import { NasabahRecord } from "@/types/adminNasabah";
 
+/**
+ * Properti komponen NasabahTableRow.
+ */
 interface NasabahTableRowProps {
+  /** Record data nasabah yang ditampilkan */
   record: NasabahRecord;
+  /** Callback saat tombol edit ditekan */
   onEdit: (record: NasabahRecord) => void;
+  /** Callback saat tombol lihat rincian ditekan */
   onView: (record: NasabahRecord) => void;
+  /** Callback saat tombol hapus ditekan */
   onDelete: (record: NasabahRecord) => void;
 }
 
+/**
+ * Komponen baris tabel buku induk data nasabah.
+ */
 export default function NasabahTableRow({
   record,
   onEdit,
   onView,
   onDelete,
 }: NasabahTableRowProps) {
+  // State error pemuatan gambar avatar
   const [imgError, setImgError] = useState(false);
 
-  // Avatar initials fallback
+  // Inisial dua huruf nama lengkap sebagai fallback gambar avatar
   const initials = record.namaLengkap
     .split(" ")
     .map((n) => n[0])

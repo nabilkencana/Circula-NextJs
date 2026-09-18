@@ -1,14 +1,41 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Toolbar Pencarian & Filter Tab Buku Induk Nasabah Admin
+ *
+ * File: src/components/admin-nasabah/NasabahToolbar.tsx
+ * Deskripsi:
+ * Mengakomodasi bilah alat untuk pencarian cepat data warga, segmentasi tab
+ * (Semua Nasabah, Saldo Poin > 100, Baru Ditambahkan), dan tombol CTA untuk
+ * membuka formulir pendaftaran nasabah baru secara manual.
+ *
+ * Standar Teknis UKK RPL:
+ * - Controlled input dengan callback responsif.
+ * - Desain responsif fleksibel yang mendukung tampilan mobile hingga layar desktop besar.
+ * - Micro-animations pada tombol aksi dan tab segmentasi.
+ */
+
 import React from "react";
 import { Search, Plus } from "lucide-react";
 
+/**
+ * Properti komponen NasabahToolbar.
+ */
 interface NasabahToolbarProps {
+  /** Kata kunci pencarian nasabah saat ini */
   searchQuery: string;
+  /** Callback saat nilai input pencarian berubah */
   onSearchChange: (val: string) => void;
+  /** Tab segmentasi filter yang sedang aktif */
   activeTab: "semua" | "poin_tinggi" | "baru";
+  /** Callback saat pengguna berpindah tab segmentasi */
   onTabChange: (tab: "semua" | "poin_tinggi" | "baru") => void;
+  /** Callback pemicu pembukaan drawer tambah nasabah baru */
   onOpenCreate: () => void;
 }
 
+/**
+ * Komponen bilah alat (toolbar) pencarian dan filter data nasabah.
+ */
 export default function NasabahToolbar({
   searchQuery,
   onSearchChange,

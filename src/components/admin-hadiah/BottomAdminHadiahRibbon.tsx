@@ -1,7 +1,26 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Pita Penjamin Keamanan & Navigasi Cepat Admin Hadiah
+ *
+ * File: src/components/admin-hadiah/BottomAdminHadiahRibbon.tsx
+ * Deskripsi:
+ * Menampilkan bilah informasi di bagian bawah halaman katalog hadiah untuk
+ * menegaskan jaminan isolasi inventaris multi-tenant unit bank sampah serta
+ * menyediakan tautan navigasi instan kembali ke Dashboard Utama Admin.
+ *
+ * Standar Teknis UKK RPL:
+ * - Semantic HTML (`<aside>`).
+ * - Integrasi Next.js client-side navigation (`next/link`).
+ * - Desain card dark-container dengan aksen brand neon.
+ */
+
 import React from "react";
 import Link from "next/link";
 import { ShieldCheck, ArrowRight } from "lucide-react";
 
+/**
+ * Komponen pita navigasi dan jaminan keamanan inventaris hadiah admin.
+ */
 export default function BottomAdminHadiahRibbon() {
   return (
     <aside

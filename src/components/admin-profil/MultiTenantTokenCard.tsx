@@ -1,14 +1,39 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Kartu Token Multi-Tenant (App Key) Admin Profil
+ *
+ * File: src/components/admin-profil/MultiTenantTokenCard.tsx
+ * Deskripsi:
+ * Menampilkan token identifikasi multi-tenant unit bank sampah (App Key) dengan
+ * tombol aksi salin cepat ke clipboard, memberikan konfirmasi visual "Tersalin!",
+ * serta catatan keamanan data isolasi multi-tenant terverifikasi.
+ *
+ * Standar Teknis UKK RPL:
+ * - Format token dengan font monospaced dan pemilihan teks kontras.
+ * - Tombol salin interaktif dengan state feedback visual (icon Check dan teks "Tersalin!").
+ * - Catatan edukatif mengenai keterkaitan dengan Panitia Uji Kompetensi Keahlian.
+ */
+
 "use client";
 
 import React from "react";
 import { Key, Copy, Check } from "lucide-react";
 
+/**
+ * Properti komponen MultiTenantTokenCard.
+ */
 interface MultiTenantTokenCardProps {
+  /** Nilai token App Key unit */
   appKey: string;
+  /** Status apakah tombol salin baru saja ditekan */
   copied: boolean;
+  /** Callback eksekusi penyalinan App Key */
   onCopy: () => void;
 }
 
+/**
+ * Komponen kartu pratinjau token multi-tenant environment unit bank sampah.
+ */
 export default function MultiTenantTokenCard({
   appKey,
   copied,

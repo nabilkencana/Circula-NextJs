@@ -1,3 +1,19 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Drawer Formulir Tambah & Edit Nasabah Admin
+ *
+ * File: src/components/admin-nasabah/NasabahDrawerModal.tsx
+ * Deskripsi:
+ * Menampilkan panel slide-over drawer dari sisi kanan untuk pendaftaran manual
+ * nasabah baru atau pengubahan data nasabah terdaftar (nama lengkap, username portal,
+ * nomor kontak seluler/WhatsApp, alamat tempat tinggal, password baru, dan status akun).
+ *
+ * Standar Teknis UKK RPL:
+ * - Slide-over drawer form dengan validasi data input.
+ * - Pemilihan foto avatar visual dari koleksi pilihan yang disediakan.
+ * - Reset state form otomatis menggunakan `key` prop pattern pada komponen konten.
+ */
+
 "use client";
 
 import React, { useState } from "react";
@@ -10,15 +26,25 @@ import {
 } from "@/types/adminNasabah";
 import Image from "next/image";
 
+/**
+ * Properti komponen NasabahDrawerModal.
+ */
 interface NasabahDrawerModalProps {
+  /** Penanda apakah drawer sedang terbuka */
   isOpen: boolean;
+  /** Mode formulir: "create" untuk baru, "edit" untuk memperbarui */
   mode: "create" | "edit";
+  /** Record data nasabah yang sedang diedit (null jika mode create) */
   record: NasabahRecord | null;
+  /** Status indikator mutasi data asinkron sedang berlangsung */
   isSubmitting: boolean;
+  /** Callback menutup drawer */
   onClose: () => void;
+  /** Callback menyimpan payload data */
   onSave: (payload: CreateNasabahPayload | UpdateNasabahPayload) => void;
 }
 
+/** Koleksi tautan gambar avatar profil yang dapat dipilih admin */
 const AVATAR_OPTIONS = [
   "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80",
   "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=120&auto=format&fit=crop&q=80",
@@ -27,6 +53,9 @@ const AVATAR_OPTIONS = [
   "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80",
 ];
 
+/**
+ * Properti komponen internal form drawer nasabah.
+ */
 interface DrawerContentProps {
   mode: "create" | "edit";
   record: NasabahRecord | null;
@@ -35,6 +64,9 @@ interface DrawerContentProps {
   onSave: (payload: CreateNasabahPayload | UpdateNasabahPayload) => void;
 }
 
+/**
+ * Konten formulir pendaftaran / pengeditan data nasabah.
+ */
 function NasabahDrawerContent({
   mode,
   record,
@@ -42,6 +74,7 @@ function NasabahDrawerContent({
   onClose,
   onSave,
 }: DrawerContentProps) {
+  // State form fields
   const [namaLengkap, setNamaLengkap] = useState(mode === "edit" && record ? record.namaLengkap : "");
   const [username, setUsername] = useState(mode === "edit" && record ? record.username : "");
   const [password, setPassword] = useState("");
@@ -53,6 +86,9 @@ function NasabahDrawerContent({
     mode === "edit" && record?.fotoProfilUrl ? record.fotoProfilUrl : AVATAR_OPTIONS[0]
   );
 
+  /**
+   * Menangani pengiriman formulir.
+   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!namaLengkap.trim() || !username.trim() || !telp.trim()) return;
@@ -312,6 +348,9 @@ function NasabahDrawerContent({
   );
 }
 
+/**
+ * Komponen modal drawer pembungkus form pendaftaran/edit data nasabah.
+ */
 export default function NasabahDrawerModal({
   isOpen,
   mode,

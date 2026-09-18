@@ -1,3 +1,21 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Halaman Konsol Administrator - Master Katalog Hadiah & Reward
+ *
+ * File: src/app/admin/hadiah/page.tsx
+ * Rute: /admin/hadiah
+ * Deskripsi:
+ * Halaman orchestrator utama bagi pengelola bank sampah untuk mengatur master inventaris
+ * barang penukaran poin nasabah (voucher, sembako, merchandise), mengatur harga poin,
+ * memantau level stok kritis, memicu restok, serta memeriksa audit riwayat mutasi barang.
+ *
+ * Standar Teknis UKK RPL:
+ * - Next.js 15 App Router Client Component ("use client").
+ * - Arsitektur Modular: Mengombinasikan Hero, Toolbar, 4-Card Grid, Drawer Modal, Dialog Hapus, dan Modal Riwayat Stok.
+ * - Single Source of Truth via custom hook `useAdminHadiah`.
+ * - Konsistensi UI dengan NavbarAdminConsole dan FooterAdmin.
+ */
+
 "use client";
 
 import React from "react";
@@ -13,7 +31,11 @@ import BottomAdminHadiahRibbon from "@/components/admin-hadiah/BottomAdminHadiah
 import { useAdminHadiah } from "@/hooks/useAdminHadiah";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 
+/**
+ * Komponen utama halaman pengelolaan katalog hadiah administrator.
+ */
 export default function AdminHadiahPage() {
+  // Mengonsumsi seluruh state dan dispatch handler dari hook kustom
   const {
     filteredList,
     filterState,
@@ -66,7 +88,7 @@ export default function AdminHadiahPage() {
 
       {/* Main Page Content */}
       <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-2">
-        {/* 2. Hero Showcase */}
+        {/* 2. Hero Showcase Telemetri Hadiah */}
         <HadiahHero stats={stats} />
 
         {/* 3. Search & Filter Toolbar */}
@@ -78,7 +100,7 @@ export default function AdminHadiahPage() {
           onOpenCreate={handleOpenCreate}
         />
 
-        {/* 4. 4-Card Reward Grid */}
+        {/* 4. 4-Card Reward Grid Display */}
         <HadiahGridCard
           records={filteredList}
           totalCount={filteredList.length}

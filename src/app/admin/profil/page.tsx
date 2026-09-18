@@ -1,3 +1,22 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Halaman Konsol Administrator - Profil & Pengaturan Unit Operasional
+ *
+ * File: src/app/admin/profil/page.tsx
+ * Rute: /admin/profil
+ * Deskripsi:
+ * Halaman orchestrator utama pengelolaan profil legalitas dan identitas unit bank sampah.
+ * Menyediakan form pengubahan nama unit, penanggung jawab, nomor kontak, alamat loket,
+ * jam operasional, kapasitas tampung gudang, foto plang, ringkasan kinerja fasilitas bento,
+ * token App Key multi-tenant, dan modal konfirmasi perubahan diff data.
+ *
+ * Standar Teknis UKK RPL:
+ * - Next.js 15 App Router Client Component ("use client").
+ * - Split Section Layout responsif: Kolom Kiri 62% untuk formulir, Kolom Kanan 38% untuk Bento Kinerja.
+ * - Single Source of Truth melalui hook kustom `useAdminProfil`.
+ * - Konsistensi visual dengan NavbarAdminConsole dan Footer.
+ */
+
 "use client";
 
 import React from "react";
@@ -12,15 +31,19 @@ import SaveProfilConfirmModal from "@/components/admin-profil/SaveProfilConfirmM
 import { useAdminProfil } from "@/hooks/useAdminProfil";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 
+/**
+ * Komponen halaman pengaturan profil unit bank sampah konsol admin.
+ */
 export default function AdminProfilPage() {
+  // Mengonsumsi controller hook useAdminProfil
   const controller = useAdminProfil();
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans text-text-primary antialiased selection:bg-brand-neon selection:text-text-primary">
-      {/* Top Admin Console Navigation Bar */}
+      {/* 1. Top Admin Console Navigation Bar */}
       <NavbarAdminConsole />
 
-      {/* Main Content */}
+      {/* 2. Main Workspace Layout */}
       <main className="flex-1">
         {/* Dark Hero Showcase */}
         <ProfilHero />
@@ -29,12 +52,12 @@ export default function AdminProfilPage() {
         <section className="px-4 sm:px-6 py-8 sm:py-10">
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
-              {/* Left Column (62% width / 7 cols) - Profil Form Card */}
+              {/* Kolom Kiri (62% width / 7 cols) - Profil Form Card */}
               <div className="lg:col-span-7 xl:col-span-7">
                 <ProfilFormCard controller={controller} />
               </div>
 
-              {/* Right Column (38% width / 5 cols) - Bento Directives Stack */}
+              {/* Kolom Kanan (38% width / 5 cols) - Bento Kinerja & Akses Cepat */}
               <div className="lg:col-span-5 xl:col-span-5 space-y-6">
                 <KinerjaFasilitasBentoCard
                   unitData={controller.unitData}
@@ -51,10 +74,10 @@ export default function AdminProfilPage() {
         <BottomAdminProfilRibbon />
       </main>
 
-      {/* Shared Enterprise Footer */}
+      {/* 3. Footer */}
       <Footer />
 
-      {/* Save Profile Confirmation Modal */}
+      {/* 4. Save Profile Confirmation Modal Dialog */}
       <SaveProfilConfirmModal
         isOpen={controller.isConfirmModalOpen}
         unitData={controller.unitData}
@@ -64,7 +87,7 @@ export default function AdminProfilPage() {
         onConfirm={controller.handleConfirmSave}
       />
 
-      {/* Toast Notification */}
+      {/* 5. Feedback Toast Notification */}
       {controller.toast.show && (
         <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-3 duration-200">
           <div

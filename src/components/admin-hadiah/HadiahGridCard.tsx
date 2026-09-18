@@ -1,16 +1,44 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Grid Katalog Hadiah & Pembungkus Etalase Admin
+ *
+ * File: src/components/admin-hadiah/HadiahGridCard.tsx
+ * Deskripsi:
+ * Menampilkan kontainer grid responsif (1 kolom di mobile, 2 kolom di tablet,
+ * dan 4 kolom di desktop) yang menyusun seluruh item hadiah reward, dilengkapi
+ * dengan animasi stagger entrance, header informasi unit, tombol pintas riwayat stok,
+ * serta state kosong (empty state) jika tidak ada hadiah yang cocok dengan filter.
+ *
+ * Standar Teknis UKK RPL:
+ * - Responsive CSS Grid (1/2/4 columns).
+ * - Penanganan empty state informatif dengan petunjuk interaktif.
+ * - Efek animasi stagger dinamis menggunakan inline style animationDelay.
+ */
+
 import React from "react";
 import { ChevronRight, Gift } from "lucide-react";
 import { HadiahAdminRecord } from "@/types/adminHadiah";
 import HadiahItemCard from "./HadiahItemCard";
 
+/**
+ * Properti komponen HadiahGridCard.
+ */
 interface HadiahGridCardProps {
+  /** Daftar record hadiah hasil penyaringan */
   records: HadiahAdminRecord[];
+  /** Jumlah total item hadiah yang terdaftar */
   totalCount: number;
+  /** Callback pemicu edit atau restok */
   onEdit: (record: HadiahAdminRecord) => void;
+  /** Callback pemicu dialog konfirmasi penghapusan */
   onDelete: (record: HadiahAdminRecord) => void;
+  /** Callback pemicu pembukaan modal log riwayat stok */
   onOpenRiwayat: () => void;
 }
 
+/**
+ * Komponen kontainer grid etalase katalog hadiah unit operasional.
+ */
 export default function HadiahGridCard({
   records,
   totalCount,

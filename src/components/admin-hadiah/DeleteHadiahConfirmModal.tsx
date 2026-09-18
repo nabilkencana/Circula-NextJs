@@ -1,15 +1,41 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Dialog Konfirmasi Penghapusan Item Hadiah Admin
+ *
+ * File: src/components/admin-hadiah/DeleteHadiahConfirmModal.tsx
+ * Deskripsi:
+ * Menampilkan jendela modal konfirmasi destruktif saat administrator hendak
+ * menghapus item hadiah reward dari database unit bank sampah.
+ *
+ * Standar Teknis UKK RPL:
+ * - Alert modal dengan aksen peringatan bahaya (merah/red-600).
+ * - Tombol konfirmasi dengan status visual `isSubmitting` agar terhindar dari double-click.
+ * - Backdrop blur dengan dukungan penutupan saat backdrop diklik.
+ */
+
 import React from "react";
 import { AlertTriangle, Trash2 } from "lucide-react";
 import { HadiahAdminRecord } from "@/types/adminHadiah";
 
+/**
+ * Properti komponen DeleteHadiahConfirmModal.
+ */
 interface DeleteHadiahConfirmModalProps {
+  /** Menentukan apakah modal sedang terbuka */
   isOpen: boolean;
+  /** Record data hadiah yang akan dihapus */
   record: HadiahAdminRecord | null;
+  /** Status indikator eksekusi penghapusan sedang berlangsung */
   isSubmitting: boolean;
+  /** Callback menutup dialog */
   onClose: () => void;
+  /** Callback konfirmasi eksekusi penghapusan */
   onConfirm: () => void;
 }
 
+/**
+ * Komponen modal dialog konfirmasi hapus hadiah.
+ */
 export default function DeleteHadiahConfirmModal({
   isOpen,
   record,

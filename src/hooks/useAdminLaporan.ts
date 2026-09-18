@@ -1,9 +1,26 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Custom Hook Pengelolaan State Laporan & Rekapitulasi Ekologis Admin
+ *
+ * File: src/hooks/useAdminLaporan.ts
+ * Deskripsi:
+ * Mengelola siklus pemilihan periode bulan rekapitulasi, pemuatan data laporan
+ * teragregasi dari service, pemicu cetak dokumen standar PDF ramah cetak (`window.print()`),
+ * serta generator unduhan berkas CSV untuk kebutuhan arsip dan pelaporan dinas terkait.
+ *
+ * Standar Teknis UKK RPL:
+ * - State management reaktif dengan React Hooks (`useState`, `useEffect`, `useCallback`).
+ * - Mekanisme pembuatan file CSV langsung pada browser (`Blob` / `encodeURI`).
+ * - Integrasi print-friendly layout yang siap diekspor ke PDF oleh browser klien.
+ */
+
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
 import { RekapitulasiBulananResponse } from "@/types/adminLaporan";
 import { getRekapitulasiBulanan } from "@/services/adminLaporanService";
 
+/** Objek awal representasi data kosong saat proses inisialisasi awal */
 const EMPTY_REKAPITULASI: RekapitulasiBulananResponse = {
   periodeBulan: "",
   periodeLabel: "",
@@ -31,13 +48,20 @@ const EMPTY_REKAPITULASI: RekapitulasiBulananResponse = {
   },
 };
 
+/**
+ * Custom hook `useAdminLaporan` mengelola pemilihan periode bulan dan ekspor berkas laporan.
+ */
 export function useAdminLaporan() {
+  // Periode bulan aktif (default: "2026-08")
   const [selectedBulan, setSelectedBulan] = useState<string>("2026-08");
+  // Data rekapitulasi lengkap periode terpilih
   const [laporanData, setLaporanData] = useState<RekapitulasiBulananResponse>(
     EMPTY_REKAPITULASI
   );
+  // Status indikator pemuatan data
   const [isLoading, setIsLoading] = useState(false);
 
+  // Efek samping memuat data rekapitulasi setiap kali parameter selectedBulan berubah
   useEffect(() => {
     let isMounted = true;
     async function loadData() {
@@ -47,7 +71,7 @@ export function useAdminLaporan() {
         if (!isMounted) return;
         setLaporanData(data);
       } catch (err) {
-        console.error("Error loading laporan bulanan:", err);
+        console.error("Gagal memuat laporan bulanan:", err);
       } finally {
         if (isMounted) setIsLoading(false);
       }
@@ -59,16 +83,25 @@ export function useAdminLaporan() {
     };
   }, [selectedBulan]);
 
+  /**
+   * Mengubah periode bulan rekapitulasi yang aktif.
+   */
   const handleSelectMonth = useCallback((bulanString: string) => {
     setSelectedBulan(bulanString);
   }, []);
 
+  /**
+   * Membuka dialog print browser untuk mencetak laporan atau menyimpan sebagai file PDF.
+   */
   const handlePrintPdf = useCallback(() => {
     if (typeof window !== "undefined") {
       window.print();
     }
   }, []);
 
+  /**
+   * Mengonversi seluruh data agregasi dan breakdown bulanan ke format CSV lalu mengunduhnya.
+   */
   const handleDownloadCsv = useCallback(() => {
     if (!laporanData) return;
 

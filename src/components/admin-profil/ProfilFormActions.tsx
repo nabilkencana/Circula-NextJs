@@ -1,15 +1,41 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Tombol Aksi Formulir Profil Unit Admin
+ *
+ * File: src/components/admin-profil/ProfilFormActions.tsx
+ * Deskripsi:
+ * Mengakomodasi tombol submit utama ("Simpan Pembaruan Profil") dengan indikator loading,
+ * tombol sekunder ("Batal" untuk reset form ke kondisi awal), serta catatan waktu
+ * terakhir disimpan.
+ *
+ * Standar Teknis UKK RPL:
+ * - Disabled state protection saat proses simpan (`isSaving`) atau form belum dimodifikasi (`!isDirty`).
+ * - Spinner loading animasi halus (`Loader2` dari lucide-react).
+ * - Penanda waktu pembaruan terakhir yang informatif.
+ */
+
 "use client";
 
 import React from "react";
 import { Check, Loader2 } from "lucide-react";
 
+/**
+ * Properti komponen ProfilFormActions.
+ */
 interface ProfilFormActionsProps {
+  /** Status apakah proses penyimpanan sedang berlangsung */
   isSaving: boolean;
+  /** Status apakah form mengalami modifikasi dari nilai awal */
   isDirty: boolean;
+  /** String keterangan waktu penyimpanan terakhir */
   terakhirDisimpan?: string;
+  /** Callback untuk mereset form ke nilai inisial */
   onReset: () => void;
 }
 
+/**
+ * Komponen tombol aksi formulir pembaruan profil unit.
+ */
 export default function ProfilFormActions({
   isSaving,
   isDirty,

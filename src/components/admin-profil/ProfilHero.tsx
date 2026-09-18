@@ -1,7 +1,26 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Hero Header & Ringkasan Identitas Legal Unit Admin
+ *
+ * File: src/components/admin-profil/ProfilHero.tsx
+ * Deskripsi:
+ * Menampilkan kartu banner visual dark-container dengan citra latar fasilitas
+ * penimbangan dan 3 kartu deck identitas legal unit operasional:
+ * Identitas Unit Resmi (UNIT-04), Penanggung Jawab binaan DLH, dan Status Operasional Aktif.
+ *
+ * Standar Teknis UKK RPL:
+ * - Next.js Image Optimization dengan layer blending dan gradien gelap.
+ * - Indikator status aktif dengan animasi pinging beacon Tailwind CSS.
+ * - Tipografi elegan yang serasi dengan konsol admin Bank Sampah.
+ */
+
 import React from "react";
 import Image from "next/image";
 import { Building2, Users, CheckCircle2 } from "lucide-react";
 
+/**
+ * Komponen banner hero visual halaman profil unit bank sampah.
+ */
 export default function ProfilHero() {
   return (
     <section className="px-4 sm:px-6 pt-4 sm:pt-6">

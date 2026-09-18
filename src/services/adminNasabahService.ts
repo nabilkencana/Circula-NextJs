@@ -1,3 +1,19 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Layanan Integrasi API & Operasional Buku Induk Nasabah Admin
+ *
+ * File: src/services/adminNasabahService.ts
+ * Deskripsi:
+ * Mengelola komunikasi data nasabah dengan REST API backend (pengambilan daftar nasabah,
+ * pendaftaran warga manual, pembaruan data kontak & alamat, penonaktifan akun,
+ * mekanisme cache offline localStorage, serta generator unduhan file laporan CSV/Excel).
+ *
+ * Standar Teknis UKK RPL:
+ * - RESTful client integration (GET, POST, PUT, DELETE) dengan error fallback.
+ * - Adapter normalisasi data server (`mapNasabahApi`) dan formatting tanggal Indonesia.
+ * - Utilitas ekspor data tabular ke file format CSV langsung di browser tanpa library luar.
+ */
+
 import {
   NasabahRecord,
   StatusNasabah,
@@ -7,22 +23,34 @@ import {
 import { apiRequest } from "@/lib/api/client";
 import { NASABAH } from "@/lib/api/endpoints";
 
+/** Kunci penyimpanan cache data nasabah pada LocalStorage browser */
 const STORAGE_KEY = "circula_admin_nasabah_list_v1";
 
 // ─── localStorage helpers ─────────────────────────────────────────────────────
 
+/**
+ * Menyimpan daftar nasabah ke LocalStorage browser sebagai cadangan data offline.
+ *
+ * @param records - Koleksi record data nasabah yang akan disimpan.
+ */
 function saveToLocalStorage(records: NasabahRecord[]) {
   if (typeof window !== "undefined") {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
     } catch (e) {
-      console.warn("[adminNasabahService] Failed to save to localStorage:", e);
+      console.warn("[adminNasabahService] Gagal menyimpan cache ke localStorage:", e);
     }
   }
 }
 
 // ─── Service Functions ────────────────────────────────────────────────────────
 
+/**
+ * Mengambil seluruh daftar buku induk nasabah dari endpoint backend API.
+ * Menyimpan salinan ke LocalStorage untuk keandalan demonstrasi.
+ *
+ * @returns Promise berisi daftar record NasabahRecord.
+ */
 export async function getNasabahList(): Promise<NasabahRecord[]> {
   const data = await apiRequest<any[]>(NASABAH.LIST);
   if (Array.isArray(data) && data.length > 0) {
@@ -33,8 +61,12 @@ export async function getNasabahList(): Promise<NasabahRecord[]> {
   return [];
 }
 
-// Backend nasabah field: { id, username, namaNasabah, telp, alamat, saldoPoin, foto, createdAt, ... }
-// Frontend NasabahRecord butuh namaLengkap/status/tanggalDaftar/fotoProfilUrl.
+/**
+ * Normalisasi data nasabah mentah dari respons server backend.
+ *
+ * @param raw - Objek data mentah dari backend.
+ * @returns Objek NasabahRecord dengan atribut yang terstandarisasi.
+ */
 function mapNasabahApi(raw: any): NasabahRecord {
   return {
     id: raw.id,
@@ -49,6 +81,12 @@ function mapNasabahApi(raw: any): NasabahRecord {
   };
 }
 
+/**
+ * Mengonversi timestamp ISO ke format tanggal lokal Indonesia (cth: "26 Agu 2026").
+ *
+ * @param iso - String format tanggal ISO.
+ * @returns String tanggal terformat rapi.
+ */
 function formatTanggal(iso: string): string {
   try {
     const d = new Date(iso);
@@ -58,6 +96,12 @@ function formatTanggal(iso: string): string {
   }
 }
 
+/**
+ * Mendaftarkan nasabah baru secara manual ke buku induk unit.
+ *
+ * @param payload - Data isian pendaftaran nasabah.
+ * @returns Record data nasabah baru yang berhasil dibuat.
+ */
 export async function createNasabah(
   payload: CreateNasabahPayload
 ): Promise<NasabahRecord> {
@@ -90,7 +134,7 @@ export async function createNasabah(
       body: JSON.stringify(payload),
     });
   } catch (err) {
-    console.warn("[adminNasabahService] API POST offline, local only:", err);
+    console.warn("[adminNasabahService] API POST sedang offline, beralih ke state lokal:", err);
   }
 
   const updatedList = [newRecord, ...currentList];
@@ -98,6 +142,13 @@ export async function createNasabah(
   return newRecord;
 }
 
+/**
+ * Memperbarui informasi identitas, kontak, alamat, atau status nasabah.
+ *
+ * @param id - Identifier nasabah yang diperbarui.
+ * @param payload - Nilai baru yang akan di-update.
+ * @returns Record nasabah hasil pembaruan.
+ */
 export async function updateNasabah(
   id: string,
   payload: UpdateNasabahPayload
@@ -126,7 +177,7 @@ export async function updateNasabah(
       body: JSON.stringify(payload),
     });
   } catch (err) {
-    console.warn("[adminNasabahService] API PUT offline, local only:", err);
+    console.warn("[adminNasabahService] API PUT sedang offline, beralih ke state lokal:", err);
   }
 
   const updatedList = [...currentList];
@@ -135,6 +186,12 @@ export async function updateNasabah(
   return updated;
 }
 
+/**
+ * Menghapus data nasabah dari buku induk unit operasional.
+ *
+ * @param id - Identifier nasabah yang akan dihapus.
+ * @returns Boolean keberhasilan eksekusi penghapusan.
+ */
 export async function deleteNasabah(id: string): Promise<boolean> {
   const currentList = await getNasabahList();
   const filtered = currentList.filter((item) => item.id !== id);
@@ -142,13 +199,18 @@ export async function deleteNasabah(id: string): Promise<boolean> {
   try {
     await apiRequest(NASABAH.DETAIL(id), { method: "DELETE" });
   } catch (err) {
-    console.warn("[adminNasabahService] API DELETE offline, local only:", err);
+    console.warn("[adminNasabahService] API DELETE sedang offline, beralih ke state lokal:", err);
   }
 
   saveToLocalStorage(filtered);
   return true;
 }
 
+/**
+ * Mengekspor seluruh data buku induk nasabah ke format file CSV yang kompatibel dengan Excel.
+ *
+ * @param records - Daftar data nasabah yang akan diekspor.
+ */
 export function exportNasabahCsv(records: NasabahRecord[]) {
   const headerRow = ["ID Nasabah", "Nama Lengkap", "Username", "No Telepon", "Alamat", "Saldo Poin", "Status", "Tanggal Daftar"];
 

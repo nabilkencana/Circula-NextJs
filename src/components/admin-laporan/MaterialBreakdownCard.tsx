@@ -1,13 +1,35 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Kartu Rincian Komposisi Material Sampah Laporan Admin
+ *
+ * File: src/components/admin-laporan/MaterialBreakdownCard.tsx
+ * Deskripsi:
+ * Menampilkan kartu pembungkus distribusi 4 jenis material baku (plastik, kertas,
+ * logam, kaca), dilengkapi dengan badge verifikasi live data timbangan real.
+ *
+ * Standar Teknis UKK RPL:
+ * - Pembungkus bento card dengan border dan shadow lembut.
+ * - Header informatif dengan format bulan otomatis (cth: "08/2026").
+ * - Indikator live pulse status keaslian data timbangan terverifikasi.
+ */
+
 import React from "react";
 import { RekapitulasiBulananResponse } from "@/types/adminLaporan";
 import BreakdownProgressRow from "./BreakdownProgressRow";
 
+/**
+ * Properti komponen MaterialBreakdownCard.
+ */
 interface MaterialBreakdownCardProps {
+  /** Data rekapitulasi bulanan */
   data: RekapitulasiBulananResponse;
 }
 
+/**
+ * Komponen kartu rincian breakdown material sampah per kategori.
+ */
 export default function MaterialBreakdownCard({ data }: MaterialBreakdownCardProps) {
-  // Format month label like "08/2026"
+  // Format label bulan cth: "08/2026"
   const monthParts = data.periodeBulan.split("-");
   const monthDisplay =
     monthParts.length === 2 ? `${monthParts[1]}/${monthParts[0]}` : "08/2026";

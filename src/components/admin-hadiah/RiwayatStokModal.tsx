@@ -1,13 +1,38 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Dialog Riwayat Mutasi Stok Hadiah Admin
+ *
+ * File: src/components/admin-hadiah/RiwayatStokModal.tsx
+ * Deskripsi:
+ * Menampilkan tabel pop-up log pergerakan stok barang reward, mencatat tanggal,
+ * nama produk, tipe mutasi (masuk/restok atau keluar/klaim nasabah), kuantitas,
+ * serta catatan penjelas operasional.
+ *
+ * Standar Teknis UKK RPL:
+ * - Visualisasi arah arus stok dengan badge warna (hijau untuk masuk, merah untuk keluar).
+ * - Tata letak tabel responsif dengan scrolling internal vertikal.
+ * - Aksesibilitas keyboard dan tombol penutup cepat.
+ */
+
 import React from "react";
 import { X, ArrowDownLeft, ArrowUpRight, History } from "lucide-react";
 import { RiwayatStokRecord } from "@/types/adminHadiah";
 
+/**
+ * Properti komponen RiwayatStokModal.
+ */
 interface RiwayatStokModalProps {
+  /** Penanda apakah modal riwayat stok sedang terbuka */
   isOpen: boolean;
+  /** Koleksi log riwayat pergerakan stok */
   records: RiwayatStokRecord[];
+  /** Callback menutup dialog */
   onClose: () => void;
 }
 
+/**
+ * Komponen modal dialog riwayat log mutasi stok barang hadiah.
+ */
 export default function RiwayatStokModal({
   isOpen,
   records,

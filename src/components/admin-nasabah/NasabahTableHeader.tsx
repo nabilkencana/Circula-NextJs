@@ -1,11 +1,33 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Header Tabel Buku Induk & Tombol Ekspor CSV Admin
+ *
+ * File: src/components/admin-nasabah/NasabahTableHeader.tsx
+ * Deskripsi:
+ * Menampilkan judul daftar data nasabah, badge jumlah total data warga,
+ * serta tombol ekspor file CSV/Excel untuk keperluan pelaporan dinas/unit.
+ *
+ * Standar Teknis UKK RPL:
+ * - Clean visual hierarchy dengan badge jumlah total data.
+ * - Tombol aksi ekspor berkas data yang mudah diakses di bagian atas tabel.
+ */
+
 import React from "react";
 import { Download } from "lucide-react";
 
+/**
+ * Properti komponen NasabahTableHeader.
+ */
 interface NasabahTableHeaderProps {
+  /** Jumlah total record nasabah */
   totalCount: number;
+  /** Callback pemicu pengunduhan data berkas CSV */
   onExportCsv: () => void;
 }
 
+/**
+ * Komponen header tabel buku induk nasabah beserta opsi unduh CSV.
+ */
 export default function NasabahTableHeader({
   totalCount,
   onExportCsv,

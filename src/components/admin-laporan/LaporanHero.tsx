@@ -1,11 +1,34 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Hero Header & Ringkasan Telemetri Tonase Laporan Admin
+ *
+ * File: src/components/admin-laporan/LaporanHero.tsx
+ * Deskripsi:
+ * Menampilkan kartu banner visual dark-container dengan 3 kartu bento telemetri:
+ * Total Tonase Masuk (kg dan Metrik Ton), Estimasi Valuasi Kas Rupiah,
+ * serta Poin Terdistribusi sebagai bentuk insentif ekonomi sirkular.
+ *
+ * Standar Teknis UKK RPL:
+ * - Format angka lokal Indonesia (`toLocaleString("id-ID")`).
+ * - Responsive CSS Bento layout dengan subtle ambient glow.
+ * - Komponen presentasional React dengan strict typing.
+ */
+
 import React from "react";
 import { Scale, Coins, Award } from "lucide-react";
 import { RekapitulasiBulananResponse } from "@/types/adminLaporan";
 
+/**
+ * Properti komponen LaporanHero.
+ */
 interface LaporanHeroProps {
+  /** Objek data rekapitulasi bulanan */
   data: RekapitulasiBulananResponse;
 }
 
+/**
+ * Komponen banner visual hero laporan tonase dan valuasi sampah.
+ */
 export default function LaporanHero({ data }: LaporanHeroProps) {
   return (
     <section className="bg-dark-container rounded-3xl sm:rounded-[28px] p-6 sm:p-10 md:p-12 border border-white/10 shadow-xl relative overflow-hidden mb-6 text-white">

@@ -1,3 +1,22 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Halaman Konsol Administrator - Laporan Tonase & Valuasi Ekonomi Sampah
+ *
+ * File: src/app/admin/laporan/page.tsx
+ * Rute: /admin/laporan
+ * Deskripsi:
+ * Halaman orchestrator laporan ekologis dan valuasi sirkular bulanan.
+ * Mengagregasi data timbangan real-time per periode bulan, menampilkan 3 KPI summary cards,
+ * grafik rincian 4 jenis material baku (plastik, kertas, logam, kaca), tanda tangan
+ * digital compliance ISO 14001:2015, fitur cetak dokumen PDF resmi, serta ekspor file CSV.
+ *
+ * Standar Teknis UKK RPL:
+ * - Next.js 15 App Router Client Component ("use client").
+ * - Format layout dwifungsi: Tampilan interaktif di layar & tata letak rapi saat dicetak (`print:` modifier).
+ * - Single Source of Truth melalui custom hook `useAdminLaporan`.
+ * - Konsistensi UI dengan NavbarAdminConsole dan FooterAdmin.
+ */
+
 "use client";
 
 import React from "react";
@@ -11,7 +30,11 @@ import ComplianceAuditSignatureCard from "@/components/admin-laporan/ComplianceA
 import BottomAdminLaporanRibbon from "@/components/admin-laporan/BottomAdminLaporanRibbon";
 import { useAdminLaporan } from "@/hooks/useAdminLaporan";
 
+/**
+ * Komponen utama halaman laporan tonase dan valuasi ekonomi sampah unit admin.
+ */
 export default function AdminLaporanPage() {
+  // Mengonsumsi data agregasi dan handler operasional dari hook kustom
   const {
     selectedBulan,
     laporanData,
@@ -23,12 +46,12 @@ export default function AdminLaporanPage() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans selection:bg-brand-neon selection:text-text-primary">
-      {/* 1. SINGLE TOP FLOATING PILL NAVBAR */}
+      {/* 1. SINGLE TOP FLOATING PILL NAVBAR (Disembunyikan saat cetak) */}
       <div className="print:hidden">
         <NavbarAdminConsole />
       </div>
 
-      {/* Printable Header (Visible only when printed) */}
+      {/* Printable Header Khusus Mode Cetak / Ekspor PDF */}
       <div className="hidden print:block p-6 border-b border-gray-300 text-center">
         <h1 className="text-xl font-bold uppercase tracking-wider text-black">
           Laporan Rekapitulasi Penimbangan &amp; Valuasi Bank Sampah Circula
@@ -40,10 +63,10 @@ export default function AdminLaporanPage() {
 
       {/* 2. MAIN WORKSPACE CONTAINER */}
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-4">
-        {/* Dark Hero Showcase with 3 docked widgets */}
+        {/* Dark Hero Showcase dengan 3 docked telemetry widgets */}
         <LaporanHero data={laporanData} />
 
-        {/* Period Selector & Export CTAs Toolbar */}
+        {/* Toolbar Pemilihan Periode & Aksi Ekspor CSV / PDF */}
         <LaporanPeriodToolbar
           selectedBulan={selectedBulan}
           onSelectMonth={handleSelectMonth}
@@ -51,27 +74,27 @@ export default function AdminLaporanPage() {
           onPrintPdf={handlePrintPdf}
         />
 
-        {/* Loading overlay or indicator */}
+        {/* Indikator status proses pembaruan data */}
         {isLoading && (
           <div className="text-center py-4 text-xs font-semibold text-gray-500 animate-pulse print:hidden">
             Memperbarui data rekapitulasi periode {selectedBulan}...
           </div>
         )}
 
-        {/* 3 KPI Summary Cards */}
+        {/* 3 KPI Summary Cards (Volume, Pembayaran Kas, Sirkulasi Reward) */}
         <KpiSummaryCards data={laporanData} />
 
-        {/* Material Breakdown Progress Card */}
+        {/* Kartu Rincian Komposisi Tonase Material Sampah */}
         <MaterialBreakdownCard data={laporanData} />
 
-        {/* Compliance Audit & Digital Signature Card */}
+        {/* Pengesahan Audit Kepatuhan & Tanda Tangan Digital */}
         <ComplianceAuditSignatureCard compliance={laporanData.compliance} />
 
-        {/* Bottom Reassurance Ribbon */}
+        {/* Pita Informasi Teknis Endpoint & Navigasi */}
         <BottomAdminLaporanRibbon />
       </main>
 
-      {/* 3. 4-COLUMN ENTERPRISE FOOTER */}
+      {/* 3. 4-COLUMN ENTERPRISE FOOTER (Disembunyikan saat cetak) */}
       <div className="print:hidden">
         <FooterAdmin />
       </div>

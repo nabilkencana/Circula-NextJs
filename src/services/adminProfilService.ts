@@ -1,3 +1,20 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Layanan Integrasi API Profil & Pengaturan Unit Operasional Admin
+ *
+ * File: src/services/adminProfilService.ts
+ * Deskripsi:
+ * Mengelola pembacaan dan pembaruan data identitas unit bank sampah,
+ * mencakup integrasi endpoint otentikasi admin (`AUTH.ME`), sinkronisasi
+ * penyimpanan lokal browser (`localStorage`) guna mendukung kesiapan demo offline,
+ * serta simulasi delay UI yang mulus saat menyimpan perubahan data.
+ *
+ * Standar Teknis UKK RPL:
+ * - Integrasi REST API endpoint profil dan sesi admin unit.
+ * - Mekanisme fallback cache offline localStorage dengan pemulihan data instan.
+ * - Format string waktu update otomatis ("Hari ini, HH:mm WIB").
+ */
+
 import {
   UnitBankSampahDetail,
   UpdateUnitProfilPayload,
@@ -6,8 +23,10 @@ import {
 import { apiRequest } from "@/lib/api/client";
 import { AUTH } from "@/lib/api/endpoints";
 
+/** Kunci penyimpanan profil unit pada LocalStorage */
 const STORAGE_KEY = "circula_admin_unit_profile_v1";
 
+/** Objek data default profil awal */
 const EMPTY_PROFILE: UnitBankSampahDetail = {
   id: "",
   kodeUnit: "",
@@ -28,8 +47,14 @@ const EMPTY_PROFILE: UnitBankSampahDetail = {
   terakhirDisimpan: "",
 };
 
+/**
+ * Mengambil informasi detail profil unit bank sampah aktif.
+ * Membaca cache LocalStorage terlebih dahulu jika tersedia.
+ *
+ * @returns Promise berisi UnitBankSampahDetail.
+ */
 export async function getUnitProfil(): Promise<UnitBankSampahDetail> {
-  // Check local storage persistence first
+  // Periksa penyimpanan cache lokal browser terlebih dahulu
   if (typeof window !== "undefined") {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -37,7 +62,7 @@ export async function getUnitProfil(): Promise<UnitBankSampahDetail> {
         return JSON.parse(saved);
       }
     } catch (e) {
-      console.warn("[adminProfilService] Failed to read from localStorage:", e);
+      console.warn("[adminProfilService] Gagal membaca dari localStorage:", e);
     }
   }
 
@@ -57,7 +82,7 @@ export async function getUnitProfil(): Promise<UnitBankSampahDetail> {
     }
   } catch (err) {
     console.warn(
-      "[adminProfilService] Network unreachable. Unit profile unavailable:",
+      "[adminProfilService] Jaringan tidak dapat dijangkau. Beralih ke data default:",
       err
     );
   }
@@ -65,12 +90,18 @@ export async function getUnitProfil(): Promise<UnitBankSampahDetail> {
   return EMPTY_PROFILE;
 }
 
+/**
+ * Menyimpan pembaruan data profil unit bank sampah ke penyimpanan lokal dan backend.
+ *
+ * @param payload - Isian formulir pembaruan data profil.
+ * @returns Promise berisi UpdateUnitProfilResponse.
+ */
 export async function updateUnitProfil(
   payload: UpdateUnitProfilPayload
 ): Promise<UpdateUnitProfilResponse> {
   const current = await getUnitProfil();
 
-  // Create formatted timestamp
+  // Format cap waktu pembaruan
   const now = new Date();
   const hours = String(now.getHours()).padStart(2, "0");
   const minutes = String(now.getMinutes()).padStart(2, "0");
@@ -87,15 +118,15 @@ export async function updateUnitProfil(
     terakhirDisimpan: timeFormatted,
   };
 
-  // Artificial delay for smooth UX
+  // Penundaan sintetis 600ms untuk efek transisi UX yang nyaman
   await new Promise((resolve) => setTimeout(resolve, 600));
 
-  // Persist locally
+  // Simpan ke LocalStorage browser
   if (typeof window !== "undefined") {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
     } catch (e) {
-      console.warn("[adminProfilService] Failed to write to localStorage:", e);
+      console.warn("[adminProfilService] Gagal menyimpan ke localStorage:", e);
     }
   }
 

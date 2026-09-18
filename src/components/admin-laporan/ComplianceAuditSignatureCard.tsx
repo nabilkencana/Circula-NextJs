@@ -1,11 +1,34 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Kartu Audit Kepatuhan & Tanda Tangan Digital Admin
+ *
+ * File: src/components/admin-laporan/ComplianceAuditSignatureCard.tsx
+ * Deskripsi:
+ * Menampilkan pengesahan audit dan kepatuhan standar internasional (ISO 14001:2015),
+ * nama dinas tujuan pelaporan (Dinas Lingkungan Hidup), serta validasi tanda tangan
+ * digital pejabat penanggung jawab unit operasional bank sampah.
+ *
+ * Standar Teknis UKK RPL:
+ * - Badge verifikasi digital signature untuk keabsahan hukum pelaporan lingkungan.
+ * - Tata letak dua sisi (informasi standar audit di kiri, tanda tangan verifikasi di kanan).
+ * - Aksesibilitas visual dengan badge centang hijau terotorisasi.
+ */
+
 import React from "react";
 import { ShieldCheck, Check } from "lucide-react";
 import { RekapitulasiBulananResponse } from "@/types/adminLaporan";
 
+/**
+ * Properti komponen ComplianceAuditSignatureCard.
+ */
 interface ComplianceAuditSignatureCardProps {
+  /** Objek informasi kepatuhan audit dan tanda tangan */
   compliance: RekapitulasiBulananResponse["compliance"];
 }
 
+/**
+ * Komponen kartu pengesahan kepatuhan audit dan tanda tangan digital penanggung jawab.
+ */
 export default function ComplianceAuditSignatureCard({
   compliance,
 }: ComplianceAuditSignatureCardProps) {
@@ -42,7 +65,7 @@ export default function ComplianceAuditSignatureCard({
         </div>
 
         <div className="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 ring-2 ring-brand-neon/60 shadow-xs">
-          <Check className="w-4 h-4 stroke-[3]" />
+          <Check className="w-4 h-4 stroke-3" />
         </div>
       </div>
     </div>

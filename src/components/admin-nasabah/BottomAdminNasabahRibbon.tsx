@@ -1,7 +1,26 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Pita Penjamin Keamanan Data & Navigasi Admin Nasabah
+ *
+ * File: src/components/admin-nasabah/BottomAdminNasabahRibbon.tsx
+ * Deskripsi:
+ * Menampilkan bilah informasi di bagian bawah halaman manajemen nasabah untuk
+ * menegaskan isolasi multi-tenant data warga serta menyediakan navigasi cepat
+ * kembali ke Dashboard Utama Konsol Admin.
+ *
+ * Standar Teknis UKK RPL:
+ * - Semantic HTML markup (`<aside>`).
+ * - Integrasi Next.js client routing via `next/link`.
+ * - Tampilan visual konsisten dengan tema dark-container dan aksen brand-neon.
+ */
+
 import React from "react";
 import Link from "next/link";
 import { ShieldCheck, ArrowRight } from "lucide-react";
 
+/**
+ * Komponen pita navigasi dan jaminan keamanan data multi-tenant nasabah.
+ */
 export default function BottomAdminNasabahRibbon() {
   return (
     <aside

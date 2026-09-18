@@ -1,25 +1,53 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Dialog Rincian Profil Nasabah Admin (Nasabah Detail Modal)
+ *
+ * File: src/components/admin-nasabah/NasabahDetailModal.tsx
+ * Deskripsi:
+ * Menampilkan jendela dialog pop-up profil lengkap nasabah (foto avatar, status aktif,
+ * ID nasabah, tanggal registrasi, saldo poin & estimasi nilai rupiah, username login,
+ * tautan klik langsung ke WhatsApp, alamat domisili, dan tombol pintas ubah profil).
+ *
+ * Standar Teknis UKK RPL:
+ * - Integrasi tautan eksternal WhatsApp API (`https://wa.me/62...`) untuk komunikasi cepat.
+ * - Estimasi nilai ekuivalen rupiah dari saldo poin (kurs simulasi 1 poin = Rp 350).
+ * - Modal dialog interaktif dengan backdrop blur dan animasi pop-in mulus.
+ */
+
 import React, { useState } from "react";
 import Image from "next/image";
 import { X, Phone, MapPin, AtSign, Calendar, Star, ShieldCheck } from "lucide-react";
 import { NasabahRecord } from "@/types/adminNasabah";
 
+/**
+ * Properti komponen NasabahDetailModal.
+ */
 interface NasabahDetailModalProps {
+  /** Penanda apakah modal sedang terbuka */
   isOpen: boolean;
+  /** Objek data nasabah yang sedang ditinjau */
   record: NasabahRecord | null;
+  /** Callback menutup jendela detail */
   onClose: () => void;
+  /** Callback membuka drawer edit untuk nasabah ini */
   onEdit: (record: NasabahRecord) => void;
 }
 
+/**
+ * Komponen modal dialog detail profil nasabah terdaftar.
+ */
 export default function NasabahDetailModal({
   isOpen,
   record,
   onClose,
   onEdit,
 }: NasabahDetailModalProps) {
+  // State error pemuatan gambar avatar
   const [imgError, setImgError] = useState(false);
 
   if (!isOpen || !record) return null;
 
+  // Inisial avatar dua huruf
   const initials = record.namaLengkap
     .split(" ")
     .map((n) => n[0])

@@ -1,7 +1,25 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Hero Header Pendaftaran Unit Admin
+ *
+ * File: src/components/admin-register/AdminRegisterHero.tsx
+ * Deskripsi:
+ * Menampilkan kartu banner visual dark-container dengan citra latar fasilitas pemilahan modern
+ * dan 3 pilar hero deck: Multi-Tenant Terisolasi, Validasi Timbangan Real, dan Rekapitulasi Otomatis.
+ *
+ * Standar Teknis UKK RPL:
+ * - Next.js Image optimization dengan layer blending gelap.
+ * - Desain card dark-container modern dengan aksen gradien glow subtle.
+ * - Ikonografi representatif (LayoutGrid, Scale, BarChart3) dari lucide-react.
+ */
+
 import React from "react";
 import Image from "next/image";
 import { LayoutGrid, Scale, BarChart3 } from "lucide-react";
 
+/**
+ * Komponen banner hero visual halaman pendaftaran unit baru.
+ */
 export default function AdminRegisterHero() {
   return (
     <section className="px-4 sm:px-6">

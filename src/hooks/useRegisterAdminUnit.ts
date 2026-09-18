@@ -1,3 +1,20 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Custom Hook Formulir Registrasi Administrator Unit Bank Sampah
+ *
+ * File: src/hooks/useRegisterAdminUnit.ts
+ * Deskripsi:
+ * Mengelola seluruh alur dan validasi formulir pendaftaran unit operasional bank sampah:
+ * validasi nama unit, penanggung jawab, nomor kontak numerik, sanitasi username,
+ * kecocokan kata sandi, persetujuan syarat kepatuhan SOP 3R, penanganan respons API,
+ * penanganan kesalahan App Key, serta pembukaan pop-up modal sukses registrasi.
+ *
+ * Standar Teknis UKK RPL:
+ * - Validasi formulir komprehensif di sisi klien sebelum request API dikirimkan.
+ * - Sanitasi otomatis username (lowercase, tanpa spasi).
+ * - Penanganan error ramah pengguna (termasuk deteksi galat konfigurasi header App Key).
+ */
+
 "use client";
 
 import { useState, useCallback } from "react";
@@ -7,6 +24,7 @@ import {
 } from "@/types/adminAuth";
 import { registerAdminBank } from "@/services/adminAuthService";
 
+/** Nilai inisial form pendaftaran admin unit */
 const INITIAL_FORM_STATE: RegisterAdminBankPayload = {
   namaUnit: "",
   namaPengelola: "",
@@ -17,20 +35,32 @@ const INITIAL_FORM_STATE: RegisterAdminBankPayload = {
   setujuKetentuan: false,
 };
 
+/**
+ * Custom hook `useRegisterAdminUnit` mengelola formulir pendaftaran unit bank sampah.
+ */
 export function useRegisterAdminUnit() {
+  // State isian formulir
   const [formData, setFormData] =
     useState<RegisterAdminBankPayload>(INITIAL_FORM_STATE);
+  // State pesan error validasi per field
   const [errors, setErrors] = useState<Record<string, string>>({});
+  // Toggle visibilitas kata sandi dan konfirmasi sandi
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] =
     useState<boolean>(false);
+  // Status indikator proses pengiriman
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  // Status keterbukaan modal sukses pendaftaran
   const [isSuccessModalOpen, setIsSuccessModalOpen] =
     useState<boolean>(false);
+  // Data hasil pendaftaran yang dikembalikan server
   const [registeredData, setRegisteredData] = useState<
     RegisterAdminBankResponse["data"] | null
   >(null);
 
+  /**
+   * Mengubah nilai field data form dan membersihkan error terkait secara real-time.
+   */
   const handleInputChange = useCallback(
     (field: keyof RegisterAdminBankPayload, value: string | boolean) => {
       setFormData((prev) => ({
@@ -41,7 +71,7 @@ export function useRegisterAdminUnit() {
             : value,
       }));
 
-      // Clear error on change
+      // Bersihkan pesan error field terkait jika sudah diisi
       if (errors[field]) {
         setErrors((prev) => {
           const next = { ...prev };
@@ -53,14 +83,19 @@ export function useRegisterAdminUnit() {
     [errors]
   );
 
+  /** Toggle visibilitas teks kata sandi */
   const toggleShowPassword = useCallback(() => {
     setShowPassword((prev) => !prev);
   }, []);
 
+  /** Toggle visibilitas teks konfirmasi kata sandi */
   const toggleShowConfirmPassword = useCallback(() => {
     setShowConfirmPassword((prev) => !prev);
   }, []);
 
+  /**
+   * Memvalidasi kelayakan isian formulir pendaftaran sebelum proses submit.
+   */
   const validate = useCallback((): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -115,6 +150,9 @@ export function useRegisterAdminUnit() {
     return Object.keys(newErrors).length === 0;
   }, [formData]);
 
+  /**
+   * Menangani pengiriman formulir pendaftaran ke backend API.
+   */
   const handleSubmit = useCallback(
     async (e?: React.FormEvent) => {
       if (e) e.preventDefault();
@@ -158,6 +196,7 @@ export function useRegisterAdminUnit() {
     [formData, validate, errors]
   );
 
+  /** Menutup modal notifikasi sukses pendaftaran */
   const closeSuccessModal = useCallback(() => {
     setIsSuccessModalOpen(false);
   }, []);

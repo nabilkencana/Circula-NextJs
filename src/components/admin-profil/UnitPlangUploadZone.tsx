@@ -1,26 +1,56 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Zona Unggah Foto Plang & Logo Unit Admin
+ *
+ * File: src/components/admin-profil/UnitPlangUploadZone.tsx
+ * Deskripsi:
+ * Mengakomodasi tombol pemilihan file foto plang atau logo unit bank sampah,
+ * menampilkan pratinjau avatar lingkaran (atau inisial nama "AJ" bila belum ada foto),
+ * serta memvalidasi format file (PNG, JPG, WebP) maks. 2MB.
+ *
+ * Standar Teknis UKK RPL:
+ * - Hidden file input yang dipicu programatik melalui tombol kustom bergaya Next.js.
+ * - Pratinjau gambar responsif dengan fill sizing dan fallback inisial teks.
+ * - Validasi tipe MIME file gambar yang diperbolehkan.
+ */
+
 "use client";
 
 import React, { useRef } from "react";
 import Image from "next/image";
 import { Upload } from "lucide-react";
 
+/**
+ * Properti komponen UnitPlangUploadZone.
+ */
 interface UnitPlangUploadZoneProps {
+  /** URL string pratinjau gambar logo yang dipilih */
   logoPreview: string | null;
+  /** Callback saat berkas baru dipilih */
   onLogoUpload: (file: File) => void;
 }
 
+/**
+ * Komponen zona unggah foto plang unit operasional bank sampah.
+ */
 export default function UnitPlangUploadZone({
   logoPreview,
   onLogoUpload,
 }: UnitPlangUploadZoneProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  /**
+   * Menangani perubahan file yang dipilih oleh user.
+   */
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       onLogoUpload(e.target.files[0]);
     }
   };
 
+  /**
+   * Membuka dialog pemilih berkas saat tombol diklik.
+   */
   const handleButtonClick = () => {
     fileInputRef.current?.click();
   };

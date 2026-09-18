@@ -1,3 +1,22 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Halaman Konsol Administrator - Manajemen & Buku Induk Data Nasabah
+ *
+ * File: src/app/admin/nasabah/page.tsx
+ * Rute: /admin/nasabah
+ * Deskripsi:
+ * Halaman orchestrator utama bagi pengurus bank sampah untuk mengelola data nasabah,
+ * memantau saldo poin aktif, mencari warga penyetor, mendaftarkan nasabah baru secara manual,
+ * melihat detail profil lengkap, mengedit informasi kontak/domisili, menghapus akun,
+ * serta mengekspor data ke file CSV/Excel.
+ *
+ * Standar Teknis UKK RPL:
+ * - Next.js 15 App Router Client Component ("use client").
+ * - Arsitektur Modular: Mengombinasikan Hero, Toolbar, TableCard, Drawer Modal, Dialog Hapus, dan Modal Detail.
+ * - Single Source of Truth via custom hook `useAdminNasabah`.
+ * - Konsistensi UI dengan NavbarAdminConsole dan FooterAdmin.
+ */
+
 "use client";
 
 import React from "react";
@@ -13,7 +32,11 @@ import BottomAdminNasabahRibbon from "@/components/admin-nasabah/BottomAdminNasa
 import { useAdminNasabah } from "@/hooks/useAdminNasabah";
 import { CheckCircle2, AlertCircle } from "lucide-react";
 
+/**
+ * Komponen utama halaman manajemen dan buku induk data nasabah administrator.
+ */
 export default function AdminNasabahPage() {
+  // Mengonsumsi seluruh state dan dispatch handler dari hook useAdminNasabah
   const {
     filteredList,
     paginatedList,
@@ -69,7 +92,7 @@ export default function AdminNasabahPage() {
 
       {/* Main Page Container */}
       <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-2">
-        {/* 2. Hero Showcase */}
+        {/* 2. Hero Showcase Telemetri Nasabah */}
         <NasabahHero stats={stats} />
 
         {/* 3. Search & Filter Toolbar */}

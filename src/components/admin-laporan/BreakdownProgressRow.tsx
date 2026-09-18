@@ -1,13 +1,36 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Baris Rincian & Progress Bar Material Sampah Admin
+ *
+ * File: src/components/admin-laporan/BreakdownProgressRow.tsx
+ * Deskripsi:
+ * Menampilkan baris individual kategori material sampah (Plastik, Kertas, Logam, Kaca),
+ * mencakup badge label berwarna, sub-spesifikasi mutu, rasio persentase tonase,
+ * nilai valuasi tunai rupiah, poin reward yang diperoleh, dan progress bar visual dinamis.
+ *
+ * Standar Teknis UKK RPL:
+ * - Pemetaan styling tematik kategori (Biru = Plastik, Kuning/Amber = Kertas, Ungu = Logam, Hijau = Kaca).
+ * - Visual progress bar dengan CSS width dinamis berbasis persentase tonase total.
+ * - Format angka lokal Indonesia (`toLocaleString("id-ID")`).
+ */
+
 import React from "react";
 import { Star } from "lucide-react";
 import { BreakdownMaterialItem } from "@/types/adminLaporan";
 
+/**
+ * Properti komponen BreakdownProgressRow.
+ */
 interface BreakdownProgressRowProps {
+  /** Objek data rincian satu jenis kategori sampah */
   item: BreakdownMaterialItem;
 }
 
+/**
+ * Komponen baris rincian dan grafik batang persentase jenis sampah.
+ */
 export default function BreakdownProgressRow({ item }: BreakdownProgressRowProps) {
-  // Styling per category key
+  // Styling spesifik per kategori sampah
   const categoryStyles: Record<
     string,
     { badgeBg: string; badgeText: string; barBg: string }

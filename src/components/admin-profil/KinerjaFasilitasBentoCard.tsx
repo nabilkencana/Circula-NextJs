@@ -1,20 +1,46 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Bento Card Kinerja Fasilitas & Token Multi-Tenant Admin
+ *
+ * File: src/components/admin-profil/KinerjaFasilitasBentoCard.tsx
+ * Deskripsi:
+ * Menyusun matriks 4 ubin metrik operasional unit bank sampah: Total Nasabah,
+ * Akumulasi Tonase Sampah, Transaksi Bulan Berjalan, dan Reward Terdistribusi,
+ * serta menaungi kotak token App Key multi-tenant untuk kebutuhan integrasi.
+ *
+ * Standar Teknis UKK RPL:
+ * - 2x2 Bento Matrix Grid dengan micro-card responsif.
+ * - Format angka dan konversi mata uang lokal Indonesia (`toLocaleString("id-ID")`).
+ * - Integrasi kartu salin token multi-tenant (`MultiTenantTokenCard`).
+ */
+
 "use client";
 
 import React from "react";
 import MultiTenantTokenCard from "./MultiTenantTokenCard";
 import { UnitBankSampahDetail } from "@/types/adminProfil";
 
+/**
+ * Properti komponen KinerjaFasilitasBentoCard.
+ */
 interface KinerjaFasilitasBentoCardProps {
+  /** Objek data profil unit */
   unitData: UnitBankSampahDetail | null;
+  /** Status apakah App Key berhasil disalin */
   copiedAppKey: boolean;
+  /** Callback saat tombol salin App Key ditekan */
   onCopyAppKey: () => void;
 }
 
+/**
+ * Komponen kartu bento kinerja fasilitas dan token multi-tenant unit.
+ */
 export default function KinerjaFasilitasBentoCard({
   unitData,
   copiedAppKey,
   onCopyAppKey,
 }: KinerjaFasilitasBentoCardProps) {
+  // Nilai metrik dengan fallback nilai default
   const totalNasabah = unitData?.totalNasabah ?? 142;
   const nasabahBaru = unitData?.nasabahBaruBulanIni ?? 12;
   const tonase = unitData?.akumulasiTonaseTon ?? 12.5;

@@ -1,3 +1,18 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Kartu Kontainer Formulir Profil Unit Admin
+ *
+ * File: src/components/admin-profil/ProfilFormCard.tsx
+ * Deskripsi:
+ * Menggabungkan Header Formulir, Zona Unggah Foto Plang Unit, Kelompok Input Data
+ * (Nama Unit, Pengelola, Kontak, Alamat, Jam Operasional, Kapasitas), serta Tombol Aksi Simpan/Batal.
+ *
+ * Standar Teknis UKK RPL:
+ * - Aksen garis tepi atas (top border) berwarna brand-neon (`border-t-4 border-t-brand-neon`).
+ * - Integrasi erat dengan hook controller `useAdminProfil`.
+ * - Pemisahan concern yang rapi ke sub-komponen terisolasi.
+ */
+
 "use client";
 
 import React from "react";
@@ -8,10 +23,17 @@ import { useAdminProfil } from "@/hooks/useAdminProfil";
 
 type UseAdminProfilReturn = ReturnType<typeof useAdminProfil>;
 
+/**
+ * Properti komponen ProfilFormCard.
+ */
 interface ProfilFormCardProps {
+  /** Objek controller hasil kembalian hook useAdminProfil */
   controller: UseAdminProfilReturn;
 }
 
+/**
+ * Komponen kartu pembungkus formulir pembaruan data profil unit bank sampah.
+ */
 export default function ProfilFormCard({ controller }: ProfilFormCardProps) {
   const {
     unitData,

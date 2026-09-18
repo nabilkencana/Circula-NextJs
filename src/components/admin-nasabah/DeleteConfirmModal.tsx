@@ -1,15 +1,41 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Dialog Konfirmasi Penghapusan Data Nasabah Admin
+ *
+ * File: src/components/admin-nasabah/DeleteConfirmModal.tsx
+ * Deskripsi:
+ * Menampilkan dialog konfirmasi destruktif sebelum data nasabah dihapus permanen
+ * dari buku induk unit operasional bank sampah.
+ *
+ * Standar Teknis UKK RPL:
+ * - Aksen bahaya destruktif (merah/red-600) untuk mencegah kekeliruan penghapusan.
+ * - Pencegahan multiple-submit dengan properti `isSubmitting`.
+ * - Desain pop-up modal terpusat dengan animasi lembut.
+ */
+
 import React from "react";
 import { AlertTriangle, Trash2 } from "lucide-react";
 import { NasabahRecord } from "@/types/adminNasabah";
 
+/**
+ * Properti komponen DeleteConfirmModal.
+ */
 interface DeleteConfirmModalProps {
+  /** Penanda apakah dialog modal sedang terbuka */
   isOpen: boolean;
+  /** Data nasabah yang akan dihapus */
   record: NasabahRecord | null;
+  /** Status proses penghapusan asinkron sedang berlangsung */
   isSubmitting: boolean;
+  /** Callback menutup dialog */
   onClose: () => void;
+  /** Callback eksekusi konfirmasi penghapusan */
   onConfirm: () => void;
 }
 
+/**
+ * Komponen modal konfirmasi hapus data nasabah.
+ */
 export default function DeleteConfirmModal({
   isOpen,
   record,

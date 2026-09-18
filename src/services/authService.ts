@@ -1,3 +1,21 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Layanan Otentikasi Terpadu (Nasabah & Admin Multi-Role)
+ *
+ * File: src/services/authService.ts
+ * Deskripsi:
+ * Mengelola seluruh operasi otentikasi akun pengguna pada platform Circula:
+ * registrasi akun nasabah warga (termasuk upload foto profil multipart/form-data),
+ * proses login multi-role (NASABAH vs ADMIN), penyimpanan sesi token JWT dan role
+ * pada LocalStorage browser, manajemen logout, pembacaan pengguna aktif,
+ * serta inisialisasi App Key default sistem (seedAppKey).
+ *
+ * Standar Teknis UKK RPL:
+ * - Dukungan payload multipart (FormData) untuk registrasi nasabah dengan foto profil.
+ * - Manajemen token JWT dan state otentikasi browser terintegrasi dengan RouteGuard.
+ * - Single Source of Truth untuk data sesi pengguna aktif (`getCurrentUser`, `logoutUser`).
+ */
+
 import {
   RegisterNasabahPayload,
   RegisterResponse,
@@ -5,15 +23,32 @@ import {
   LoginResponse,
   UserSessionData,
 } from "@/types/auth";
-import { fetchWithAuth, saveAppKey, clearAuth, getToken, TOKEN_STORAGE_KEY, USER_STORAGE_KEY, ROLE_STORAGE_KEY } from "@/lib/api/client";
+import {
+  fetchWithAuth,
+  saveAppKey,
+  clearAuth,
+  getToken,
+  TOKEN_STORAGE_KEY,
+  USER_STORAGE_KEY,
+  ROLE_STORAGE_KEY,
+} from "@/lib/api/client";
 import { ENDPOINTS } from "@/lib/api/endpoints";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
+/**
+ * Menghapus seluruh status otentikasi dan kredensial dari browser.
+ */
 export function logout(): void {
   clearAuth();
 }
 
+/**
+ * Menyimpan data sesi otentikasi ke LocalStorage browser.
+ *
+ * @param token - Token otorisasi JWT dari server.
+ * @param user - Objek sesi pengguna (id, username, role, namaLengkap).
+ */
 function storeSession(token: string, user: UserSessionData): void {
   if (typeof window !== "undefined") {
     localStorage.setItem(TOKEN_STORAGE_KEY, token);
@@ -22,6 +57,12 @@ function storeSession(token: string, user: UserSessionData): void {
   }
 }
 
+/**
+ * Normalisasi format nomor kontak seluler / WhatsApp ke kode negara Indonesia (+62).
+ *
+ * @param raw - String nomor telepon mentah.
+ * @returns Nomor telepon terstandarisasi diawali '62'.
+ */
 function normalizeWA(raw: string): string {
   const trimmed = raw.trim();
   if (trimmed.startsWith("0")) return `62${trimmed.slice(1)}`;
@@ -31,6 +72,13 @@ function normalizeWA(raw: string): string {
 
 // ─── Register ─────────────────────────────────────────────────────────────────
 
+/**
+ * Mendaftarkan akun nasabah baru ke sistem backend Circula.
+ * Mendukung pengiriman multipart/form-data jika menyertakan foto profil fisik.
+ *
+ * @param payload - Data formulir pendaftaran nasabah.
+ * @returns Promise berisi RegisterResponse.
+ */
 export async function registerNasabah(
   payload: RegisterNasabahPayload
 ): Promise<RegisterResponse> {
@@ -42,6 +90,7 @@ export async function registerNasabah(
 
   let body: BodyInit;
 
+  // Jika menyertakan file foto profil, gunakan multipart FormData
   if (payload.fotoProfil && payload.fotoProfil instanceof File) {
     const formData = new FormData();
     formData.append("username", username);
@@ -93,7 +142,7 @@ export async function registerNasabah(
     };
   }
 
-  // API responded with an error — surface it to the user instead of silently succeeding
+  // Laporkan galat dari server ke pengguna secara jelas
   throw new Error(
     result.error ||
       "Pendaftaran gagal. Periksa kembali data Anda atau hubungi administrator."
@@ -102,6 +151,12 @@ export async function registerNasabah(
 
 // ─── Login ────────────────────────────────────────────────────────────────────
 
+/**
+ * Melakukan proses otentikasi login multi-role (Nasabah atau Admin).
+ *
+ * @param payload - Username dan password pengguna.
+ * @returns Promise berisi LoginResponse lengkap dengan token dan data sesi.
+ */
 export async function loginUser(payload: LoginPayload): Promise<LoginResponse> {
   const body = {
     username: payload.username.trim().toLowerCase(),
@@ -130,8 +185,7 @@ export async function loginUser(payload: LoginPayload): Promise<LoginResponse> {
         : undefined,
     };
 
-    // Selalu simpan sesi agar RouteGuard konsisten dgn state login.
-    // (rememberMe ukur dibiarkan utk UI, tapi simpan tidak dikondisikan.)
+    // Selalu simpan sesi agar RouteGuard konsisten dengan state login
     storeSession(raw.token, userSession);
 
     return {
@@ -148,10 +202,14 @@ export async function loginUser(payload: LoginPayload): Promise<LoginResponse> {
 
 // ─── Seed App Key ─────────────────────────────────────────────────────────────
 
+/**
+ * Melakukan inisialisasi App Key default ke database backend bila belum tersedia.
+ *
+ * @returns Promise boolean status keberhasilan seeding.
+ */
 export async function seedAppKey(): Promise<boolean> {
   const result = await fetchWithAuth(ENDPOINTS.AUTH.SEED, { method: "POST", timeoutMs: 8000 });
   if (result.ok) {
-    // Save the env key as the verified working app key
     const envKey = process.env.NEXT_PUBLIC_DEFAULT_APP_KEY || "1d99c078-9a3f-45e0-978e-8e0806338593";
     saveAppKey(envKey);
     return true;
@@ -161,6 +219,9 @@ export async function seedAppKey(): Promise<boolean> {
 
 // ─── Session Helpers ─────────────────────────────────────────────────────────
 
+/**
+ * Menghapus data sesi otentikasi login dari browser LocalStorage.
+ */
 export function logoutUser(): void {
   if (typeof window !== "undefined") {
     localStorage.removeItem(TOKEN_STORAGE_KEY);
@@ -169,6 +230,11 @@ export function logoutUser(): void {
   }
 }
 
+/**
+ * Mengambil data sesi pengguna yang sedang aktif login dari LocalStorage browser.
+ *
+ * @returns UserSessionData jika sesi aktif ditemukan, atau null jika belum login.
+ */
 export function getCurrentUser(): UserSessionData | null {
   if (typeof window !== "undefined") {
     const token = getToken();

@@ -1,7 +1,25 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Pita Informasi Endpoint & Navigasi Admin Laporan
+ *
+ * File: src/components/admin-laporan/BottomAdminLaporanRibbon.tsx
+ * Deskripsi:
+ * Menampilkan catatan teknis mengenai asal sumber data agregasi endpoint API
+ * serta tombol pintas navigasi kembali ke halaman konsol admin nasabah.
+ *
+ * Standar Teknis UKK RPL:
+ * - Semantic HTML markup (`<aside>`).
+ * - Disembunyikan saat mode cetak dokumen (`print:hidden`).
+ * - Navigasi client-side Next.js via `next/link`.
+ */
+
 import React from "react";
 import Link from "next/link";
 import { RefreshCw, ArrowRight } from "lucide-react";
 
+/**
+ * Komponen pita informasi agregasi data dan navigasi kembali konsol admin.
+ */
 export default function BottomAdminLaporanRibbon() {
   return (
     <aside className="rounded-3xl bg-dark-container border border-white/10 p-6 sm:p-7 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-white shadow-lg mb-12 print:hidden">

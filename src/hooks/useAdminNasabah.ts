@@ -1,3 +1,19 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Custom Hook Pengelolaan State Buku Induk Nasabah Admin
+ *
+ * File: src/hooks/useAdminNasabah.ts
+ * Deskripsi:
+ * Mengatur seluruh state reaktif manajemen data nasabah (pencarian teks multi-field,
+ * filter tab saldo & kebaruan, paginasi data tabular, kontrol drawer penambahan/edit,
+ * modal detail akun lengkap, dialog konfirmasi penghapusan, unduhan CSV, dan feedback toast).
+ *
+ * Standar Teknis UKK RPL:
+ * - State management modular dan reaktif menggunakan standar React 19 Hooks.
+ * - Paginasi data klien yang efisien (`ITEMS_PER_PAGE = 5`).
+ * - Perhitungan metrik telemetri menggunakan `useMemo` untuk efisiensi render.
+ */
+
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
@@ -15,36 +31,45 @@ import {
   exportNasabahCsv,
 } from "@/services/adminNasabahService";
 
+/** Jumlah baris data nasabah yang ditampilkan per halaman */
 const ITEMS_PER_PAGE = 5;
 
+/**
+ * Custom hook `useAdminNasabah` untuk mengelola seluruh siklus data buku induk nasabah.
+ */
 export function useAdminNasabah() {
+  // State data nasabah dan status pemuatan dari backend
   const [nasabahList, setNasabahList] = useState<NasabahRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // State parameter penyaringan (kata kunci, segmentasi tab, dan nomor halaman)
   const [filterState, setFilterState] = useState<NasabahFilterState>({
     searchQuery: "",
     filterTab: "semua",
     currentPage: 1,
   });
 
+  // State visibilitas drawer formulir penambahan / pengeditan data nasabah
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [drawerMode, setDrawerMode] = useState<"create" | "edit">("create");
   const [selectedNasabah, setSelectedNasabah] = useState<NasabahRecord | null>(null);
 
+  // State modal dialog konfirmasi hapus dan pop-up rincian detail profil nasabah
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
+  // State indikator proses mutasi asinkron dan pesan notifikasi toast
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
-  // Auto-dismiss toast
+  // Auto-dismiss toast umpan balik setelah 3.5 detik
   useEffect(() => {
     if (!toast) return;
     const timer = setTimeout(() => setToast(null), 3500);
     return () => clearTimeout(timer);
   }, [toast]);
 
-  // Load initial data
+  // Efek samping memuat inisial data nasabah dari server
   useEffect(() => {
     let isMounted = true;
 
@@ -74,7 +99,9 @@ export function useAdminNasabah() {
     };
   }, []);
 
-  // Handlers for search and tabs
+  /**
+   * Mengubah kata kunci pencarian dan mereset halaman ke halaman pertama.
+   */
   const handleSearch = useCallback((query: string) => {
     setFilterState((prev) => ({
       ...prev,
@@ -83,6 +110,9 @@ export function useAdminNasabah() {
     }));
   }, []);
 
+  /**
+   * Mengubah tab segmentasi filter data nasabah.
+   */
   const handleFilterTab = useCallback((tab: "semua" | "poin_tinggi" | "baru") => {
     setFilterState((prev) => ({
       ...prev,
@@ -91,6 +121,9 @@ export function useAdminNasabah() {
     }));
   }, []);
 
+  /**
+   * Mengubah halaman tabel aktif.
+   */
   const handlePageChange = useCallback((page: number) => {
     setFilterState((prev) => ({
       ...prev,
@@ -98,11 +131,13 @@ export function useAdminNasabah() {
     }));
   }, []);
 
-  // Filtered list
+  /**
+   * Daftar nasabah yang telah disaring berdasarkan query teks dan tab filter.
+   */
   const filteredList = useMemo(() => {
     let list = [...nasabahList];
 
-    // Search query
+    // Filter berdasarkan kecocokan teks
     const q = filterState.searchQuery.trim().toLowerCase();
     if (q) {
       list = list.filter(
@@ -114,7 +149,7 @@ export function useAdminNasabah() {
       );
     }
 
-    // Filter tab
+    // Filter tab kondisi poin dan status kebaruan
     if (filterState.filterTab === "poin_tinggi") {
       list = list.filter((item) => item.saldoPoin > 100);
     } else if (filterState.filterTab === "baru") {
@@ -124,15 +159,18 @@ export function useAdminNasabah() {
     return list;
   }, [nasabahList, filterState.searchQuery, filterState.filterTab]);
 
-  // Paginated list
+  /**
+   * Daftar nasabah yang dipotong sesuai batas paginasi halaman aktif.
+   */
   const paginatedList = useMemo(() => {
     const startIndex = (filterState.currentPage - 1) * ITEMS_PER_PAGE;
     return filteredList.slice(startIndex, startIndex + ITEMS_PER_PAGE);
   }, [filteredList, filterState.currentPage]);
 
+  /** Total jumlah halaman paginasi */
   const totalPages = Math.max(1, Math.ceil(filteredList.length / ITEMS_PER_PAGE));
 
-  // Modal / Drawer Triggers
+  // Handler interaksi pembukaan drawer & dialog modal
   const handleOpenCreate = useCallback(() => {
     setSelectedNasabah(null);
     setDrawerMode("create");
@@ -167,7 +205,9 @@ export function useAdminNasabah() {
     setIsDetailModalOpen(false);
   }, []);
 
-  // Save (Create or Update)
+  /**
+   * Menyimpan data pendaftaran baru atau hasil edit nasabah.
+   */
   const handleSave = useCallback(
     async (payload: CreateNasabahPayload | UpdateNasabahPayload) => {
       try {
@@ -206,7 +246,9 @@ export function useAdminNasabah() {
     [drawerMode, selectedNasabah]
   );
 
-  // Confirm Delete
+  /**
+   * Menjalankan konfirmasi penghapusan nasabah dari unit.
+   */
   const handleConfirmDelete = useCallback(async () => {
     if (!selectedNasabah) return;
     try {
@@ -231,7 +273,9 @@ export function useAdminNasabah() {
     }
   }, [selectedNasabah]);
 
-  // Export CSV
+  /**
+   * Mengunduh seluruh data buku induk nasabah dalam berkas CSV.
+   */
   const handleExportCsv = useCallback(() => {
     exportNasabahCsv(nasabahList);
     setToast({
@@ -240,7 +284,9 @@ export function useAdminNasabah() {
     });
   }, [nasabahList]);
 
-  // Metrics for Hero display
+  /**
+   * Statistik telemetri agregasi nasabah untuk header hero.
+   */
   const stats = useMemo(() => {
     const baseTotal = 142;
     const currentTotal = baseTotal + (nasabahList.length - 3);

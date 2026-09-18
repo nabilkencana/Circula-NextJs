@@ -1,7 +1,26 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Bento Fitur Konsol Administrator
+ *
+ * File: src/components/admin-register/AdminFeaturesBentoCard.tsx
+ * Deskripsi:
+ * Menampilkan daftar 4 fitur keunggulan konsol operasional admin unit bank sampah:
+ * Manajemen Data Nasabah, Kustomisasi Master Kategori, Kelola Katalog Hadiah,
+ * dan Cetak Nota & Rekap Bulanan, serta memuat badge keamanan Multi-Tenant.
+ *
+ * Standar Teknis UKK RPL:
+ * - Desain card dark-container elegan dengan micro-animations pada ikon.
+ * - Pemisahan concern yang rapi dengan sub-komponen `MultiTenantSecurityBadge`.
+ * - Teks narasi edukatif yang relevan dengan skenario Ujian Kompetensi Keahlian.
+ */
+
 import React from "react";
 import { Users, Settings2, Gift, Printer } from "lucide-react";
 import MultiTenantSecurityBadge from "./MultiTenantSecurityBadge";
 
+/**
+ * Komponen kartu bento showcase fitur lengkap konsol admin unit bank sampah.
+ */
 export default function AdminFeaturesBentoCard() {
   const features = [
     {

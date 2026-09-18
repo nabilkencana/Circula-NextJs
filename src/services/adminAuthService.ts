@@ -1,3 +1,19 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Layanan Registrasi Akun Administrator Unit Bank Sampah
+ *
+ * File: src/services/adminAuthService.ts
+ * Deskripsi:
+ * Bertanggung jawab mengirimkan permintaan pendaftaran unit bank sampah baru ke endpoint backend,
+ * melakukan normalisasi nomor kontak WhatsApp berformat standar internasional (+62),
+ * serta memvalidasi respons status pendaftaran.
+ *
+ * Standar Teknis UKK RPL:
+ * - Sanitasi dan standardisasi nomor kontak seluler Indonesia (08... -> 628...).
+ * - Pengiriman payload HTTP POST via `fetchWithAuth` dengan konfigurasi timeout aman.
+ * - Penanganan galat respons server secara informatif.
+ */
+
 import {
   RegisterAdminBankPayload,
   RegisterAdminBankResponse,
@@ -5,10 +21,17 @@ import {
 import { fetchWithAuth } from "@/lib/api/client";
 import { AUTH } from "@/lib/api/endpoints";
 
+/**
+ * Mendaftarkan unit bank sampah baru beserta akun kredensial administrator.
+ *
+ * @param payload - Data formulir pendaftaran admin unit.
+ * @returns Promise berisi RegisterAdminBankResponse.
+ * @throws Error bila pendaftaran ditolak oleh backend atau terjadi kendala jaringan.
+ */
 export async function registerAdminBank(
   payload: RegisterAdminBankPayload
 ): Promise<RegisterAdminBankResponse> {
-  // Normalize phone number to standard format
+  // Normalisasi nomor telepon ke format standar internasional (diawali 62)
   let normalizedTelp = payload.telp.trim();
   if (normalizedTelp.startsWith("0")) {
     normalizedTelp = `62${normalizedTelp.slice(1)}`;
@@ -47,4 +70,3 @@ export async function registerAdminBank(
       "Pendaftaran admin unit gagal. Periksa data kembali atau hubungi administrator."
   );
 }
-

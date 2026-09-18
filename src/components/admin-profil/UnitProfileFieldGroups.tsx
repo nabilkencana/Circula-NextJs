@@ -1,14 +1,40 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Kelompok Input Formulir Profil Unit Admin
+ *
+ * File: src/components/admin-profil/UnitProfileFieldGroups.tsx
+ * Deskripsi:
+ * Mengelompokkan seluruh elemen input formulir identitas unit bank sampah:
+ * - Nama Unit Bank Sampah (full-width)
+ * - Penanggung Jawab / Pengelola & Nomor Kontak WhatsApp (2 kolom)
+ * - Alamat Lengkap Loket / Gudang Fasilitas (textarea full-width)
+ * - Jam Operasional Loket & Kapasitas Gudang Penampungan (2 kolom)
+ *
+ * Standar Teknis UKK RPL:
+ * - Controlled input components terintegrasi dengan event callback parent.
+ * - Penanda field wajib diisi (`*` merah) dan ikon pendukung (Building2, User, Phone, MapPin, Clock, Package).
+ * - Prefix nomor seluler Indonesia (+62) dengan formatting monospaced font.
+ */
+
 "use client";
 
 import React, { ChangeEvent } from "react";
 import { Building2, User, Phone, MapPin, Clock, Package } from "lucide-react";
 import { UpdateUnitProfilPayload } from "@/types/adminProfil";
 
+/**
+ * Properti komponen UnitProfileFieldGroups.
+ */
 interface UnitProfileFieldGroupsProps {
+  /** Nilai data formulir saat ini */
   formData: UpdateUnitProfilPayload;
+  /** Callback saat input teks atau textarea berubah */
   onInputChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }
 
+/**
+ * Komponen kelompok kolom isian data profil unit bank sampah.
+ */
 export default function UnitProfileFieldGroups({
   formData,
   onInputChange,

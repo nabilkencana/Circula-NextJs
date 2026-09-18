@@ -1,3 +1,19 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Kontainer Tabel Buku Induk Nasabah Admin
+ *
+ * File: src/components/admin-nasabah/NasabahTableCard.tsx
+ * Deskripsi:
+ * Menggabungkan Header Tabel (ekspor CSV), Body Tabel responsif (dengan horizontal
+ * scrollbar untuk perangkat sempit), baris data terpetakan, empty state bila pencarian nihil,
+ * serta kontrol paginasi di bagian footer kartu.
+ *
+ * Standar Teknis UKK RPL:
+ * - Pembungkus kartu tabel terpadu dengan border-radius 3xl dan shadow halus.
+ * - Penanganan empty state informatif saat hasil penyaringan data nihil.
+ * - Terintegrasi dengan subkomponen Header, Row, dan Pagination.
+ */
+
 import React from "react";
 import { NasabahRecord } from "@/types/adminNasabah";
 import NasabahTableHeader from "./NasabahTableHeader";
@@ -5,19 +21,35 @@ import NasabahTableRow from "./NasabahTableRow";
 import NasabahPagination from "./NasabahPagination";
 import { UserX } from "lucide-react";
 
+/**
+ * Properti komponen NasabahTableCard.
+ */
 interface NasabahTableCardProps {
+  /** Record data nasabah pada halaman saat ini */
   records: NasabahRecord[];
+  /** Jumlah total seluruh nasabah unit */
   totalCount: number;
+  /** Jumlah record nasabah hasil filter pencarian */
   totalFilteredCount: number;
+  /** Nomor halaman aktif saat ini */
   currentPage: number;
+  /** Jumlah total halaman paginasi */
   totalPages: number;
+  /** Callback saat halaman berpindah */
   onPageChange: (page: number) => void;
+  /** Callback saat tombol edit ditekan */
   onEdit: (record: NasabahRecord) => void;
+  /** Callback saat tombol lihat rincian ditekan */
   onView: (record: NasabahRecord) => void;
+  /** Callback saat tombol hapus ditekan */
   onDelete: (record: NasabahRecord) => void;
+  /** Callback saat tombol ekspor CSV ditekan */
   onExportCsv: () => void;
 }
 
+/**
+ * Komponen kontainer kartu tabel buku induk data nasabah.
+ */
 export default function NasabahTableCard({
   records,
   totalCount,

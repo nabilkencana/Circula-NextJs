@@ -1,3 +1,14 @@
+/**
+ * @file UnitFieldGroups.tsx
+ * @description Komponen kumpulan input form utama untuk registrasi operasional Unit Bank Sampah baru.
+ * Menyediakan masukan data unit, penanggung jawab lapangan, nomor kontak WhatsApp resmi (+62 prefix),
+ * username admin unit, serta kata sandi dengan toggle visibilitas dan validasi kesalahan secara real-time.
+ * Dirancang dengan gaya antarmuka modern Circula, mematuhi standar UI/UX profesional Next.js 15.
+ *
+ * @author Tim Pengembang Circula
+ * @version 1.0.0
+ */
+
 "use client";
 
 import React from "react";
@@ -12,19 +23,40 @@ import {
 } from "lucide-react";
 import { RegisterAdminBankPayload } from "@/types/adminAuth";
 
+/**
+ * @interface UnitFieldGroupsProps
+ * @description Kontrak properti data dan event handler untuk grup input form registrasi unit bank sampah.
+ */
 interface UnitFieldGroupsProps {
+  /** Nilai state form terkini yang mencakup identitas unit, penanggung jawab, kontak, dan kredensial */
   formData: RegisterAdminBankPayload;
+  /** Pemetaan pesan galat validasi per nama field (contoh: errors.namaUnit, errors.password) */
   errors: Record<string, string>;
+  /** Status toggle penampakan karakter kata sandi (true = teks biasa, false = karakter tersembunyi) */
   showPassword: boolean;
+  /** Status toggle penampakan karakter konfirmasi kata sandi */
   showConfirmPassword: boolean;
+  /** Callback mutasi state saat pengguna mengetikkan teks pada input terkait */
   onInputChange: (
     field: keyof RegisterAdminBankPayload,
     value: string | boolean
   ) => void;
+  /** Handler fungsi untuk membalikkan (toggle) visibilitas kata sandi utama */
   onToggleShowPassword: () => void;
+  /** Handler fungsi untuk membalikkan (toggle) visibilitas kata sandi konfirmasi */
   onToggleShowConfirmPassword: () => void;
 }
 
+/**
+ * Komponen UnitFieldGroups
+ * 
+ * Merender daftar kolom input form terstruktur dengan feedback validasi instan:
+ * 1. Nama Resmi Unit Bank Sampah (dengan ikon Gedung)
+ * 2. Nama Lengkap Penanggung Jawab / Ketua Pengelola
+ * 3. Nomor WhatsApp Operasional (dilengkapi badge kode negara +62 terintegrasi)
+ * 4. Username Kredensial Admin Unit (font monospace)
+ * 5. Kata Sandi Akun & Konfirmasi Sandi dengan tombol interaktif buka/tutup mata sandi
+ */
 export default function UnitFieldGroups({
   formData,
   errors,
@@ -45,9 +77,11 @@ export default function UnitFieldGroups({
           Nama Unit Bank Sampah <span className="text-red-500">*</span>
         </label>
         <div className="relative">
+          {/* Ikon Dekoratif Gedung */}
           <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-text-secondary">
             <Building2 className="w-4 h-4" />
           </div>
+          {/* Input Teks Nama Unit */}
           <input
             type="text"
             id="namaUnit"
@@ -62,6 +96,7 @@ export default function UnitFieldGroups({
             } rounded-xl text-sm text-text-primary placeholder:text-gray-400 focus:outline-none focus:ring-1 transition-all`}
           />
         </div>
+        {/* Pesan Kesalahan / Petunjuk Penamaan */}
         {errors.namaUnit ? (
           <p className="text-xs text-red-600 mt-1 font-medium">
             {errors.namaUnit}
@@ -73,9 +108,9 @@ export default function UnitFieldGroups({
         )}
       </div>
 
-      {/* Row 2: Nama Lengkap Penanggung Jawab & WhatsApp */}
+      {/* Row 2: Nama Lengkap Penanggung Jawab & WhatsApp Operasional */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* Nama Pengelola */}
+        {/* Sub-field A: Nama Pengelola */}
         <div>
           <label
             htmlFor="namaPengelola"
@@ -84,9 +119,11 @@ export default function UnitFieldGroups({
             Nama Lengkap Penanggung Jawab <span className="text-red-500">*</span>
           </label>
           <div className="relative">
+            {/* Ikon Pengguna Lapangan */}
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-text-secondary">
               <User className="w-4 h-4" />
             </div>
+            {/* Input Nama Pengelola */}
             <input
               type="text"
               id="namaPengelola"
@@ -101,6 +138,7 @@ export default function UnitFieldGroups({
               } rounded-xl text-sm text-text-primary placeholder:text-gray-400 focus:outline-none focus:ring-1 transition-all`}
             />
           </div>
+          {/* Notifikasi Galat Nama Pengelola */}
           {errors.namaPengelola && (
             <p className="text-xs text-red-600 mt-1 font-medium">
               {errors.namaPengelola}
@@ -108,7 +146,7 @@ export default function UnitFieldGroups({
           )}
         </div>
 
-        {/* WhatsApp Operasional with +62 Badge */}
+        {/* Sub-field B: WhatsApp Operasional with Prefix +62 Badge */}
         <div>
           <label
             htmlFor="telp"
@@ -117,10 +155,12 @@ export default function UnitFieldGroups({
             Nomor Kontak<span className="text-red-500">*</span>
           </label>
           <div className="relative flex rounded-xl border border-gray-200 bg-inset-gray overflow-hidden focus-within:border-dark-container focus-within:ring-1 focus-within:ring-dark-container">
+            {/* Prefix Kode Negara Indonesia +62 */}
             <div className="flex items-center px-3 bg-gray-100 border-r border-gray-200 text-xs font-bold text-text-primary select-none gap-1">
               <Phone className="w-3.5 h-3.5 text-text-secondary" />
               <span>+62</span>
             </div>
+            {/* Input Angka Telepon Seluler */}
             <input
               type="tel"
               id="telp"
@@ -133,6 +173,7 @@ export default function UnitFieldGroups({
               }`}
             />
           </div>
+          {/* Notifikasi Galat Nomor Kontak */}
           {errors.telp && (
             <p className="text-xs text-red-600 mt-1 font-medium">
               {errors.telp}
@@ -141,9 +182,9 @@ export default function UnitFieldGroups({
         </div>
       </div>
 
-      {/* Row 3: Username & Kata Sandi */}
+      {/* Row 3: Username Akun & Kata Sandi */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* Username */}
+        {/* Sub-field A: Username */}
         <div>
           <label
             htmlFor="username"
@@ -152,9 +193,11 @@ export default function UnitFieldGroups({
             Username Akun Admin <span className="text-red-500">*</span>
           </label>
           <div className="relative">
+            {/* Ikon AtSign */}
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-text-secondary">
               <AtSign className="w-4 h-4" />
             </div>
+            {/* Input Karakter Username Monospace */}
             <input
               type="text"
               id="username"
@@ -170,6 +213,7 @@ export default function UnitFieldGroups({
               } rounded-xl text-sm text-text-primary placeholder:text-gray-400 focus:outline-none focus:ring-1 transition-all font-mono`}
             />
           </div>
+          {/* Pesan Kesalahan / Petunjuk Login */}
           {errors.username ? (
             <p className="text-xs text-red-600 mt-1 font-medium">
               {errors.username}
@@ -181,7 +225,7 @@ export default function UnitFieldGroups({
           )}
         </div>
 
-        {/* Kata Sandi */}
+        {/* Sub-field B: Kata Sandi Akun */}
         <div>
           <label
             htmlFor="password"
@@ -190,9 +234,11 @@ export default function UnitFieldGroups({
             Kata Sandi Akun <span className="text-red-500">*</span>
           </label>
           <div className="relative">
+            {/* Ikon Gembok */}
             <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-text-secondary">
               <Lock className="w-4 h-4" />
             </div>
+            {/* Input Kata Sandi */}
             <input
               type={showPassword ? "text" : "password"}
               id="password"
@@ -206,6 +252,7 @@ export default function UnitFieldGroups({
                   : "border-gray-200 focus:border-dark-container focus:ring-dark-container"
               } rounded-xl text-sm text-text-primary placeholder:text-gray-400 focus:outline-none focus:ring-1 transition-all`}
             />
+            {/* Tombol Interaktif Pengubah Visibilitas Sandi */}
             <button
               type="button"
               onClick={onToggleShowPassword}
@@ -219,6 +266,7 @@ export default function UnitFieldGroups({
               )}
             </button>
           </div>
+          {/* Notifikasi Galat Validasi Sandi */}
           {errors.password && (
             <p className="text-xs text-red-600 mt-1 font-medium">
               {errors.password}
@@ -236,9 +284,11 @@ export default function UnitFieldGroups({
           Konfirmasi Kata Sandi <span className="text-red-500">*</span>
         </label>
         <div className="relative">
+          {/* Ikon Gembok Pengaman */}
           <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-text-secondary">
             <Lock className="w-4 h-4" />
           </div>
+          {/* Input Konfirmasi Ulang Sandi */}
           <input
             type={showConfirmPassword ? "text" : "password"}
             id="confirmPassword"
@@ -252,6 +302,7 @@ export default function UnitFieldGroups({
                 : "border-gray-200 focus:border-dark-container focus:ring-dark-container"
             } rounded-xl text-sm text-text-primary placeholder:text-gray-400 focus:outline-none focus:ring-1 transition-all`}
           />
+          {/* Tombol Interaktif Pengubah Visibilitas Konfirmasi Sandi */}
           <button
             type="button"
             onClick={onToggleShowConfirmPassword}
@@ -269,6 +320,7 @@ export default function UnitFieldGroups({
             )}
           </button>
         </div>
+        {/* Notifikasi Galat Kesesuaian Konfirmasi Sandi */}
         {errors.confirmPassword && (
           <p className="text-xs text-red-600 mt-1 font-medium">
             {errors.confirmPassword}

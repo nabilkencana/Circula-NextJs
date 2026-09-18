@@ -1,11 +1,34 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Hero Header & Ringkasan Telemetri Nasabah Admin
+ *
+ * File: src/components/admin-nasabah/NasabahHero.tsx
+ * Deskripsi:
+ * Menampilkan kartu banner header visual bertema dark-container yang merangkum
+ * 3 indikator metrik utama nasabah: Total Nasabah Aktif terdaftar, Akumulasi Poin
+ * Beredar yang siap diklaim, dan status Sinkronisasi Otomatis dengan aplikasi warga.
+ *
+ * Standar Teknis UKK RPL:
+ * - Komponen presentasional React dengan strict typing.
+ * - Desain card dark-container modern dengan aksen gradien glow subtle.
+ * - Format angka lokal Indonesia (`toLocaleString("id-ID")`).
+ */
+
 import React from "react";
 import { Users, Coins, UserCheck } from "lucide-react";
 import { NasabahStats } from "@/types/adminNasabah";
 
+/**
+ * Properti komponen NasabahHero.
+ */
 interface NasabahHeroProps {
+  /** Objek ringkasan metrik statistik nasabah */
   stats: NasabahStats;
 }
 
+/**
+ * Komponen banner visual hero buku induk data nasabah.
+ */
 export default function NasabahHero({ stats }: NasabahHeroProps) {
   return (
     <section

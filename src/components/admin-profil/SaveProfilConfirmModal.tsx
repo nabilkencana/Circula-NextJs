@@ -1,18 +1,45 @@
+/**
+ * CIRCULA - Platform Digital Bank Sampah & Ekonomi Sirkular Modern
+ * Modul: Komponen Dialog Konfirmasi Perubahan Profil Unit Admin
+ *
+ * File: src/components/admin-profil/SaveProfilConfirmModal.tsx
+ * Deskripsi:
+ * Menampilkan jendela dialog pratinjau rangkuman perubahan data (diff check)
+ * sebelum pembaruan profil resmi unit bank sampah disimpan ke database.
+ *
+ * Standar Teknis UKK RPL:
+ * - Pratinjau perubahan transparan (nama unit, pengelola, telp, jam buka, kapasitas).
+ * - Peringatan konsekuensi legalitas struk transaksi dan nota resmi.
+ * - Tombol konfirmasi dengan animasi pemuatan saat `isSaving` bernilai true.
+ */
+
 "use client";
 
 import React from "react";
 import { AlertCircle, Building2, Check, X, ShieldCheck } from "lucide-react";
 import { UnitBankSampahDetail, UpdateUnitProfilPayload } from "@/types/adminProfil";
 
+/**
+ * Properti komponen SaveProfilConfirmModal.
+ */
 interface SaveProfilConfirmModalProps {
+  /** Penanda apakah modal dialog terbuka */
   isOpen: boolean;
+  /** Data profil unit saat ini */
   unitData: UnitBankSampahDetail | null;
+  /** Isian data formulir baru */
   formData: UpdateUnitProfilPayload;
+  /** Status indikator penyimpanan asinkron */
   isSaving: boolean;
+  /** Callback menutup modal */
   onClose: () => void;
+  /** Callback konfirmasi eksekusi penyimpanan */
   onConfirm: () => void;
 }
 
+/**
+ * Komponen modal konfirmasi penyimpanan perubahan profil unit operasional.
+ */
 export default function SaveProfilConfirmModal({
   isOpen,
   unitData,
