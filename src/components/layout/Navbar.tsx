@@ -104,9 +104,13 @@ export default function Navbar({
   const isLoggedIn = isNasabah || isAdmin;
 
   // Penghitungan animasi peningkatan poin dengan durasi 650 milidetik
-  const currentPoints = livePoints ?? (userPoints ?? 150);
+  const currentPoints = livePoints ?? (userPoints ?? 0);
   const animatedPoints = useCountUp(currentPoints, 650);
-  const currentName = sessionUser?.namaLengkap || sessionUser?.username || userName || "Budi Santoso";
+  const currentName =
+    sessionUser?.namaLengkap ||
+    sessionUser?.username ||
+    userName ||
+    (isAdmin ? "Administrator Unit" : "Nasabah Circula");
 
   // Handler keluar sesi (logout) dan pengalihan ke halaman login
   const handleLogout = () => {
@@ -129,6 +133,11 @@ export default function Navbar({
             isActive: pathname.startsWith("/admin/transaksi"),
           },
           {
+            name: "Data Nasabah",
+            href: "/admin/nasabah",
+            isActive: pathname.startsWith("/admin/nasabah"),
+          },
+          {
             name: "Katalog Sampah",
             href: "/admin/kategori-sampah",
             isActive:
@@ -139,6 +148,11 @@ export default function Navbar({
             name: "Kelola Hadiah",
             href: "/admin/hadiah",
             isActive: pathname.startsWith("/admin/hadiah"),
+          },
+          {
+            name: "Laporan",
+            href: "/admin/laporan",
+            isActive: pathname.startsWith("/admin/laporan"),
           },
         ]
       : [
@@ -277,13 +291,22 @@ export default function Navbar({
                     </div>
                     {/* Tautan Pintas ke Dashboard bila pengguna adalah Admin */}
                     {isAdmin && (
-                      <Link
-                        href="/admin/dashboard"
-                        onClick={() => setProfileDropdownOpen(false)}
-                        className="block px-3.5 py-2 text-xs font-semibold text-text-primary hover:bg-gray-50 transition-colors"
-                      >
-                        Dashboard Admin
-                      </Link>
+                      <>
+                        <Link
+                          href="/admin/dashboard"
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className="block px-3.5 py-2 text-xs font-semibold text-text-primary hover:bg-gray-50 transition-colors"
+                        >
+                          Dashboard Admin
+                        </Link>
+                        <Link
+                          href="/admin/profil"
+                          onClick={() => setProfileDropdownOpen(false)}
+                          className="block px-3.5 py-2 text-xs font-semibold text-text-primary hover:bg-gray-50 transition-colors"
+                        >
+                          Pengaturan Profil Unit
+                        </Link>
+                      </>
                     )}
                     {/* Tombol Logout Sesi */}
                     <button

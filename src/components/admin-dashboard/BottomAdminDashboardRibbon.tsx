@@ -33,7 +33,7 @@ interface BottomAdminDashboardRibbonProps {
  * @returns {JSX.Element} Pita informasi berdesain kontainer gelap dengan ikon sertifikasi keamanan.
  */
 export default function BottomAdminDashboardRibbon({
-  unitNama = "Bank Sampah Asri Jaya",
+  unitNama = "Unit Bank Sampah Circula",
   onNavigateProfil,
 }: BottomAdminDashboardRibbonProps) {
   return (

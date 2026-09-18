@@ -60,7 +60,7 @@ export default function ComplianceAuditSignatureCard({
             {compliance.penanggungJawab}
           </div>
           <div className="text-[11px] text-gray-500">
-            Penanggung Jawab Bank Sampah Asri Jaya
+            Penanggung Jawab Unit Bank Sampah
           </div>
         </div>
 

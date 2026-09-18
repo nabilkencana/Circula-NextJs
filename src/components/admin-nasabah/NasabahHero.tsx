@@ -67,7 +67,9 @@ export default function NasabahHero({ stats }: NasabahHeroProps) {
               </div>
             </div>
             <p className="text-xs text-gray-400 mt-3 pt-3 border-t border-white/5">
-              142 nasabah terdaftar di bawah unit Bank Sampah Asri Jaya.
+              {stats.totalNasabah > 0
+                ? `${stats.totalNasabah} nasabah aktif terdaftar pada unit operasional.`
+                : "Nasabah aktif terdaftar pada unit operasional."}
             </p>
           </div>
 

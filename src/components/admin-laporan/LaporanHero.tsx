@@ -43,7 +43,7 @@ export default function LaporanHero({ data }: LaporanHeroProps) {
         </h1>
         <p className="text-xs sm:text-sm text-gray-300 leading-relaxed max-w-3xl">
           Rekapitulasi berkala volume limbah terpilah, konversi tonase metrik, perkiraan pembayaran
-          kas, dan peredaran poin reward pada unit operasional Bank Sampah Asri Jaya.
+          kas, dan peredaran poin reward pada unit operasional bank sampah terdaftar.
         </p>
       </div>
 

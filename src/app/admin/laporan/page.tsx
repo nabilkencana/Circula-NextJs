@@ -57,7 +57,7 @@ export default function AdminLaporanPage() {
           Laporan Rekapitulasi Penimbangan &amp; Valuasi Bank Sampah Circula
         </h1>
         <p className="text-xs text-gray-600 mt-1">
-          Unit Operasional Bank Sampah Asri Jaya (#JKT-042) • Periode: {laporanData.periodeLabel}
+          Unit Operasional Bank Sampah Circula • Periode: {laporanData.periodeLabel}
         </p>
       </div>
 
