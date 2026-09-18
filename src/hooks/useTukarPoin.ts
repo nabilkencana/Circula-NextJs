@@ -41,11 +41,11 @@ import {
  * Digunakan sebagai nilai fallback awal sebelum data riil dari backend termuat.
  */
 const DEFAULT_SALDO_STATE: SaldoNasabahSummary = {
-  saldoPoinSaatIni: 350,
-  saldoPoinAktif: 350,
-  nilaiKonversiRupiah: 122500,
-  poinTerpakaiBulanIni: 100,
-  totalTransaksiSelesai: 14,
+  saldoPoinSaatIni: 0,
+  saldoPoinAktif: 0,
+  nilaiKonversiRupiah: 0,
+  poinTerpakaiBulanIni: 0,
+  totalTransaksiSelesai: 0,
 };
 
 export function useTukarPoin(initialItems: HadiahItem[] = []) {

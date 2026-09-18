@@ -10,6 +10,10 @@ import {
 import {
   getKategoriSampah,
 } from "@/services/kategoriSampahService";
+import {
+  getDashboardStats,
+  DashboardStats,
+} from "@/services/dashboardService";
 
 /**
  * Custom Hook Manajemen Katalog Kategori Sampah (`useKatalogSampah`)
@@ -31,6 +35,8 @@ import {
 export function useKatalogSampah(initialItems: KategoriSampah[] = []) {
   // State daftar kategori sampah
   const [items, setItems] = useState<KategoriSampah[]>(initialItems);
+  // State statistik platform real dari backend
+  const [stats, setStats] = useState<DashboardStats | null>(null);
   // Indikator status pemuatan data
   const [isLoading, setIsLoading] = useState<boolean>(initialItems.length === 0);
   // State kriteria filter dan pencarian
@@ -46,7 +52,7 @@ export function useKatalogSampah(initialItems: KategoriSampah[] = []) {
     null
   );
 
-  // Pemuatan data kategori sampah dari API backend di sisi klien
+  // Pemuatan data kategori sampah & statistik platform dari API backend di sisi klien
   useEffect(() => {
     let isMounted = true;
     async function loadData() {
@@ -54,9 +60,17 @@ export function useKatalogSampah(initialItems: KategoriSampah[] = []) {
         setIsLoading(true);
       }
       try {
-        const data = await getKategoriSampah();
-        if (isMounted && data && data.length > 0) {
-          setItems(data);
+        const [data, statsData] = await Promise.all([
+          getKategoriSampah(),
+          getDashboardStats(),
+        ]);
+        if (isMounted) {
+          if (data && data.length > 0) {
+            setItems(data);
+          }
+          if (statsData) {
+            setStats(statsData);
+          }
         }
       } finally {
         if (isMounted) {
@@ -154,6 +168,7 @@ export function useKatalogSampah(initialItems: KategoriSampah[] = []) {
 
   return {
     items,
+    stats,
     filteredItems,
     isLoading,
     filterState,
@@ -168,4 +183,5 @@ export function useKatalogSampah(initialItems: KategoriSampah[] = []) {
     closeEstimator,
   };
 }
+
 

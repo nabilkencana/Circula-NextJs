@@ -53,7 +53,7 @@ function TukarPoinContent() {
   } = useTukarPoin();
 
   // State identitas nasabah aktif untuk personalisasi salam di banner dan navbar
-  const [currentUserName, setCurrentUserName] = useState<string>("Budi Santoso");
+  const [currentUserName, setCurrentUserName] = useState<string>("Nasabah Circula");
 
   // Inisialisasi data nasabah saat komponen dimuat di sisi klien (hydration safe)
   useEffect(() => {
@@ -68,7 +68,7 @@ function TukarPoinContent() {
       {/* ================= GLOBAL NAVBAR ================= */}
       <Navbar
         userRole="nasabah"
-        userPoints={saldoSummary.saldoPoinAktif ?? 150}
+        userPoints={saldoSummary.saldoPoinAktif ?? 0}
         userName={currentUserName}
       />
 

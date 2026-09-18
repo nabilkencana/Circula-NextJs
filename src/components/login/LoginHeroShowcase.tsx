@@ -12,11 +12,27 @@
 
 "use client"; // Komponen interaktif di sisi klien
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image"; // Komponen optimasi gambar Next.js
 import { Building2, Star } from "lucide-react"; // Ikon: Gedung Kantor Unit & Bintang Rating
+import { getDashboardStats } from "@/services/dashboardService";
 
 export default function LoginHeroShowcase() {
+  const [totalNasabah, setTotalNasabah] = useState<number>(0);
+  const [totalKategori, setTotalKategori] = useState<number>(0);
+
+  useEffect(() => {
+    let isMounted = true;
+    getDashboardStats().then((data) => {
+      if (isMounted) {
+        if (data.totalNasabah > 0) setTotalNasabah(data.totalNasabah);
+        if (data.totalKategoriSampah > 0) setTotalKategori(data.totalKategoriSampah);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
   return (
     /* Kontainer Utama Hero Card Sisi Kiri */
     <div className="w-full rounded-4xl overflow-hidden relative p-8 sm:p-10 lg:p-12 flex flex-col justify-between min-h-145 lg:min-h-160 bg-dark-container shadow-2xl border border-white/10">
@@ -58,7 +74,9 @@ export default function LoginHeroShowcase() {
         </div>
         <div>
           <h4 className="text-xs sm:text-sm font-bold text-white leading-snug">
-            Terhubung ke 140+ Unit Bank Sampah
+            {totalKategori > 0
+              ? `${totalKategori} Kategori Sampah Terverifikasi`
+              : "Terhubung ke Unit Bank Sampah"}
           </h4>
           <p className="text-[11px] sm:text-xs text-gray-300 mt-0.5 leading-normal">
             Sinkronisasi neraca timbangan real-time di seluruh wilayah
@@ -83,7 +101,7 @@ export default function LoginHeroShowcase() {
           </div>
           <div>
             <p className="text-xs font-bold text-white leading-tight">
-              +12.400 Nasabah
+              {totalNasabah > 0 ? `${totalNasabah} Nasabah Aktif` : "Nasabah Terdaftar"}
             </p>
             <p className="text-[11px] text-gray-400">
               Telah bergabung aktif menyetor

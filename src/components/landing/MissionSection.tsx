@@ -3,6 +3,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, CheckCircle2, Coins, FileText } from "lucide-react";
 
+interface MissionSectionProps {
+  /** Total berat sampah dalam kg dari API dashboard stats */
+  totalBeratKg?: number;
+  /** Total transaksi penyetoran berhasil dari API */
+  totalTransaksi?: number;
+}
+
 /**
  * Komponen Seksi Misi & Transparansi Insentif Lingkungan (MissionSection)
  *
@@ -12,11 +19,15 @@ import { ArrowRight, CheckCircle2, Coins, FileText } from "lucide-react";
  * 2. Reward Poin Fleksibel: Kemudahan konversi poin ke sembako, pulsa, dan voucher belanja.
  * 3. Pencatatan Nota Digital Terverifikasi: Dokumentasi tanda terima penimbangan resmi (STR-XXXX).
  *
- * Di sisi kanan, terdapat kartu media visual fasilitas logistik berskala industri (250+ Ton/Bulan).
+ * Di sisi kanan, terdapat kartu media visual fasilitas logistik dan volume sampah real dari API.
  *
+ * @param {MissionSectionProps} props - Metrik volume dan transaksi dari server
  * @returns JSX Element seksi misi sirkular
  */
-export default function MissionSection() {
+export default function MissionSection({
+  totalBeratKg = 0,
+  totalTransaksi = 0,
+}: MissionSectionProps) {
   return (
     <section className="py-20 px-4 sm:px-6 max-w-7xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
@@ -116,12 +127,16 @@ export default function MissionSection() {
                     Fasilitas Daur Ulang Sirkular
                   </p>
                   <h4 className="text-sm sm:text-base font-bold mt-0.5 text-white">
-                    Kapasitas Operasional: 250+ Metrik Ton / Bulan
+                    {totalBeratKg > 0
+                      ? `Volume Terkelola: ${totalBeratKg} Kg Sampah Terpilah`
+                      : "Kapasitas Operasional: 250+ Metrik Ton / Bulan"}
                   </h4>
                 </div>
                 <div className="hidden sm:block text-right">
                   <span className="text-xs bg-dark-widget text-brand-neon border border-brand-neon/30 px-2.5 py-1 rounded-full font-bold">
-                    Aktif 24/7
+                    {totalTransaksi > 0
+                      ? `${totalTransaksi} Transaksi Sukses`
+                      : "Aktif 24/7"}
                   </span>
                 </div>
               </div>
@@ -132,3 +147,4 @@ export default function MissionSection() {
     </section>
   );
 }
+

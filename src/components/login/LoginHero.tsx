@@ -70,7 +70,7 @@ export default function LoginHero() {
             </div>
             <div>
               <p className="text-xs sm:text-sm font-semibold text-white leading-snug">
-                140+ Unit Bank Sampah Terkoneksi Realtime
+                Sinkronisasi Unit Bank Sampah Realtime
               </p>
             </div>
           </div>

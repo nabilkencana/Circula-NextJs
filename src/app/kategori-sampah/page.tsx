@@ -30,6 +30,8 @@ import { useKatalogSampah } from "@/hooks/useKatalogSampah";
 export default function KategoriSampahPage() {
   // Destrukturisasi state dan handler dari custom hook katalog sampah
   const {
+    items,
+    stats,
     filteredItems,
     isLoading,
     filterState,
@@ -48,8 +50,8 @@ export default function KategoriSampahPage() {
       <Navbar />
 
       <main className="flex-1">
-        {/* Bagian Hero: Judul, Subtitle, dan Sorotan Metrik Kategori */}
-        <KatalogHero />
+        {/* Bagian Hero: Judul, Subtitle, dan Sorotan Metrik Kategori (Data Real API) */}
+        <KatalogHero categories={items} stats={stats} />
 
         {/* Bilah Alat Pencarian & Filter Kategori Berdasarkan Jenis */}
         <KatalogToolbar

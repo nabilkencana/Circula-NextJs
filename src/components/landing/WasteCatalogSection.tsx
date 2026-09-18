@@ -4,35 +4,53 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronRight, Calculator, ArrowRight } from "lucide-react";
-import { UKK_WASTE_CATEGORIES } from "@/data/landingData";
+import { WasteCategory } from "@/types";
+
+/**
+ * @interface WasteCatalogSectionProps
+ * @description Props untuk komponen WasteCatalogSection.
+ */
+interface WasteCatalogSectionProps {
+  /**
+   * Daftar kategori sampah yang telah di-fetch dari API oleh server component.
+   * Berisi data real (harga/poin aktual) atau fallback statis jika API error.
+   */
+  categories: WasteCategory[];
+}
 
 /**
  * Komponen Seksi Katalog & Kalkulator Nilai Sampah Daur Ulang (WasteCatalogSection)
  *
  * Komponen interaktif di beranda yang menghadirkan:
- * 1. Grid 4 Kartu Sampah Baku Nasional (Plastik, Kertas, Logam, Kaca) sesuai spesifikasi UKK.
- *    - Menampilkan visual material beresolusi tinggi, badge kategori, harga beli per kg (Rp/kg),
- *      dan bonus poin per kg.
- *    - Tombol cepat untuk langsung mengajukan setor sampah (`/setor-sampah?kategori=[id]`).
- * 2. Kalkulator Simulasi Cepat (Live Estimator):
- *    - Pengguna dapat memilih kategori sampah dari dropdown.
- *    - Menggeser slider berat sampah (0.5 kg hingga 50 kg dengan step 0.5 kg).
- *    - Menghitung secara reaktif estimasi pencairan uang rupiah dan akumulasi poin yang diperoleh.
- * 3. Tombol tautan menuju indeks komprehensif 6+ jenis sampah (`/kategori-sampah`).
+ * 1. Grid Kartu Kategori Sampah dengan data REAL dari API backend:
+ *    - Harga beli per kg (Rp/kg) sesuai konfigurasi admin unit saat ini.
+ *    - Poin reward per kg sesuai katalog terbaru.
+ *    - Nama kategori, deskripsi syarat kelayakan setor.
+ * 2. Kalkulator Simulasi Cepat (Live Estimator) berbasis data harga real:
+ *    - Pengguna memilih kategori sampah dari dropdown yang berisi data API.
+ *    - Slider berat (0.5 kg - 50 kg).
+ *    - Kalkulasi estimasi rupiah & poin secara reaktif.
+ * 3. Tombol tautan menuju indeks komprehensif di `/kategori-sampah`.
  *
+ * @param {WasteCatalogSectionProps} props - Kategori sampah dari server.
  * @returns JSX Element seksi katalog sampah dan kalkulator interaktif
  */
-export default function WasteCatalogSection() {
-  // State indeks kategori sampah yang dipilih untuk kalkulator simulasi
+export default function WasteCatalogSection({ categories }: WasteCatalogSectionProps) {
+  // State indeks kategori yang dipilih untuk kalkulator (default pilihan pertama)
   const [selectedCalcCategory, setSelectedCalcCategory] = useState(0);
-  // State bobot estimasi dalam satuan kilogram (default 5 kg)
+  // State bobot estimasi dalam satuan kilogram
   const [calcWeight, setCalcWeight] = useState(5);
 
-  // Ambil objek kategori aktif berdasarkan indeks terpilih
-  const activeCategory = UKK_WASTE_CATEGORIES[selectedCalcCategory];
-  // Hitung estimasi penerimaan kas rupiah dan perolehan poin secara reaktif
-  const estimatedRupiah = Math.round(calcWeight * activeCategory.pricePerKg);
-  const estimatedPoints = Math.round(calcWeight * activeCategory.pointsPerKg);
+  // Ambil kategori aktif yang sedang dipilih di kalkulator
+  const activeCategory = categories[selectedCalcCategory] ?? categories[0];
+
+  // Hitung estimasi rupiah dan poin secara reaktif dari harga real API
+  const estimatedRupiah = activeCategory
+    ? Math.round(calcWeight * activeCategory.pricePerKg)
+    : 0;
+  const estimatedPoints = activeCategory
+    ? Math.round(calcWeight * activeCategory.pointsPerKg)
+    : 0;
 
   return (
     <section id="katalog-sampah" className="py-16 px-4 sm:px-6 max-w-7xl mx-auto">
@@ -42,14 +60,14 @@ export default function WasteCatalogSection() {
           Nilai Tukar Sampah Daur Ulang Hari Ini
         </h2>
         <p className="text-text-secondary text-sm sm:text-base mt-2.5 leading-relaxed">
-          Standar baku acuan harga beli per kilogram (Rp/kg) dan reward poin resmi yang
-          diperbarui secara berkala mengikuti indeks pasar daur ulang nasional.
+          Harga beli per kilogram (Rp/kg) dan reward poin resmi langsung dari sistem
+          admin unit — diperbarui secara real-time mengikuti konfigurasi terkini.
         </p>
       </div>
 
-      {/* ================= GRID 4 KARTU MATERIAL SAMPAH UKK ================= */}
+      {/* ================= GRID KARTU MATERIAL SAMPAH (DATA REAL API) ================= */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
-        {UKK_WASTE_CATEGORIES.map((cat) => (
+        {categories.map((cat) => (
           <div
             key={cat.id}
             className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group hover:-translate-y-1"
@@ -72,7 +90,7 @@ export default function WasteCatalogSection() {
               </div>
             </div>
 
-            {/* Konten Nama, Deskripsi Kelayakan, & Tarif Penimbangan */}
+            {/* Konten Nama, Deskripsi, & Tarif Penimbangan Real */}
             <div className="p-5 flex-1 flex flex-col justify-between">
               <div>
                 <h3 className="font-bold text-base text-text-primary leading-snug group-hover:text-emerald-700 transition-colors">
@@ -83,7 +101,7 @@ export default function WasteCatalogSection() {
                 </p>
               </div>
 
-              {/* Kotak Tarif Harga Beli & Bonus Poin */}
+              {/* Kotak Tarif Harga Beli Real & Bonus Poin Real */}
               <div className="mt-5 pt-4 border-t border-gray-200 bg-inset-gray -mx-5 -mb-5 p-4 rounded-b-2xl">
                 <div className="flex items-center justify-between mb-3">
                   <div>
@@ -119,7 +137,7 @@ export default function WasteCatalogSection() {
         ))}
       </div>
 
-      {/* ================= SIMULASI CEPAT KALKULATOR INTERAKTIF ================= */}
+      {/* ================= KALKULATOR INTERAKTIF BERBASIS HARGA REAL ================= */}
       <div className="mt-12 bg-inset-gray rounded-3xl p-6 sm:p-8 border border-gray-200">
         <div className="max-w-3xl mx-auto">
           {/* Header Kalkulator */}
@@ -132,14 +150,14 @@ export default function WasteCatalogSection() {
                 Simulasi Cepat Penghitungan Nilai Setor
               </h3>
               <p className="text-xs text-text-secondary">
-                Hitung estimasi pencairan uang tunai dan poin yang akan Anda terima di loket unit.
+                Hitung estimasi berdasarkan harga real terkini dari sistem admin unit.
               </p>
             </div>
           </div>
 
-          {/* Form Input Dropdown Kategori & Slider Bobot */}
+          {/* Form Input Dropdown Kategori Real & Slider Bobot */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 items-end">
-            {/* Input Pilihan Kategori */}
+            {/* Dropdown Kategori dari Data Real API */}
             <div>
               <label className="text-xs font-bold text-text-primary block mb-2">
                 Pilih Kategori Sampah
@@ -149,7 +167,7 @@ export default function WasteCatalogSection() {
                 onChange={(e) => setSelectedCalcCategory(Number(e.target.value))}
                 className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-xs font-semibold text-text-primary focus:outline-none focus:border-black"
               >
-                {UKK_WASTE_CATEGORIES.map((c, i) => (
+                {categories.map((c, i) => (
                   <option key={c.id} value={i}>
                     {c.name} ({c.category})
                   </option>
@@ -175,7 +193,7 @@ export default function WasteCatalogSection() {
               />
             </div>
 
-            {/* Kartu Ringkasan Hasil Kalkulasi Simulasi */}
+            {/* Kartu Ringkasan Hasil Kalkulasi Berdasarkan Harga Real */}
             <div className="bg-white border border-gray-200 p-3.5 rounded-2xl flex items-center justify-between">
               <div>
                 <span className="text-[10px] text-gray-500 font-semibold block uppercase">
@@ -204,10 +222,11 @@ export default function WasteCatalogSection() {
           href="/kategori-sampah"
           className="inline-flex items-center gap-2 border border-gray-200 hover:border-dark-container text-text-primary font-bold px-7 py-3 rounded-full text-xs sm:text-sm hover:bg-inset-gray transition-all"
         >
-          <span>Lihat Seluruh Kategori Sampah Lengkap (6+ Material)</span>
+          <span>Lihat Seluruh Kategori Sampah Lengkap</span>
           <ArrowRight className="w-4 h-4 text-gray-500" />
         </Link>
       </div>
     </section>
   );
 }
+

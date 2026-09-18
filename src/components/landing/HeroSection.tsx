@@ -4,6 +4,24 @@ import Image from "next/image";
 import { ArrowRight, ArrowUpRight, Scale, TrendingUp } from "lucide-react";
 
 /**
+ * @interface HeroSectionProps
+ * @description Props data real dari server untuk widget statistik pada Hero Section.
+ */
+interface HeroSectionProps {
+  /**
+   * Total nasabah terdaftar pada unit bank sampah dari API `/dashboard/stats`.
+   * Jika bernilai 0 (API belum ada data / error), widget akan menampilkan teks
+   * placeholder yang informatif.
+   */
+  totalNasabah?: number;
+  /**
+   * Total kategori sampah aktif dari API `/dashboard/stats`.
+   * Digunakan untuk menampilkan jumlah kategori baku yang diterima unit.
+   */
+  totalKategori?: number;
+}
+
+/**
  * Komponen Hero Section Halaman Beranda (HeroSection)
  *
  * Komponen visual pembuka utama pada landing page Circula:
@@ -12,14 +30,38 @@ import { ArrowRight, ArrowUpRight, Scale, TrendingUp } from "lucide-react";
  * 3. Dua tombol CTA interaktif:
  *    - Tombol primer: Mengarahkan pengguna baru ke registrasi akun nasabah (`/register`).
  *    - Tombol sekunder: Mengarahkan pengunjung untuk mengecek indeks harga sampah terkini (`/kategori-sampah`).
- * 4. Floating Hero Deck (3 widget kartu nilai):
- *    - Widget 1: Bukti sosial nasabah aktif (12.000+ warga & 140+ unit bank sampah) dengan rating bintang 5.0.
+ * 4. Floating Hero Deck (3 widget kartu nilai) dengan data real dari API:
+ *    - Widget 1: Statistik nasabah aktif & jumlah kategori sampah dari `dashboard/stats`.
  *    - Widget 2: Fitur timbangan digital terkalibrasi presisi fraksi gram.
- *    - Widget 3: 4 kategori material baku nasional daur ulang.
+ *    - Widget 3: Jumlah kategori baku material daur ulang yang diterima.
  *
+ * @param {HeroSectionProps} props - Data statistik real dari server component.
  * @returns JSX Element hero section beranda
  */
-export default function HeroSection() {
+export default function HeroSection({
+  totalNasabah = 0,
+  totalKategori = 0,
+}: HeroSectionProps) {
+  /**
+   * Format angka nasabah untuk tampilan widget:
+   * - Jika > 0 dari API: tampil angka asli (contoh: "42 Nasabah")
+   * - Jika 0 (belum ada data): tampil placeholder teks "Nasabah Terdaftar"
+   */
+  const nasabahLabel =
+    totalNasabah > 0
+      ? `${totalNasabah.toLocaleString("id-ID")} Nasabah`
+      : "Nasabah Terdaftar";
+
+  /**
+   * Format jumlah kategori aktif:
+   * - Jika > 0 dari API: tampil angka nyata (contoh: "4 Kategori Aktif")
+   * - Jika 0: fallback ke teks deskriptif statis
+   */
+  const kategoriLabel =
+    totalKategori > 0
+      ? `${totalKategori} Kategori Sampah Aktif`
+      : "4 Kategori Baku Nasional";
+
   return (
     <section className="px-4 sm:px-6 pt-6 sm:pt-8 pb-8">
       <div className="max-w-7xl mx-auto rounded-[28px] bg-dark-container overflow-hidden text-white relative border border-white/10 shadow-2xl">
@@ -74,9 +116,9 @@ export default function HeroSection() {
             </Link>
           </div>
 
-          {/* ================= FLOATING HERO DECK (3 WIDGET INFORMASI) ================= */}
+          {/* ================= FLOATING HERO DECK (3 WIDGET STATISTIK REAL) ================= */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-12 pt-8 border-t border-white/10">
-            {/* Widget 1: Bukti Sosial Nasabah & Unit Aktif */}
+            {/* Widget 1: Statistik Nasabah Real dari API dashboard/stats */}
             <div className="bg-dark-widget rounded-2xl p-5 border border-white/12 backdrop-blur-sm flex flex-col justify-between hover:border-brand-neon/40 transition-all group">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex -space-x-2 overflow-hidden">
@@ -86,17 +128,31 @@ export default function HeroSection() {
                   <div className="h-8 w-8 rounded-full ring-2 ring-dark-container bg-emerald-800 flex items-center justify-center text-[11px] font-bold text-white">
                     SI
                   </div>
-                  <div className="h-8 w-8 rounded-full ring-2 ring-dark-container bg-brand-neon flex items-center justify-center text-[11px] font-bold text-dark-container">
-                    12k+
+                  <div className="h-8 w-8 rounded-full ring-2 ring-dark-container bg-brand-neon flex items-center justify-center text-[10px] font-bold text-dark-container">
+                    {totalNasabah > 0 ? `${totalNasabah}` : "★"}
                   </div>
                 </div>
                 <div className="flex text-amber-400 text-xs tracking-wider font-semibold">
                   ★★★★★ <span className="ml-1 text-white font-bold">5.0</span>
                 </div>
               </div>
+              {/* Teks statistik: tampil angka real jika tersedia, fallback jika tidak */}
               <p className="text-xs text-gray-200 leading-relaxed font-medium">
-                Dipercaya oleh <span className="text-brand-neon font-bold">12.000+ Nasabah</span>{" "}
-                Warga &amp; 140+ Unit Bank Sampah terverifikasi.
+                {totalNasabah > 0 ? (
+                  <>
+                    Dipercaya oleh{" "}
+                    <span className="text-brand-neon font-bold">
+                      {nasabahLabel}
+                    </span>{" "}
+                    &amp; {totalKategori > 0 ? `${totalKategori} kategori` : "banyak kategori"} sampah terverifikasi.
+                  </>
+                ) : (
+                  <>
+                    Dipercaya oleh{" "}
+                    <span className="text-brand-neon font-bold">nasabah aktif</span>{" "}
+                    &amp; unit bank sampah terverifikasi.
+                  </>
+                )}
               </p>
             </div>
 
@@ -114,13 +170,13 @@ export default function HeroSection() {
               </p>
             </div>
 
-            {/* Widget 3: Standar Baku 4 Kategori */}
+            {/* Widget 3: Jumlah Kategori Real dari API */}
             <div className="bg-dark-widget rounded-2xl p-5 border border-white/12 backdrop-blur-sm flex flex-col justify-between hover:border-brand-neon/40 transition-all group">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-8 h-8 rounded-lg bg-brand-neon/20 border border-brand-neon/40 flex items-center justify-center text-brand-neon">
                   <TrendingUp className="w-4 h-4" />
                 </div>
-                <h2 className="text-sm font-bold text-white">4 Kategori Baku Nasional</h2>
+                <h2 className="text-sm font-bold text-white">{kategoriLabel}</h2>
               </div>
               <p className="text-xs text-gray-300 leading-relaxed">
                 Plastik, Kertas, Logam, dan Kaca siap tampung dengan valuasi harga real-time
@@ -133,3 +189,4 @@ export default function HeroSection() {
     </section>
   );
 }
+

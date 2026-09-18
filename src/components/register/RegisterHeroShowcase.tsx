@@ -12,15 +12,29 @@
 
 "use client"; // Menandai komponen ini dieksekusi di sisi client (browser)
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image"; // Komponen optimasi gambar otomatis dari Next.js
 import { Building2, Star, Sparkles, ShieldCheck } from "lucide-react"; // Ikon vektor modern dari Lucide React
+import { getDashboardStats } from "@/services/dashboardService";
 
 /**
  * Komponen RegisterHeroShowcase
  * Menampilkan kartu hero sisi kiri pada layout split-screen registrasi.
  */
 export default function RegisterHeroShowcase() {
+  const [totalNasabah, setTotalNasabah] = useState<number>(0);
+
+  useEffect(() => {
+    let isMounted = true;
+    getDashboardStats().then((data) => {
+      if (isMounted && data.totalNasabah > 0) {
+        setTotalNasabah(data.totalNasabah);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
   return (
     /* Kontainer Utama Hero Card:
        - w-full: Memenuhi lebar kolom grid pembungkus (lg:col-span-5)
@@ -101,7 +115,7 @@ export default function RegisterHeroShowcase() {
           </div>
           <div>
             <p className="text-xs font-bold text-white leading-tight">
-              +12.400 Nasabah
+              {totalNasabah > 0 ? `${totalNasabah} Nasabah Aktif` : "Nasabah Terdaftar"}
             </p>
             <p className="text-[11px] text-gray-400">
               Telah terdaftar dan aktif menabung
